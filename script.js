@@ -1,13 +1,11 @@
 /* ╔══════════════════════════════════════════════════════════════════════╗
-   ║  Firebase initialisation – replace with your own project settings   ║
+   ║  1.  Firebase initialisation                                       ║
    ╚══════════════════════════════════════════════════════════════════════╝ */
-/* ── Firebase initialisation ─────────────────────────────────────────── */
-// measurementId is optional; you can include it or leave it out.
 const firebaseConfig = {
   apiKey:            "AIzaSyCYMR8LL_cfHNswh7nU8l4gwxWxKmiJOjc",
   authDomain:        "clanlife-project.firebaseapp.com",
   projectId:         "clanlife-project",
-  storageBucket:     "clanlife-project.appspot.com",   // <- must end with .appspot.com
+  storageBucket:     "clanlife-project.appspot.com",   // ← must end with .appspot.com
   messagingSenderId: "553812082452",
   appId:             "1:553812082452:web:0bb5f381c2d7b113d48c01",
   measurementId:     "G-4PPGL63VKN"
@@ -17,7 +15,7 @@ const auth = firebase.auth();
 const db   = firebase.firestore();
 
 /* ╔══════════════════════════════════════════════════════════════════════╗
-   ║  Biome data & helper functions                                      ║
+   ║  2.  Static data                                                    ║
    ╚══════════════════════════════════════════════════════════════════════╝ */
 const biomeDescriptions = {
   forest:    "Dense trees and filtered sunlight. A traditional and balanced home.",
@@ -35,13 +33,13 @@ function generateClan() {
   const suffixes = ["fur","claw","tail","whisker","pelt","step","fang","shade","leap","gaze"];
   return Array.from({ length: 10 }, () => ({
     name:
-      names[Math.floor(Math.random()*names.length)] +
-      suffixes[Math.floor(Math.random()*suffixes.length)]
+      names[Math.floor(Math.random() * names.length)] +
+      suffixes[Math.floor(Math.random() * suffixes.length)]
   }));
 }
 
 /* ╔══════════════════════════════════════════════════════════════════════╗
-   ║  DOM references                                                     ║
+   ║  3.  DOM references                                                 ║
    ╚══════════════════════════════════════════════════════════════════════╝ */
 const authModal   = document.getElementById("authModal");
 const authTitle   = document.getElementById("authTitle");
@@ -61,7 +59,7 @@ const uiModeSel = document.getElementById("uiModeSelect");
 const mainArea  = document.getElementById("mainContent");
 
 /* ╔══════════════════════════════════════════════════════════════════════╗
-   ║  Basic navigation & theming                                         ║
+   ║  4.  UI helpers                                                     ║
    ╚══════════════════════════════════════════════════════════════════════╝ */
 function navigateTo(page) {
   const pages = {
@@ -74,12 +72,12 @@ function navigateTo(page) {
 }
 
 uiModeSel.addEventListener("change", () => {
-  document.body.classList.remove("light","mid","dark");
+  document.body.classList.remove("light", "mid", "dark");
   document.body.classList.add(uiModeSel.value);
 });
 
 /* ╔══════════════════════════════════════════════════════════════════════╗
-   ║  Biome select – description + save to Firestore                     ║
+   ║  5.  Biome selection                                                ║
    ╚══════════════════════════════════════════════════════════════════════╝ */
 biomeSelect.addEventListener("change", () => {
   biomeDesc.textContent = biomeDescriptions[biomeSelect.value] ?? "";
@@ -97,8 +95,8 @@ confirmBiome.addEventListener("click", async () => {
       { biome, clan: generateClan() },
       { merge: true }
     );
-    document.body.setAttribute("data-biome", biome);
 
+    document.body.setAttribute("data-biome", biome);
     chooseScreen.style.display = "none";
     appRoot.style.display      = "block";
     navigateTo("camp");
@@ -109,19 +107,19 @@ confirmBiome.addEventListener("click", async () => {
 });
 
 /* ╔══════════════════════════════════════════════════════════════════════╗
-   ║  Modal login / sign-up flows                                        ║
+   ║  6.  Auth modal logic                                               ║
    ╚══════════════════════════════════════════════════════════════════════╝ */
-let authMode = "login";          // or "signup"
+let authMode = "login";
 
 function setAuthMode(mode) {
-  authMode = mode;
-  authTitle.textContent  = mode === "login" ? "Log In" : "Sign Up";
+  authMode              = mode;
+  authTitle.textContent = mode === "login" ? "Log In" : "Sign Up";
   authSubmit.textContent = mode === "login" ? "Log In" : "Create Account";
-  authToggle.innerHTML   =
+  authToggle.innerHTML  =
     mode === "login"
       ? `Don’t have an account? <a href="#" id="switchToSignUp">Sign Up</a>`
       : `Already have an account? <a href="#" id="switchToLogin">Log In</a>`;
-  authError.textContent  = "";
+  authError.textContent = "";
 }
 setAuthMode("login");
 
@@ -139,17 +137,22 @@ authSubmit.addEventListener("click", async () => {
         ? await auth.signInWithEmailAndPassword(email, pass)
         : await auth.createUserWithEmailAndPassword(email, pass);
 
+    /* ── If this was sign-up, create the Firestore user doc ── */
     if (authMode === "signup") {
-      // create placeholder user doc
-      await db.doc(`users/${cred.user.uid}`).set({ biome: null });
+      await db.doc(`users/${cred.user.uid}`).set({
+        email: cred.user.email,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        biome: null           // not chosen yet
+      });
     }
+
     authModal.style.display = "none";
   } catch (err) {
     authError.textContent = err.message;
   }
 });
 
-/* Toggle links inside the modal (delegate to the modal) */
+/*  Toggle links inside the modal */
 authModal.addEventListener("click", e => {
   if (e.target.id === "switchToSignUp") {
     e.preventDefault();
@@ -162,11 +165,11 @@ authModal.addEventListener("click", e => {
 });
 
 /* ╔══════════════════════════════════════════════════════════════════════╗
-   ║  Firebase auth state listener                                       ║
+   ║  7.  Firebase auth state listener                                   ║
    ╚══════════════════════════════════════════════════════════════════════╝ */
 auth.onAuthStateChanged(async user => {
   if (!user) {
-    // logged out
+    /* Logged out */
     appRoot.style.display      = "none";
     chooseScreen.style.display = "none";
     authModal.style.display    = "flex";
@@ -174,10 +177,10 @@ auth.onAuthStateChanged(async user => {
     return;
   }
 
-  // logged in – check if biome chosen
+  /* Logged in – load user doc */
   try {
     const snap = await db.doc(`users/${user.uid}`).get();
-    const data = snap.data() ?? {};
+    const data = snap.data() || {};
 
     if (!data.biome) {
       /* First time: needs biome */
@@ -187,7 +190,7 @@ auth.onAuthStateChanged(async user => {
       biomeSelect.value          = "";
       biomeDesc.textContent      = "";
     } else {
-      /* Has biome */
+      /* Has biome set */
       document.body.setAttribute("data-biome", data.biome);
       chooseScreen.style.display = "none";
       authModal.style.display    = "none";
@@ -195,14 +198,15 @@ auth.onAuthStateChanged(async user => {
       navigateTo("camp");
     }
   } catch (err) {
-    console.error(err);
-    alert("Couldn’t load user data.");
+    console.error("Error loading user data:", err);
+    alert("Cannot load user data. Please try again.");
   }
 });
 
 /* ╔══════════════════════════════════════════════════════════════════════╗
-   ║  On initial load – default theme                                    ║
+   ║  8.  Initial theme                                                  ║
    ╚══════════════════════════════════════════════════════════════════════╝ */
 document.addEventListener("DOMContentLoaded", () => {
-  document.body.classList.add(uiModeSel.value);  // default mid
+  document.body.classList.add(uiModeSel.value); // default “mid”
+  console.log("🚀 script.js loaded; firebase initialised.");
 });
