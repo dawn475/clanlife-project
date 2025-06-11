@@ -1,91 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ClanLife</title>
-    <link rel="stylesheet" href="./style.css" />
-
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
-  </head>
-  <body>
-    <div class="header"><h1>ClanLife</h1></div>
-
-    <!-- Main Game UI (hidden unless authenticated) -->
-    <div id="appRoot" style="display: none;">
-      <div class="navbar">
-        <button onclick="navigateTo('camp')">Camp</button>
-        <button onclick="navigateTo('explore')">Explore</button>
-        <button onclick="navigateTo('inventory')">Inventory</button>
-        <button onclick="navigateTo('crossroads')">Crossroads</button>
-      </div>
-
-      <div class="controls">
-        <label>
-          Select Biome:
-          <select id="biomeSelect" onchange="updateBackground()">
-            <option value="coast">Coast</option>
-            <option value="forest" selected>Forest</option>
-            <option value="mountains">Mountains</option>
-            <option value="plains">Plains</option>
-            <option value="swamp">Swamp</option>
-            <option value="tundra">Tundra</option>
-          </select>
-        </label>
-
-        <label>
-          UI Mode:
-          <select id="uiModeSelect" onchange="updateBackground()">
-            <option value="light">Light</option>
-            <option value="mid" selected>Mid</option>
-            <option value="dark">Dark</option>
-          </select>
-        </label>
-
-        <select onchange="navigateTo(this.value)">
-          <option value="camp">Camp</option>
-          <option value="explore">Explore</option>
-          <option value="inventory">Inventory</option>
-          <option value="crossroads">Crossroads</option>
-        </select>
-      </div>
-
-      <div class="main-content" id="mainContent">
-        <h2>Welcome to ClanLife</h2>
-        <p>Create an account or log in to start managing your clan.</p>
-      </div>
-    </div>
-
-    <!-- ---------- AUTH MODAL ---------- -->
-    <div id="authModal" class="modal">
-      <div class="modal-box">
-        <h2 id="authTitle">Log In</h2>
-
-        <label>Email
-          <input type="email" id="authEmail" placeholder="you@example.com" />
-        </label>
-
-        <label>Password
-          <input type="password" id="authPass" placeholder="6+ characters" />
-        </label>
-
-        <button id="authSubmit">Submit</button>
-        <p id="authToggle">
-          Don’t have an account?
-          <a href="#" id="switchToSignUp">Sign Up</a>
-        </p>
-        <p id="authError" class="error"></p>
-      </div>
-    </div>
-    <!-- Biome Lock-In Screen -->
-<div id="chooseBiomeScreen" style="display:none; flex-direction:column; align-items:center; justify-content:center; padding:2rem;">
-  <div class="modal-box">
-    <h2>Choose Your Biome</h2>
-    <p>Select your clan's homeland. This choice is permanent!</p>
-    <label for="biomeSelect">Biome</label>
-    <select id="biomeSelect">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Choose Your Biome - ClanLife</title>
+</head>
+<body>
+  <!-- Biome Selection Screen -->
+  <div id="chooseBiomeScreen" role="region" aria-label="Biome selection screen">
+    <h2>Select Your Biome</h2>
+    <select id="biomeSelect" aria-describedby="biomeDescription">
+      <option value="" disabled selected>--Choose a biome--</option>
       <option value="forest">Forest</option>
       <option value="coast">Coast</option>
       <option value="mountains">Mountains</option>
@@ -93,12 +18,21 @@
       <option value="swamp">Swamp</option>
       <option value="tundra">Tundra</option>
     </select>
-    <button id="confirmBiome">Confirm Biome</button>
+    <p id="biomeDescription" aria-live="polite" style="min-height:1.5em;"></p>
+    <button id="confirmBiome" type="button">Confirm</button>
   </div>
-</div>
 
+  <!-- Main app container (hidden initially) -->
+  <div id="appRoot" style="display:none;">
+    <!-- Your main app content goes here -->
+  </div>
 
-    <!-- JS -->
-    <script src="script.js"></script>
-  </body>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+  <!-- Your app JS -->
+  <script src="app.js"></script>
+</body>
 </html>
