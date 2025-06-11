@@ -6,62 +6,81 @@
     <title>ClanLife</title>
     <link rel="stylesheet" href="./style.css" />
 
-   <!-- Firebase App (compat) -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<!-- Firebase Auth (compat) -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
   </head>
   <body>
-    <div class="header">
-      <h1>ClanLife</h1>
-    </div>
+    <div class="header"><h1>ClanLife</h1></div>
 
-    <div class="navbar">
-      <button onclick="navigateTo('camp')">Camp</button>
-      <button onclick="navigateTo('explore')">Explore</button>
-      <button onclick="navigateTo('inventory')">Inventory</button>
-      <button onclick="navigateTo('crossroads')">Crossroads</button>
-    </div>
+    <!-- Main Game UI (hidden unless authenticated) -->
+    <div id="appRoot" style="display: none;">
+      <div class="navbar">
+        <button onclick="navigateTo('camp')">Camp</button>
+        <button onclick="navigateTo('explore')">Explore</button>
+        <button onclick="navigateTo('inventory')">Inventory</button>
+        <button onclick="navigateTo('crossroads')">Crossroads</button>
+      </div>
 
-    <div class="controls">
-      <label>
-        Select Biome:
-        <select id="biomeSelect" onchange="updateBackground()">
-          <option value="coast">Coast</option>
-          <option value="forest" selected>Forest</option>
-          <option value="mountains">Mountains</option>
-          <option value="plains">Plains</option>
-          <option value="swamp">Swamp</option>
-          <option value="tundra">Tundra</option>
+      <div class="controls">
+        <label>
+          Select Biome:
+          <select id="biomeSelect" onchange="updateBackground()">
+            <option value="coast">Coast</option>
+            <option value="forest" selected>Forest</option>
+            <option value="mountains">Mountains</option>
+            <option value="plains">Plains</option>
+            <option value="swamp">Swamp</option>
+            <option value="tundra">Tundra</option>
+          </select>
+        </label>
+
+        <label>
+          UI Mode:
+          <select id="uiModeSelect" onchange="updateBackground()">
+            <option value="light">Light</option>
+            <option value="mid" selected>Mid</option>
+            <option value="dark">Dark</option>
+          </select>
+        </label>
+
+        <select onchange="navigateTo(this.value)">
+          <option value="camp">Camp</option>
+          <option value="explore">Explore</option>
+          <option value="inventory">Inventory</option>
+          <option value="crossroads">Crossroads</option>
         </select>
-      </label>
+      </div>
 
-      <label>
-        UI Mode:
-        <select id="uiModeSelect" onchange="updateBackground()">
-          <option value="light">Light</option>
-          <option value="mid" selected>Mid</option>
-          <option value="dark">Dark</option>
-        </select>
-      </label>
-
-      <select onchange="navigateTo(this.value)">
-        <option value="camp">Camp</option>
-        <option value="explore">Explore</option>
-        <option value="inventory">Inventory</option>
-        <option value="crossroads">Crossroads</option>
-      </select>
+      <div class="main-content" id="mainContent">
+        <h2>Welcome to ClanLife</h2>
+        <p>Create an account or log in to start managing your clan.</p>
+      </div>
     </div>
 
-    <div class="main-content" id="mainContent">
-  <h2>Welcome to ClanLife</h2>
-  <p>Create an account or log in to start managing your clan.</p>
-  <button id="loginBtn">Log In</button>
-  <button id="signupBtn">Sign Up</button>
-</div>
+    <!-- ---------- AUTH MODAL ---------- -->
+    <div id="authModal" class="modal">
+      <div class="modal-box">
+        <h2 id="authTitle">Log In</h2>
 
-    <!-- Your main JS file -->
+        <label>Email
+          <input type="email" id="authEmail" placeholder="you@example.com" />
+        </label>
+
+        <label>Password
+          <input type="password" id="authPass" placeholder="6+ characters" />
+        </label>
+
+        <button id="authSubmit">Submit</button>
+        <p id="authToggle">
+          Don’t have an account?
+          <a href="#" id="switchToSignUp">Sign Up</a>
+        </p>
+        <p id="authError" class="error"></p>
+      </div>
+    </div>
+
+    <!-- JS -->
     <script src="script.js"></script>
   </body>
 </html>
-
