@@ -59,3 +59,17 @@ function navigateTo(section) {
 
 // Set up the default view on first load
 window.onload = updateBackground;
+
+// ==== Firebase Configuration ====
+const firebaseConfig = {
+  apiKey: "AIzaSyCYMR8LL_cfHNswh7nU8l4gwxWxKmiJOjc",
+  authDomain: "clanlife-project.firebaseapp.com",
+  projectId: "clanlife-project",
+  storageBucket: "clanlife-project.appspot.com",
+  messagingSenderId: "553812082452",
+  appId: "1:553812082452:web:0bb5f381c2d7b113d48c01",
+  measurementId: "G-4PPGL63VKN"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
