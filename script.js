@@ -97,6 +97,10 @@ confirmBiome.addEventListener("click", async () => {
     );
 
     document.body.setAttribute("data-biome", biome);
+
+    // Save biome locally for instant restore on reload
+    localStorage.setItem("selectedBiome", biome);
+
     chooseScreen.style.display = "none";
     appRoot.style.display      = "block";
     navigateTo("camp");
@@ -189,6 +193,7 @@ auth.onAuthStateChanged(async user => {
       chooseScreen.style.display = "flex";
       biomeSelect.value          = "";
       biomeDesc.textContent      = "";
+      localStorage.removeItem("selectedBiome");
     } else {
       /* Has biome set */
       document.body.setAttribute("data-biome", data.biome);
@@ -196,6 +201,9 @@ auth.onAuthStateChanged(async user => {
       authModal.style.display    = "none";
       appRoot.style.display      = "block";
       navigateTo("camp");
+
+      // Update localStorage biome cache
+      localStorage.setItem("selectedBiome", data.biome);
     }
   } catch (err) {
     console.error("Error loading user data:", err);
@@ -208,5 +216,12 @@ auth.onAuthStateChanged(async user => {
    ╚══════════════════════════════════════════════════════════════════════╝ */
 document.addEventListener("DOMContentLoaded", () => {
   document.body.classList.add(uiModeSel.value); // default “mid”
+
+  // Restore biome immediately from localStorage if available
+  const savedBiome = localStorage.getItem("selectedBiome");
+  if (savedBiome) {
+    document.body.setAttribute("data-biome", savedBiome);
+  }
+
   console.log("🚀 script.js loaded; firebase initialised.");
 });
