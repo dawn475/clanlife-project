@@ -1,4 +1,8 @@
-// Biome → background URLs
+/* ---------------------------------------------------------
+   ClanLife – Main Script
+--------------------------------------------------------- */
+
+/* ---------- Biome Backgrounds ---------- */
 const biomeImages = {
   coast:   "images/placeholder_coast.jpg",
   forest:  "images/placeholder_forest.jpg",
@@ -8,31 +12,38 @@ const biomeImages = {
   tundra:  "images/placeholder_tundra.jpg"
 };
 
-// Update background & mode
+/* ---------- UI & Biome update ---------- */
 function updateBackground() {
   const biome = document.getElementById("biomeSelect").value;
   const mode  = document.getElementById("uiModeSelect").value;
 
+  /* apply background */
   document.body.style.backgroundImage = `url('${biomeImages[biome] || ""}')`;
-  document.body.classList.remove("light", "mid", "dark");
-  document.body.classList.add(mode);          // adds 'light', 'mid', or 'dark'
+
+  /* mode classes */
+  document.body.classList.remove("light","mid","dark");
+  document.body.classList.add(mode);
+
+  /* biome overlay classes + data attribute */
+  document.body.classList.remove(
+    "biome-forest","biome-coast","biome-mountains",
+    "biome-plains","biome-swamp","biome-tundra"
+  );
+  document.body.classList.add("biome-" + biome);
+  document.body.setAttribute("data-biome", biome); // optional if you still use data attr
 }
 
-// Tab navigation
+/* ---------- Navigation ---------- */
 function navigateTo(section) {
   const main = document.getElementById("mainContent");
   const pages = {
-    camp:       `<h2>Welcome to ClanLife</h2><p>Create an account or log in…</p><button id="loginBtn">Log In</button><button id="signupBtn">Sign Up</button>`,
+    camp:       `<h2>Welcome to ClanLife</h2><p>Create an account or log in…</p>`,
     explore:    `<h2>Explore</h2><p>Search the territory…</p>`,
     inventory:  `<h2>Inventory</h2><p>View your items…</p>`,
     crossroads: `<h2>Crossroads</h2><p>Meet neighboring clans…</p>`
   };
   main.innerHTML = pages[section] || "<h2>Coming soon…</h2>";
-  // Re-attach auth buttons each time Camp page is rendered
-  if (section === "camp") attachAuthHandlers();
 }
-
-/* ---------- existing biome + navigation code ABOVE remains unchanged ---------- */
 
 /* ---------- Firebase Auth Gate ---------- */
 const firebaseConfig = {
@@ -54,31 +65,29 @@ const title     = document.getElementById("authTitle");
 const emailIn   = document.getElementById("authEmail");
 const passIn    = document.getElementById("authPass");
 const submitBtn = document.getElementById("authSubmit");
-const toggleTxt = document.getElementById("authToggle");
-const switchLink= document.getElementById("switchToSignUp");
 const errBox    = document.getElementById("authError");
 
-let mode = "login"; // or "signup"
+let modeAuth = "login"; // or "signup"
 
-/* Swap modal between Log In and Sign Up */
-function setMode(m){
-  mode = m;
-  title.textContent = m === "login" ? "Log In" : "Sign Up";
+/* Switch between Login / SignUp */
+function setModeAuth(m){
+  modeAuth = m;
+  title.textContent     = m === "login" ? "Log In" : "Sign Up";
   submitBtn.textContent = m === "login" ? "Log In" : "Create Account";
-  toggleTxt.innerHTML =
+  document.getElementById("authToggle").innerHTML =
     m === "login"
       ? `Don’t have an account? <a href="#" id="switchToSignUp">Sign Up</a>`
       : `Already have an account? <a href="#" id="switchToLogin">Log In</a>`;
 }
 function showError(msg){ errBox.textContent = msg; }
 
-/* Submit handler */
+/* Submit login/signup */
 submitBtn.onclick = () => {
   const email = emailIn.value.trim();
   const pass  = passIn.value.trim();
   if(!email || !pass){ showError("Please fill in both fields."); return; }
 
-  const action = mode === "login"
+  const action = modeAuth === "login"
     ? auth.signInWithEmailAndPassword(email, pass)
     : auth.createUserWithEmailAndPassword(email, pass);
 
@@ -86,26 +95,27 @@ submitBtn.onclick = () => {
         .catch(e => showError(e.message));
 };
 
-/* Link switching */
+/* Toggle links */
 modal.addEventListener("click", e=>{
-  if(e.target.id==="switchToSignUp"){ e.preventDefault(); setMode("signup"); }
-  if(e.target.id==="switchToLogin"){ e.preventDefault(); setMode("login");  }
+  if(e.target.id==="switchToSignUp"){ e.preventDefault(); setModeAuth("signup"); }
+  if(e.target.id==="switchToLogin"){ e.preventDefault(); setModeAuth("login");  }
 });
 
-/* Firebase auth state */
+/* Auth state listener */
 auth.onAuthStateChanged(user=>{
   if(user){
     modal.style.display = "none";
     appRoot.style.display = "block";
     navigateTo("camp");
+    updateBackground();
   }else{
     appRoot.style.display = "none";
     modal.style.display   = "flex";
-    setMode("login");
+    setModeAuth("login");
   }
 });
 
-/* Load biome/mode defaults once user is in */
-window.addEventListener("DOMContentLoaded", ()=>{
+/* ---------- Init ---------- */
+window.addEventListener("DOMContentLoaded", () => {
   updateBackground();
 });
