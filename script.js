@@ -21,7 +21,7 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// Elements
+// DOM Elements
 const appRoot = document.getElementById("appRoot");
 const modal = document.getElementById("authModal");
 const title = document.getElementById("authTitle");
@@ -32,6 +32,8 @@ const toggleTxt = document.getElementById("authToggle");
 const errBox = document.getElementById("authError");
 const biomeSelect = document.getElementById("biomeSelect");
 const uiModeSelect = document.getElementById("uiModeSelect");
+const chooseBiomeScreen = document.getElementById("chooseBiomeScreen");
+const confirmBiomeBtn = document.getElementById("confirmBiome");
 
 let mode = "login";
 
@@ -63,9 +65,8 @@ submitBtn.onclick = async () => {
     const uid = result.user.uid;
 
     if (mode === "signup") {
-      const selectedBiome = biomeSelect.value;
       await db.collection("users").doc(uid).set({
-        homeBiome: selectedBiome
+        homeBiome: null  // Set as null for redirect
       });
     }
 
@@ -91,7 +92,7 @@ modal.addEventListener("click", (e) => {
 function navigateTo(section) {
   const main = document.getElementById("mainContent");
   const pages = {
-    camp: `<h2>Welcome to ClanLife</h2><p>Create an account or log in…</p><button id="loginBtn">Log In</button><button id="signupBtn">Sign Up</button>`,
+    camp: `<h2>Welcome to ClanLife</h2><p>Begin your journey…</p>`,
     explore: `<h2>Explore</h2><p>Search the territory…</p>`,
     inventory: `<h2>Inventory</h2><p>View your items…</p>`,
     crossroads: `<h2>Crossroads</h2><p>Meet neighboring clans…</p>`
@@ -99,7 +100,7 @@ function navigateTo(section) {
   main.innerHTML = pages[section] || "<h2>Coming soon…</h2>";
 }
 
-// Update background & theme
+// Background Theme
 function updateBackground() {
   const biome = biomeSelect.value;
   const mode = uiModeSelect.value;
@@ -110,34 +111,62 @@ function updateBackground() {
   document.body.classList.add(mode);
 }
 
-// Auth state change
+// Save chosen biome (first login only)
+confirmBiomeBtn.addEventListener("click", async () => {
+  const biome = biomeSelect.value;
+  const user = auth.currentUser;
+  if (!user) return;
+
+  try {
+    await db.collection("users").doc(user.uid).update({
+      homeBiome: biome
+    });
+    document.body.setAttribute("data-biome", biome);
+    updateBackground();
+    chooseBiomeScreen.style.display = "none";
+    appRoot.style.display = "block";
+    navigateTo("camp");
+  } catch (e) {
+    alert("Error saving biome: " + e.message);
+  }
+});
+
+// Auth state watcher
 auth.onAuthStateChanged(async (user) => {
   if (user) {
     const uid = user.uid;
     const userDoc = await db.collection("users").doc(uid).get();
     const data = userDoc.data();
 
-    if (data?.homeBiome) {
+    if (!data?.homeBiome) {
+      // Needs to choose a biome
+      appRoot.style.display = "none";
+      chooseBiomeScreen.style.display = "flex";
+      biomeSelect.value = "forest"; // Default
+      updateBackground();
+    } else {
+      // Biome is locked in
       biomeSelect.value = data.homeBiome;
       document.body.setAttribute("data-biome", data.homeBiome);
       updateBackground();
-    }
 
-    modal.style.display = "none";
-    appRoot.style.display = "block";
-    navigateTo("camp");
+      modal.style.display = "none";
+      appRoot.style.display = "block";
+      navigateTo("camp");
+    }
   } else {
     appRoot.style.display = "none";
+    chooseBiomeScreen.style.display = "none";
     modal.style.display = "flex";
     setMode("login");
   }
 });
 
-// Manual background updates
+// Selectors
 biomeSelect.addEventListener("change", updateBackground);
 uiModeSelect.addEventListener("change", updateBackground);
 
-// Default on load
+// Default load
 window.addEventListener("DOMContentLoaded", () => {
   updateBackground();
 });
