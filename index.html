@@ -79,6 +79,24 @@
         <p id="authError" class="error"></p>
       </div>
     </div>
+    <!-- Biome Lock-In Screen -->
+<div id="chooseBiomeScreen" style="display:none; flex-direction:column; align-items:center; justify-content:center; padding:2rem;">
+  <div class="modal-box">
+    <h2>Choose Your Biome</h2>
+    <p>Select your clan's homeland. This choice is permanent!</p>
+    <label for="biomeSelect">Biome</label>
+    <select id="biomeSelect">
+      <option value="forest">Forest</option>
+      <option value="coast">Coast</option>
+      <option value="mountains">Mountains</option>
+      <option value="plains">Plains</option>
+      <option value="swamp">Swamp</option>
+      <option value="tundra">Tundra</option>
+    </select>
+    <button id="confirmBiome">Confirm Biome</button>
+  </div>
+</div>
+
 
     <!-- JS -->
     <script src="script.js"></script>
