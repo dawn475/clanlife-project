@@ -1,172 +1,88 @@
-// Biome images
-const biomeImages = {
-  coast:    "images/placeholder_coast.jpg",
-  forest:   "images/placeholder_forest.jpg",
-  mountains:"images/placeholder_mountains.jpg",
-  plains:   "images/placeholder_plains.jpg",
-  swamp:    "images/placeholder_swamp.jpg",
-  tundra:   "images/placeholder_tundra.jpg"
-};
-
-// Firebase Init
+// --- Firebase initialization ---
+// Replace these config values with your Firebase project config
 const firebaseConfig = {
-  apiKey: "AIzaSyCYMR8LL_cfHNswh7nU8l4gwxWxKmiJOjc",
-  authDomain: "clanlife-project.firebaseapp.com",
-  projectId: "clanlife-project",
-  storageBucket: "clanlife-project.appspot.com",
-  messagingSenderId: "553812082452",
-  appId: "1:553812082452:web:0bb5f381c2d7b113d48c01"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  // add other config fields if needed
 };
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
 
-// DOM Elements
-const appRoot = document.getElementById("appRoot");
-const modal = document.getElementById("authModal");
-const title = document.getElementById("authTitle");
-const emailIn = document.getElementById("authEmail");
-const passIn = document.getElementById("authPass");
-const submitBtn = document.getElementById("authSubmit");
-const toggleTxt = document.getElementById("authToggle");
-const errBox = document.getElementById("authError");
-const biomeSelect = document.getElementById("biomeSelect");
-const uiModeSelect = document.getElementById("uiModeSelect");
-const chooseBiomeScreen = document.getElementById("chooseBiomeScreen");
-const confirmBiomeBtn = document.getElementById("confirmBiome");
-
-let mode = "login";
-
-// Switch modal state
-function setMode(m) {
-  mode = m;
-  title.textContent = m === "login" ? "Log In" : "Sign Up";
-  submitBtn.textContent = m === "login" ? "Log In" : "Create Account";
-  toggleTxt.innerHTML = m === "login"
-    ? `Don’t have an account? <a href="#" id="switchToSignUp">Sign Up</a>`
-    : `Already have an account? <a href="#" id="switchToLogin">Log In</a>`;
-}
-
-function showError(msg) {
-  errBox.textContent = msg;
-}
-
-// Auth submit
-submitBtn.onclick = async () => {
-  const email = emailIn.value.trim();
-  const pass = passIn.value.trim();
-  if (!email || !pass) return showError("Please fill in both fields.");
-
-  try {
-    const result = mode === "login"
-      ? await auth.signInWithEmailAndPassword(email, pass)
-      : await auth.createUserWithEmailAndPassword(email, pass);
-
-    const uid = result.user.uid;
-
-    if (mode === "signup") {
-      await db.collection("users").doc(uid).set({
-        homeBiome: null  // Set as null for redirect
-      });
-    }
-
-    modal.style.display = "none";
-  } catch (e) {
-    showError(e.message);
-  }
+// --- Biome descriptions ---
+const biomeDescriptions = {
+  forest:    "Dense trees and filtered sunlight. A traditional and balanced home.",
+  coast:     "Salty breezes and shifting sands. Ideal for agile and curious cats.",
+  mountains: "Rocky heights and thin air. Suits the tough and resilient.",
+  plains:    "Open skies and golden grasses. Great for swift, observant cats.",
+  swamp:     "Misty marshes full of secrets. Favored by stealthy and clever cats.",
+  tundra:    "Harsh cold and endless white. Only the most resourceful survive here."
 };
 
-// Switch modal link
-modal.addEventListener("click", (e) => {
-  if (e.target.id === "switchToSignUp") {
-    e.preventDefault();
-    setMode("signup");
+// --- Generate placeholder clan ---
+function generateClan() {
+  const names = [
+    "Ash", "Breeze", "Cinder", "Dusk", "Ember", "Fern", "Gale", "Hollow", "Ivy", "Jade",
+    "Kite", "Lark", "Moss", "Night", "Opal", "Pine", "Quartz", "Raven", "Sage", "Thistle"
+  ];
+  const suffixes = [
+    "fur", "claw", "tail", "whisker", "pelt", "step", "fang", "shade", "leap", "gaze"
+  ];
+  let clan = [];
+  for (let i = 0; i < 10; i++) {
+    const name = names[Math.floor(Math.random() * names.length)] +
+                 suffixes[Math.floor(Math.random() * suffixes.length)];
+    clan.push({ name });
   }
-  if (e.target.id === "switchToLogin") {
-    e.preventDefault();
-    setMode("login");
-  }
+  return clan;
+}
+
+// --- DOM references ---
+const biomeSelect = document.getElementById("biomeSelect");
+const biomeDesc = document.getElementById("biomeDescription");
+const confirmBtn = document.getElementById("confirmBiome");
+const chooseBiomeScreen = document.getElementById("chooseBiomeScreen");
+const appRoot = document.getElementById("appRoot");
+
+// --- Update description on biome select change ---
+biomeSelect.addEventListener("change", () => {
+  const val = biomeSelect.value;
+  biomeDesc.textContent = biomeDescriptions[val] || "";
 });
 
-// Navigation
-function navigateTo(section) {
-  const main = document.getElementById("mainContent");
-  const pages = {
-    camp: `<h2>Welcome to ClanLife</h2><p>Begin your journey…</p>`,
-    explore: `<h2>Explore</h2><p>Search the territory…</p>`,
-    inventory: `<h2>Inventory</h2><p>View your items…</p>`,
-    crossroads: `<h2>Crossroads</h2><p>Meet neighboring clans…</p>`
-  };
-  main.innerHTML = pages[section] || "<h2>Coming soon…</h2>";
-}
+// --- Confirm biome and generate clan ---
+confirmBtn.addEventListener("click", async () => {
+  const chosenBiome = biomeSelect.value;
+  if (!chosenBiome) {
+    alert("Please choose a biome.");
+    return;
+  }
 
-// Background Theme
-function updateBackground() {
-  const biome = biomeSelect.value;
-  const mode = uiModeSelect.value;
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    alert("You must be logged in to confirm your biome.");
+    return;
+  }
 
-  document.body.style.backgroundImage = `url('${biomeImages[biome] || ""}')`;
-  document.body.setAttribute("data-biome", biome);
-  document.body.classList.remove("light", "mid", "dark");
-  document.body.classList.add(mode);
-}
-
-// Save chosen biome (first login only)
-confirmBiomeBtn.addEventListener("click", async () => {
-  const biome = biomeSelect.value;
-  const user = auth.currentUser;
-  if (!user) return;
-
+  const db = firebase.firestore();
   try {
-    await db.collection("users").doc(user.uid).update({
-      homeBiome: biome
-    });
-    document.body.setAttribute("data-biome", biome);
-    updateBackground();
+    await db.collection("users").doc(user.uid).set({
+      biome: chosenBiome,
+      clan: generateClan()
+    }, { merge: true });
+
+    // Update UI
+    document.body.setAttribute("data-biome", chosenBiome);
     chooseBiomeScreen.style.display = "none";
     appRoot.style.display = "block";
-    navigateTo("camp");
-  } catch (e) {
-    alert("Error saving biome: " + e.message);
-  }
-});
 
-// Auth state watcher
-auth.onAuthStateChanged(async (user) => {
-  if (user) {
-    const uid = user.uid;
-    const userDoc = await db.collection("users").doc(uid).get();
-    const data = userDoc.data();
-
-    if (!data?.homeBiome) {
-      // Needs to choose a biome
-      appRoot.style.display = "none";
-      chooseBiomeScreen.style.display = "flex";
-      biomeSelect.value = "forest"; // Default
-      updateBackground();
-    } else {
-      // Biome is locked in
-      biomeSelect.value = data.homeBiome;
-      document.body.setAttribute("data-biome", data.homeBiome);
-      updateBackground();
-
-      modal.style.display = "none";
-      appRoot.style.display = "block";
+    // Navigate to camp screen if function exists
+    if (typeof navigateTo === "function") {
       navigateTo("camp");
+    } else {
+      console.warn("navigateTo function is not defined.");
     }
-  } else {
-    appRoot.style.display = "none";
-    chooseBiomeScreen.style.display = "none";
-    modal.style.display = "flex";
-    setMode("login");
+  } catch (error) {
+    console.error("Error saving biome and clan:", error);
+    alert("An error occurred while saving your biome. Please try again.");
   }
-});
-
-// Selectors
-biomeSelect.addEventListener("change", updateBackground);
-uiModeSelect.addEventListener("change", updateBackground);
-
-// Default load
-window.addEventListener("DOMContentLoaded", () => {
-  updateBackground();
 });
