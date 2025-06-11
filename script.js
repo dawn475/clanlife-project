@@ -5,7 +5,7 @@ const firebaseConfig = {
   apiKey:            "AIzaSyCYMR8LL_cfHNswh7nU8l4gwxWxKmiJOjc",
   authDomain:        "clanlife-project.firebaseapp.com",
   projectId:         "clanlife-project",
-  storageBucket:     "clanlife-project.appspot.com",   // ← must end with .appspot.com
+  storageBucket:     "clanlife-project.appspot.com",
   messagingSenderId: "553812082452",
   appId:             "1:553812082452:web:0bb5f381c2d7b113d48c01",
   measurementId:     "G-4PPGL63VKN"
@@ -26,16 +26,62 @@ const biomeDescriptions = {
   tundra:    "Harsh cold and endless white. Only the most resourceful survive here."
 };
 
+const catNames = ["Ash","Breeze","Cinder","Dusk","Ember","Fern","Gale","Hollow",
+                  "Ivy","Jade","Kite","Lark","Moss","Night","Opal","Pine",
+                  "Quartz","Raven","Sage","Thistle"];
+const suffixes = ["fur","claw","tail","whisker","pelt","step","fang","shade","leap","gaze"];
+
+let currentClan = [];   // holds current generated clan for reroll
+let rerollCount = 2;    // max rerolls allowed
+
+// Generate a cat object with name and role
+function generateCat(role) {
+  const name = catNames[Math.floor(Math.random() * catNames.length)] +
+               suffixes[Math.floor(Math.random() * suffixes.length)];
+  return { name, role };
+}
+
+// Generate clan with the given constraints:
+// 10 cats total, roles distributed as:
+// 4–8 warriors, 2–4 apprentices, 0–2 elders, 0–3 queens (kits don't count)
 function generateClan() {
-  const names    = ["Ash","Breeze","Cinder","Dusk","Ember","Fern","Gale","Hollow",
-                    "Ivy","Jade","Kite","Lark","Moss","Night","Opal","Pine",
-                    "Quartz","Raven","Sage","Thistle"];
-  const suffixes = ["fur","claw","tail","whisker","pelt","step","fang","shade","leap","gaze"];
-  return Array.from({ length: 10 }, () => ({
-    name:
-      names[Math.floor(Math.random() * names.length)] +
-      suffixes[Math.floor(Math.random() * suffixes.length)]
-  }));
+  const totalCats = 10;
+  // Random counts within limits
+  const warriors = randomInt(4, 8);
+  const apprentices = randomInt(2, 4);
+  const eldersMax = Math.min(2, totalCats - warriors - apprentices);
+  const elders = randomInt(0, eldersMax);
+  const queensMax = Math.min(3, totalCats - warriors - apprentices - elders);
+  const queens = randomInt(0, queensMax);
+  const kits = totalCats - warriors - apprentices - elders - queens;
+
+  let clan = [];
+
+  for(let i=0; i<warriors; i++) clan.push(generateCat("Warrior"));
+  for(let i=0; i<apprentices; i++) clan.push(generateCat("Apprentice"));
+  for(let i=0; i<elders; i++) clan.push(generateCat("Elder"));
+  for(let i=0; i<queens; i++) clan.push(generateCat("Queen"));
+  for(let i=0; i<kits; i++) clan.push(generateCat("Kit"));
+
+  // Shuffle clan array so roles not grouped
+  clan = shuffleArray(clan);
+
+  return clan;
+}
+
+// Utility random int inclusive
+function randomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// Utility shuffle (Fisher-Yates)
+function shuffleArray(arr) {
+  const array = arr.slice();
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
 }
 
 /* ╔══════════════════════════════════════════════════════════════════════╗
@@ -77,8 +123,13 @@ uiModeSel.addEventListener("change", () => {
 });
 
 /* ╔══════════════════════════════════════════════════════════════════════╗
-   ║  5.  Biome selection                                                ║
+   ║  5.  Biome selection + clan generation with reroll                 ║
    ╚══════════════════════════════════════════════════════════════════════╝ */
+
+// Container to hold clan reroll UI elements
+let clanDisplayContainer = null;
+let rerollBtn = null;
+
 biomeSelect.addEventListener("change", () => {
   biomeDesc.textContent = biomeDescriptions[biomeSelect.value] ?? "";
 });
@@ -90,25 +141,87 @@ confirmBiome.addEventListener("click", async () => {
   const user = auth.currentUser;
   if (!user)  return alert("You need to be logged in.");
 
-  try {
-    await db.doc(`users/${user.uid}`).set(
-      { biome, clan: generateClan() },
-      { merge: true }
-    );
+  // If clanDisplayContainer doesn't exist, create it inside chooseScreen modal
+  if (!clanDisplayContainer) {
+    clanDisplayContainer = document.createElement("div");
+    clanDisplayContainer.style.marginTop = "1rem";
+    chooseScreen.querySelector(".modal-box").appendChild(clanDisplayContainer);
+  }
+  // If rerollBtn not created, create it
+  if (!rerollBtn) {
+    rerollBtn = document.createElement("button");
+    rerollBtn.textContent = `Reroll Clan (${rerollCount} left)`;
+    rerollBtn.style.marginTop = "1rem";
+    rerollBtn.style.display = "block";
+    chooseScreen.querySelector(".modal-box").appendChild(rerollBtn);
 
-    document.body.setAttribute("data-biome", biome);
+    rerollBtn.addEventListener("click", () => {
+      if (rerollCount <= 0) {
+        alert("No rerolls left!");
+        return;
+      }
+      currentClan = generateClan();
+      displayClan(currentClan);
+      rerollCount--;
+      rerollBtn.textContent = `Reroll Clan (${rerollCount} left)`;
+    });
+  }
 
-    // Save biome locally for instant restore on reload
-    localStorage.setItem("selectedBiome", biome);
+  // If clan not yet generated or no current clan, generate it now
+  if (currentClan.length === 0) {
+    currentClan = generateClan();
+  }
 
-    chooseScreen.style.display = "none";
-    appRoot.style.display      = "block";
-    navigateTo("camp");
-  } catch (err) {
-    console.error(err);
-    alert("Couldn’t save biome – try again.");
+  // Display the clan
+  displayClan(currentClan);
+
+  // Confirm biome + clan locking button
+  if (!confirmBiome.dataset.clanLocked) {
+    const lockBtn = document.createElement("button");
+    lockBtn.textContent = "Confirm Biome and Clan";
+    lockBtn.style.marginTop = "1rem";
+    chooseScreen.querySelector(".modal-box").appendChild(lockBtn);
+
+    lockBtn.addEventListener("click", async () => {
+      try {
+        await db.doc(`users/${user.uid}`).set(
+          { biome, clan: currentClan },
+          { merge: true }
+        );
+
+        document.body.setAttribute("data-biome", biome);
+        localStorage.setItem("selectedBiome", biome);
+
+        chooseScreen.style.display = "none";
+        appRoot.style.display = "block";
+        navigateTo("camp");
+      } catch (err) {
+        console.error(err);
+        alert("Couldn’t save biome and clan – try again.");
+      }
+    });
+
+    confirmBiome.dataset.clanLocked = "true";
+    confirmBiome.style.display = "none"; // hide original confirmBiome button
   }
 });
+
+// Display clan info in chooseScreen modal
+function displayClan(clan) {
+  if (!clanDisplayContainer) return;
+
+  clanDisplayContainer.innerHTML = "<h3>Your Clan (10 cats):</h3>";
+
+  // Create list of cats with roles
+  const ul = document.createElement("ul");
+  clan.forEach(cat => {
+    const li = document.createElement("li");
+    li.textContent = `${cat.name} — ${cat.role}`;
+    ul.appendChild(li);
+  });
+
+  clanDisplayContainer.appendChild(ul);
+}
 
 /* ╔══════════════════════════════════════════════════════════════════════╗
    ║  6.  Auth modal logic                                               ║
@@ -186,16 +299,26 @@ auth.onAuthStateChanged(async user => {
     const snap = await db.doc(`users/${user.uid}`).get();
     const data = snap.data() || {};
 
-    if (!data.biome) {
-      /* First time: needs biome */
+    if (!data.biome || !data.clan) {
+      /* First time: needs biome (and clan) */
       authModal.style.display    = "none";
       appRoot.style.display      = "none";
       chooseScreen.style.display = "flex";
       biomeSelect.value          = "";
       biomeDesc.textContent      = "";
       localStorage.removeItem("selectedBiome");
+
+      // Reset reroll count for new selection
+      rerollCount = 2;
+      currentClan = [];
+      if (rerollBtn) rerollBtn.textContent = `Reroll Clan (${rerollCount} left)`;
+      if (clanDisplayContainer) clanDisplayContainer.innerHTML = "";
+
+      // Reset confirmBiome button display and dataset for new biome select
+      confirmBiome.style.display = "inline-block";
+      delete confirmBiome.dataset.clanLocked;
     } else {
-      /* Has biome set */
+      /* Has biome and clan set */
       document.body.setAttribute("data-biome", data.biome);
       chooseScreen.style.display = "none";
       authModal.style.display    = "none";
@@ -204,6 +327,9 @@ auth.onAuthStateChanged(async user => {
 
       // Update localStorage biome cache
       localStorage.setItem("selectedBiome", data.biome);
+
+      // Store clan in currentClan for session (optional)
+      currentClan = data.clan || [];
     }
   } catch (err) {
     console.error("Error loading user data:", err);
