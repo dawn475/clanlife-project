@@ -88,6 +88,28 @@ body[data-biome="tundra"],  body.biome-tundra   { --overlay:rgba(120,160,200,.25
 }
 
 /* =========================================================
+   6b. Biome Background Images
+   ========================================================= */
+body[data-biome="forest"] {
+  background-image: url("images/placeholder_forest.jpg");
+}
+body[data-biome="coast"] {
+  background-image: url("images/placeholder_coast.jpg");
+}
+body[data-biome="mountains"] {
+  background-image: url("images/placeholder_mountains.jpg");
+}
+body[data-biome="plains"] {
+  background-image: url("images/placeholder_plains.jpg");
+}
+body[data-biome="swamp"] {
+  background-image: url("images/placeholder_swamp.jpg");
+}
+body[data-biome="tundra"] {
+  background-image: url("images/placeholder_tundra.jpg");
+}
+
+/* =========================================================
    7. Modal Styles
    ========================================================= */
 .modal{
