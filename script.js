@@ -60,7 +60,7 @@ function navigateTo(section) {
 // Set up the default view on first load
 window.onload = updateBackground;
 
-// ==== Firebase Configuration ====
+// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyCYMR8LL_cfHNswh7nU8l4gwxWxKmiJOjc",
   authDomain: "clanlife-project.firebaseapp.com",
@@ -73,3 +73,33 @@ const firebaseConfig = {
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+// Prompt user to log in
+function showLoginForm() {
+  const email = prompt("Enter your email:");
+  const password = prompt("Enter your password:");
+  if (email && password) {
+    auth.signInWithEmailAndPassword(email, password)
+      .then(() => alert("Logged in successfully!"))
+      .catch(error => alert("Login failed: " + error.message));
+  }
+}
+
+// Prompt user to sign up
+function showSignupForm() {
+  const email = prompt("Enter your email:");
+  const password = prompt("Enter your password (6+ characters):");
+  if (email && password) {
+    auth.createUserWithEmailAndPassword(email, password)
+      .then(() => alert("Account created successfully!"))
+      .catch(error => alert("Signup failed: " + error.message));
+  }
+}
+
+// Hook up buttons
+window.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("loginBtn")?.addEventListener("click", showLoginForm);
+  document.getElementById("signupBtn")?.addEventListener("click", showSignupForm);
+});
+
