@@ -1,17 +1,41 @@
-# 🐾 Clanlife Project
+# 🐾 Clanlife
 
-Welcome to **Clanlife**, a fan-made browser-based game inspired by the world of warrior cats. Manage your own clan of cats, explore different biomes, and collect resources — all in a stylized UI with theming and light roleplay features.
+**Clanlife** is a small browser-based fan project inspired by the world of warrior cats. It’s designed for personal use with friends — to manage your own fictional clan, explore unique biomes, and collect fun items.
 
-🚀 **[Play the Game](https://dawn475.github.io/clanlife-project/)**
+> 🌐 **Play the Game:** [https://dawn475.github.io/clanlife-project/](https://dawn475.github.io/clanlife-project/)
 
 ---
 
-## 🌟 Features
+## 🌟 What It Does
 
-- 🎨 **Themed UI** based on chosen biome and light/mid/dark mode.
-- 🐱 **Clan Management**: Generate a new clan of randomly created cats with names, roles, and stats.
-- 🌲 **Exploration**: Send cats to explore different biomes and gather resources.
-- 📦 **Inventory System**: View, sort, and collect items like herbs, food, and amusement objects.
-- 🧭 **Persistent Save**: Game data (cats, inventory, biome) is saved in your browser's local storage.
-- 🔄 **Leader Management**: Assign and display a clan leader with image and name.
-- 🌐 **Runs fully in-browser**, no login or download needed.
+- 🐱 Generates a random clan of cats with names, roles, stats, and ages  
+- 🌳 Lets you pick a biome that affects theming and exploration  
+- 📦 Allows inventory collection through simple exploration events  
+- 🌙 Supports light, mid, and dark UI modes  
+- 💾 Saves your progress locally in your browser
+
+---
+
+## ❗ Note
+
+This is a **personal project** shared only for viewing and playing with friends. It’s not intended to be cloned, forked, or redistributed.
+
+Please do not copy or reuse assets, art, or code without permission.
+
+---
+
+## 🔧 Tech
+
+- HTML, CSS, and JavaScript (vanilla)
+- LocalStorage for save data
+- Responsive UI with theming
+
+---
+
+## 🧡 Credits
+
+Created by [@dawn475](https://github.com/dawn475)  
+Inspired by *Warrior Cats*, pet sim games, and community storytelling projects.
+
+---
+
