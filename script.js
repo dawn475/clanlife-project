@@ -32,7 +32,9 @@ function navigateTo(section) {
   if (section === "camp") attachAuthHandlers();
 }
 
-// ---- Firebase Auth ----
+/* ---------- existing biome + navigation code ABOVE remains unchanged ---------- */
+
+/* ---------- Firebase Auth Gate ---------- */
 const firebaseConfig = {
   apiKey:            "AIzaSyCYMR8LL_cfHNswh7nU8l4gwxWxKmiJOjc",
   authDomain:        "clanlife-project.firebaseapp.com",
@@ -45,32 +47,65 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
-function showLoginForm() {
-  const email = prompt("Email:");
-  const pass  = prompt("Password:");
-  if (email && pass)
-    auth.signInWithEmailAndPassword(email, pass)
-        .then(() => alert("Logged in!"))
-        .catch(e => alert(e.message));
-}
+/* Elements */
+const appRoot   = document.getElementById("appRoot");
+const modal     = document.getElementById("authModal");
+const title     = document.getElementById("authTitle");
+const emailIn   = document.getElementById("authEmail");
+const passIn    = document.getElementById("authPass");
+const submitBtn = document.getElementById("authSubmit");
+const toggleTxt = document.getElementById("authToggle");
+const switchLink= document.getElementById("switchToSignUp");
+const errBox    = document.getElementById("authError");
 
-function showSignupForm() {
-  const email = prompt("Email:");
-  const pass  = prompt("Password (6+ chars):");
-  if (email && pass)
-    auth.createUserWithEmailAndPassword(email, pass)
-        .then(() => alert("Account created!"))
-        .catch(e => alert(e.message));
-}
+let mode = "login"; // or "signup"
 
-// Attach handlers (called on load & whenever Camp is re-rendered)
-function attachAuthHandlers() {
-  document.getElementById("loginBtn")?.addEventListener("click", showLoginForm);
-  document.getElementById("signupBtn")?.addEventListener("click", showSignupForm);
+/* Swap modal between Log In and Sign Up */
+function setMode(m){
+  mode = m;
+  title.textContent = m === "login" ? "Log In" : "Sign Up";
+  submitBtn.textContent = m === "login" ? "Log In" : "Create Account";
+  toggleTxt.innerHTML =
+    m === "login"
+      ? `Don’t have an account? <a href="#" id="switchToSignUp">Sign Up</a>`
+      : `Already have an account? <a href="#" id="switchToLogin">Log In</a>`;
 }
+function showError(msg){ errBox.textContent = msg; }
 
-// Initial setup
-window.addEventListener("DOMContentLoaded", () => {
+/* Submit handler */
+submitBtn.onclick = () => {
+  const email = emailIn.value.trim();
+  const pass  = passIn.value.trim();
+  if(!email || !pass){ showError("Please fill in both fields."); return; }
+
+  const action = mode === "login"
+    ? auth.signInWithEmailAndPassword(email, pass)
+    : auth.createUserWithEmailAndPassword(email, pass);
+
+  action.then(()=>{ modal.style.display="none"; })
+        .catch(e => showError(e.message));
+};
+
+/* Link switching */
+modal.addEventListener("click", e=>{
+  if(e.target.id==="switchToSignUp"){ e.preventDefault(); setMode("signup"); }
+  if(e.target.id==="switchToLogin"){ e.preventDefault(); setMode("login");  }
+});
+
+/* Firebase auth state */
+auth.onAuthStateChanged(user=>{
+  if(user){
+    modal.style.display = "none";
+    appRoot.style.display = "block";
+    navigateTo("camp");
+  }else{
+    appRoot.style.display = "none";
+    modal.style.display   = "flex";
+    setMode("login");
+  }
+});
+
+/* Load biome/mode defaults once user is in */
+window.addEventListener("DOMContentLoaded", ()=>{
   updateBackground();
-  attachAuthHandlers();
 });
