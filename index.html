@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ClanLife</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="header">
+      <h1>ClanLife</h1>
+    </div>
+
+    <div class="navbar">
+      <button onclick="navigateTo('camp')">Camp</button>
+      <button onclick="navigateTo('explore')">Explore</button>
+      <button onclick="navigateTo('inventory')">Inventory</button>
+      <button onclick="navigateTo('crossroads')">Crossroads</button>
+    </div>
+
+    <div class="controls">
+      <label>
+        Select Biome:
+        <select id="biomeSelect" onchange="updateBackground()">
+          <option value="coast">Coast</option>
+          <option value="forest" selected>Forest</option>
+          <option value="mountains">Mountains</option>
+          <option value="plains">Plains</option>
+          <option value="swamp">Swamp</option>
+          <option value="tundra">Tundra</option>
+        </select>
+      </label>
+
+      <label>
+        UI Mode:
+        <select id="uiModeSelect" onchange="updateBackground()">
+          <option value="light">Light</option>
+          <option value="mid" selected>Mid</option>
+          <option value="dark">Dark</option>
+        </select>
+      </label>
+
+      <select onchange="navigateTo(this.value)">
+        <option value="camp">Camp</option>
+        <option value="explore">Explore</option>
+        <option value="inventory">Inventory</option>
+        <option value="crossroads">Crossroads</option>
+      </select>
+    </div>
+
+    <div class="main-content" id="mainContent">
+      <h2>Welcome to ClanLife</h2>
+      <p>Create an account or log in to start managing your clan.</p>
+      <button>Log In</button>
+      <button>Sign Up</button>
+    </div>
+
+    <script src="script.js" defer></script>
+  </body>
+</html>
