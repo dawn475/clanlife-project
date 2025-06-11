@@ -3,36 +3,94 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Choose Your Biome - ClanLife</title>
+  <title>ClanLife</title>
+
+  <!-- (Optional) Main stylesheet -->
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- Biome Selection Screen -->
-  <div id="chooseBiomeScreen" role="region" aria-label="Biome selection screen">
-    <h2>Select Your Biome</h2>
-    <select id="biomeSelect" aria-describedby="biomeDescription">
-      <option value="" disabled selected>--Choose a biome--</option>
-      <option value="forest">Forest</option>
-      <option value="coast">Coast</option>
-      <option value="mountains">Mountains</option>
-      <option value="plains">Plains</option>
-      <option value="swamp">Swamp</option>
-      <option value="tundra">Tundra</option>
-    </select>
-    <p id="biomeDescription" aria-live="polite" style="min-height:1.5em;"></p>
-    <button id="confirmBiome" type="button">Confirm</button>
+
+  <!-- ───  Header  ────────────────────────────────────────────────────────── -->
+  <header class="header"><h1>ClanLife</h1></header>
+
+  <!-- ───  Auth Modal  ────────────────────────────────────────────────────── -->
+  <div id="authModal" class="modal" style="display:none;">
+    <div class="modal-box">
+      <h2 id="authTitle">Log In</h2>
+
+      <label>Email
+        <input type="email" id="authEmail" placeholder="you@example.com" />
+      </label>
+
+      <label>Password
+        <input type="password" id="authPass" placeholder="6+ characters" />
+      </label>
+
+      <button id="authSubmit">Submit</button>
+      <p id="authToggle">
+        Don’t have an account?
+        <a href="#" id="switchToSignUp">Sign Up</a>
+      </p>
+      <p id="authError" class="error"></p>
+    </div>
   </div>
 
-  <!-- Main app container (hidden initially) -->
+  <!-- ───  Biome-lock screen (first login)  ───────────────────────────────── -->
+  <div id="chooseBiomeScreen" role="region" aria-label="Biome selection"
+       style="display:none; flex-direction:column; align-items:center; padding:2rem;">
+    <div class="modal-box">
+      <h2>Select Your Biome</h2>
+
+      <select id="biomeSelect" aria-describedby="biomeDescription">
+        <option value="" disabled selected>--Choose a biome--</option>
+        <option value="forest">Forest</option>
+        <option value="coast">Coast</option>
+        <option value="mountains">Mountains</option>
+        <option value="plains">Plains</option>
+        <option value="swamp">Swamp</option>
+        <option value="tundra">Tundra</option>
+      </select>
+
+      <p id="biomeDescription" aria-live="polite" style="min-height:1.5em;"></p>
+      <button id="confirmBiome" type="button">Confirm Biome</button>
+    </div>
+  </div>
+
+  <!-- ───  Main Game UI (hidden until authenticated & biome locked) ───────── -->
   <div id="appRoot" style="display:none;">
-    <!-- Your main app content goes here -->
+    <!-- navbar -->
+    <nav class="navbar">
+      <button onclick="navigateTo('camp')">Camp</button>
+      <button onclick="navigateTo('explore')">Explore</button>
+      <button onclick="navigateTo('inventory')">Inventory</button>
+      <button onclick="navigateTo('crossroads')">Crossroads</button>
+    </nav>
+
+    <!-- quick controls -->
+    <div class="controls">
+      <label>
+        UI Mode:
+        <select id="uiModeSelect">
+          <option value="light">Light</option>
+          <option value="mid" selected>Mid</option>
+          <option value="dark">Dark</option>
+        </select>
+      </label>
+    </div>
+
+    <!-- dynamic page container -->
+    <main id="mainContent" class="main-content">
+      <h2>Welcome to ClanLife</h2>
+      <p>Create an account or log in to start managing your clan.</p>
+    </main>
   </div>
 
-  <!-- Firebase SDKs -->
+  <!-- ───  Firebase SDKs  ─────────────────────────────────────────────────── -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
-  <!-- Your app JS -->
+  <!-- ───  App Logic  ─────────────────────────────────────────────────────── -->
   <script src="app.js"></script>
 </body>
 </html>
