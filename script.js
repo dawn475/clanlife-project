@@ -127,3 +127,65 @@ function gatherMaterials() {
   alert(`You gathered materials!\n+${gain.wood} wood, +${gain.moss} moss, +${gain.stone} stone`);
   renderInventory();
 }
+// ─── 7. Camp and Inventory Systems ────────────────────────────────
+
+let structures = [
+  { type: 'Den', name: 'Main Den' },
+  { type: 'Nursery', name: 'Nursery' }
+];
+let inventory = {
+  wood: 10,
+  stone: 5,
+  herbs: 3
+};
+let maxStructures = 10;
+
+function renderCamp() {
+  let campHTML = `<h2>${clanName || "Your"} Camp</h2><h3>Structures</h3><ul>`;
+  structures.forEach(s => {
+    campHTML += `<li><strong>${s.name}</strong> — ${s.type}</li>`;
+  });
+  campHTML += `</ul>`;
+
+  if (structures.length < maxStructures) {
+    campHTML += `
+      <button onclick="buildStructure('Den')">Build Den</button>
+      <button onclick="buildStructure('Nursery')">Build Nursery</button>
+    `;
+  } else {
+    campHTML += `<p>Camp is full. Max structures reached (${maxStructures}).</p>`;
+  }
+
+  mainArea.innerHTML = campHTML;
+}
+
+function buildStructure(type) {
+  if (structures.length >= maxStructures) return alert("Camp is full!");
+
+  const name = prompt(`Name your new ${type.toLowerCase()}:`);
+  if (!name || name.trim().length < 2) return;
+
+  structures.push({ type, name: name.trim() });
+  renderCamp();
+}
+
+function renderInventory() {
+  let invHTML = `<h2>Inventory</h2><ul>`;
+  for (const item in inventory) {
+    invHTML += `<li><strong>${item}</strong>: ${inventory[item]}</li>`;
+  }
+  invHTML += `</ul>`;
+  mainArea.innerHTML = invHTML;
+}
+
+// Extend navigation
+function navigateTo(page) {
+  const pages = {
+    camp: renderCamp,
+    explore: () => mainArea.innerHTML = "<h2>Explore</h2><p>Search the territory…</p>",
+    inventory: renderInventory,
+    crossroads: () => mainArea.innerHTML = "<h2>Crossroads</h2><p>Meet neighbouring clans…</p>"
+  };
+  if (pages[page]) pages[page]();
+  else mainArea.innerHTML = "<h2>Coming soon…</h2>";
+}
