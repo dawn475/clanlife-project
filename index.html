@@ -2,96 +2,48 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ClanLife</title>
-
-  <!-- Stylesheet -->
-  <link rel="stylesheet" href="style.css" />
-
-  <!-- Optional: Favicon to prevent 404 error -->
-  <link rel="icon" href="data:," />
+  <link rel="stylesheet" href="style.css">
 </head>
-<body data-biome="">
+<body class="mid">
 
-  <!-- ───  Header  ────────────────────────────────────────────────────────── -->
-  <header class="header"><h1>ClanLife</h1></header>
-
-  <!-- ───  Auth Modal  ────────────────────────────────────────────────────── -->
-  <div id="authModal" class="modal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="authTitle">
-    <div class="modal-box">
-      <h2 id="authTitle">Log In</h2>
-
-      <label for="authEmail">Email</label>
-      <input type="email" id="authEmail" placeholder="you@example.com" autocomplete="username" />
-
-      <label for="authPass">Password</label>
-      <input type="password" id="authPass" placeholder="6+ characters" autocomplete="current-password" />
-
-      <button id="authSubmit" type="button">Submit</button>
-      <p id="authToggle" class="toggle-link">
-        Don’t have an account?
-        <a href="#" id="switchToSignUp">Sign Up</a>
-      </p>
-      <p id="authError" class="error" aria-live="assertive"></p>
-    </div>
+<!-- Biome Selection -->
+<div id="chooseBiomeScreen" class="modal-screen">
+  <div class="modal-box">
+    <h2>Choose Your Biome</h2>
+    <label for="biomeSelect">Biome:</label>
+    <select id="biomeSelect">
+      <option value="">--Select a biome--</option>
+      <option value="forest">Forest</option>
+      <option value="coast">Coast</option>
+      <option value="mountains">Mountains</option>
+      <option value="plains">Plains</option>
+      <option value="swamp">Swamp</option>
+      <option value="tundra">Tundra</option>
+    </select>
+    <p id="biomeDescription" class="description-text"></p>
+    <button id="confirmBiome" class="main-btn">Confirm Biome</button>
+    <div id="clanPreview"></div>
   </div>
+</div>
 
-  <!-- ───  Biome-lock screen (first login)  ───────────────────────────────── -->
-  <div id="chooseBiomeScreen" role="region" aria-label="Biome selection"
-       style="display:none; flex-direction:column; align-items:center; padding:2rem;">
-    <div class="modal-box" role="group" aria-labelledby="chooseBiomeHeading">
-      <h2 id="chooseBiomeHeading">Select Your Biome</h2>
+<!-- Game Interface -->
+<div id="appRoot" style="display:none;">
+  <nav>
+    <button onclick="navigateTo('camp')">Camp</button>
+    <button onclick="navigateTo('explore')">Explore</button>
+    <button onclick="navigateTo('inventory')">Inventory</button>
+    <button onclick="navigateTo('crossroads')">Crossroads</button>
+    <select id="uiModeSelect">
+      <option value="light">☀️ Light</option>
+      <option value="mid" selected>🌗 Mid</option>
+      <option value="dark">🌑 Dark</option>
+    </select>
+  </nav>
+  <main id="mainContent"></main>
+</div>
 
-      <select id="biomeSelect" aria-describedby="biomeDescription" aria-required="true">
-        <option value="" disabled selected>--Choose a biome--</option>
-        <option value="forest">Forest</option>
-        <option value="coast">Coast</option>
-        <option value="mountains">Mountains</option>
-        <option value="plains">Plains</option>
-        <option value="swamp">Swamp</option>
-        <option value="tundra">Tundra</option>
-      </select>
-
-      <p id="biomeDescription" aria-live="polite" style="min-height:1.5em; margin-top:0.5em;"></p>
-      <button id="confirmBiome" type="button" aria-disabled="true" disabled>Confirm Biome</button>
-    </div>
-  </div>
-
-  <!-- ───  Main Game UI (hidden until authenticated & biome locked) ───────── -->
-  <div id="appRoot" style="display:none;">
-    <!-- navbar -->
-    <nav class="navbar" role="navigation" aria-label="Main navigation">
-      <button type="button" onclick="navigateTo('camp')">Camp</button>
-      <button type="button" onclick="navigateTo('explore')">Explore</button>
-      <button type="button" onclick="navigateTo('inventory')">Inventory</button>
-      <button type="button" onclick="navigateTo('crossroads')">Crossroads</button>
-    </nav>
-
-    <!-- quick controls -->
-    <div class="controls" role="region" aria-label="User interface settings">
-      <label for="uiModeSelect">
-        UI Mode:
-        <select id="uiModeSelect" name="uiModeSelect" aria-live="polite">
-          <option value="light">Light</option>
-          <option value="mid" selected>Mid</option>
-          <option value="dark">Dark</option>
-        </select>
-      </label>
-    </div>
-
-    <!-- dynamic page container -->
-    <main id="mainContent" class="main-content" tabindex="0">
-      <h2>Welcome to ClanLife</h2>
-      <p>Create an account or log in to start managing your clan.</p>
-    </main>
-  </div>
-
-  <!-- ───  Firebase SDKs  ─────────────────────────────────────────────────── -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-
-  <!-- ───  App Logic  ─────────────────────────────────────────────────────── -->
-  <script src="script.js" defer></script>
+<script src="main.js"></script>
 </body>
 </html>
