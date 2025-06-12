@@ -1,4 +1,4 @@
-// ✅ Firebase Config
+// Your Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyCYMR8LL_cfHNswh7nU8l4gwxWxKmiJOjc",
   authDomain: "clanlife-project.firebaseapp.com",
@@ -9,125 +9,151 @@ const firebaseConfig = {
   measurementId: "G-4PPGL63VKN"
 };
 
-// ✅ Initialize Firebase
+// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
 const db = firebase.firestore();
 
-let userData = {
-  biome: null,
-  dens: 1,
-  nursery: 1,
-  inventory: [],
-  campLimit: 10
-};
+// DOM Elements
+const generateClanBtn = document.getElementById('generateClanBtn');
+const tabCamp = document.getElementById('tabCamp');
+const tabInventory = document.getElementById('tabInventory');
+const campContent = document.getElementById('campContent');
+const inventoryContent = document.getElementById('inventoryContent');
+const inventoryList = document.getElementById('inventoryList');
 
-// 🌙 UI Mode switching
-document.getElementById("uiModeSelect").addEventListener("change", (e) => {
-  document.body.className = e.target.value;
-});
+let currentClan = null;
+let currentInventory = [];
 
-// 🌎 Biome Descriptions
-const biomeDescriptions = {
-  forest: "A lush biome with dense trees and mossy undergrowth.",
-  coast: "Windswept beaches and salty breezes greet you here.",
-  mountains: "High peaks and cold winds challenge your Clan.",
-  plains: "Open fields offer little cover but plenty of prey.",
-  swamp: "Murky waters and fog create mystery and danger.",
-  tundra: "Snow blankets the land and survival is harsh."
-};
-
-// 🏞️ Biome selection logic
-const biomeSelect = document.getElementById("biomeSelect");
-const biomeDescription = document.getElementById("biomeDescription");
-const confirmBiome = document.getElementById("confirmBiome");
-const appRoot = document.getElementById("appRoot");
-
-biomeSelect.addEventListener("change", () => {
-  const biome = biomeSelect.value;
-  biomeDescription.textContent = biomeDescriptions[biome] || "";
-});
-
-confirmBiome.addEventListener("click", () => {
-  const selectedBiome = biomeSelect.value;
-  if (!selectedBiome) return alert("Please select a biome.");
-  userData.biome = selectedBiome;
-  saveData();
-  document.getElementById("chooseBiomeScreen").style.display = "none";
-  appRoot.style.display = "block";
-  navigateTo("camp");
-});
-
-// 📍 Navigation
-function navigateTo(view) {
-  const main = document.getElementById("mainContent");
-  if (view === "camp") {
-    main.innerHTML = `
-      <h2>Camp</h2>
-      <div class="camp-status">
-        <p>Biome: ${userData.biome}</p>
-        <p>Dens: ${userData.dens}</p>
-        <p>Nursery: ${userData.nursery}</p>
-        <p>Camp Space Used: ${userData.dens + userData.nursery}/${userData.campLimit}</p>
-      </div>
-    `;
-  } else if (view === "inventory") {
-    main.innerHTML = `
-      <h2>Inventory</h2>
-      <div class="inventory-list">
-        ${userData.inventory.length === 0 ? "<p>No items collected yet.</p>" : `<ul>${userData.inventory.map(item => `<li>${item}</li>`).join("")}</ul>`}
-      </div>
-    `;
-  } else if (view === "explore") {
-    main.innerHTML = `
-      <h2>Explore</h2>
-      <p>Click the button to explore and find items!</p>
-      <button class="collect-btn" onclick="explore()">Explore</button>
-    `;
-  } else {
-    main.innerHTML = `<h2>Crossroads</h2><p>Coming soon...</p>`;
+// Tab switching
+function switchTab(tabName) {
+  if (tabName === 'camp') {
+    tabCamp.classList.add('active');
+    tabInventory.classList.remove('active');
+    campContent.classList.add('active');
+    inventoryContent.classList.remove('active');
+  } else if (tabName === 'inventory') {
+    tabCamp.classList.remove('active');
+    tabInventory.classList.add('active');
+    campContent.classList.remove('active');
+    inventoryContent.classList.add('active');
   }
 }
 
-// 🧭 Exploration Logic
-function explore() {
-  const items = ["Moss", "Twigs", "Feather", "Stone", "Bark"];
-  const found = items[Math.floor(Math.random() * items.length)];
-  userData.inventory.push(found);
-  saveData();
-  alert(`You found: ${found}`);
-  navigateTo("inventory");
+tabCamp.addEventListener('click', () => switchTab('camp'));
+tabInventory.addEventListener('click', () => switchTab('inventory'));
+
+// Generate a clan with up to 10 cats (simplified example)
+function generateClan() {
+  // Example cat data generation
+  const catNames = ['Starfire', 'Ashpaw', 'Moonclaw', 'Brightleaf', 'Stormtail', 'Sunwhisker', 'Mistfur', 'Shadowstep', 'Goldengaze', 'Frostpelt'];
+  const roles = ['Leader', 'Deputy', 'Medicine Cat', 'Warrior', 'Apprentice', 'Elder', 'Queen'];
+
+  const cats = [];
+
+  for (let i = 0; i < 10; i++) {
+    cats.push({
+      name: catNames[i],
+      role: roles[Math.floor(Math.random() * roles.length)],
+    });
+  }
+
+  const clanData = {
+    cats: cats,
+    createdAt: new Date().toISOString(),
+  };
+
+  // Save clan to Firestore
+  db.collection('clans').add(clanData)
+    .then(docRef => {
+      console.log("Clan saved with ID:", docRef.id);
+      alert("Clan generated and saved!");
+      currentClan = clanData;
+      displayClan(currentClan);
+    })
+    .catch(error => {
+      console.error("Error saving clan:", error);
+      alert("Failed to generate clan. Check console.");
+    });
 }
 
-// 💾 Save Data to Firebase
-function saveData() {
-  const user = auth.currentUser;
-  if (!user) return;
-  db.collection("users").doc(user.uid).set(userData);
-}
-
-// 🔁 Load Data from Firebase
-function loadData() {
-  const user = auth.currentUser;
-  if (!user) return;
-  db.collection("users").doc(user.uid).get().then(doc => {
-    if (doc.exists) {
-      userData = doc.data();
-    }
-    if (!userData.biome) {
-      document.getElementById("chooseBiomeScreen").style.display = "flex";
-    } else {
-      appRoot.style.display = "block";
-      navigateTo("camp");
-    }
+// Display clan cats in Camp tab
+function displayClan(clan) {
+  campContent.innerHTML = '<h2>Camp</h2><h3>Clan Cats:</h3>';
+  clan.cats.forEach(cat => {
+    const p = document.createElement('p');
+    p.textContent = `${cat.name} - ${cat.role}`;
+    campContent.appendChild(p);
   });
 }
 
-// 👤 Auto-login Anonymously
-auth.onAuthStateChanged(user => {
-  if (user) {
-    loadData();
-  } else {
-    auth.signInAnonymously().catch(console.error);
+// Inventory management
+function displayInventory() {
+  inventoryList.innerHTML = '';
+
+  if (currentInventory.length === 0) {
+    inventoryList.innerHTML = '<li>No items collected yet.</li>';
+    return;
   }
-});
+
+  currentInventory.forEach(item => {
+    const li = document.createElement('li');
+    li.textContent = `${item.name} (x${item.quantity})`;
+    inventoryList.appendChild(li);
+  });
+}
+
+// Simulate item collection (you can call this function during exploration)
+function collectItem(itemName) {
+  const existingItem = currentInventory.find(item => item.name === itemName);
+  if (existingItem) {
+    existingItem.quantity += 1;
+  } else {
+    currentInventory.push({ name: itemName, quantity: 1 });
+  }
+  saveInventory();
+  displayInventory();
+}
+
+// Save inventory to Firestore (you can customize based on user ID)
+function saveInventory() {
+  // For this example, saving under a fixed document (you should adapt this for users)
+  db.collection('inventory').doc('userInventory').set({
+    items: currentInventory,
+    updatedAt: new Date().toISOString(),
+  })
+  .then(() => {
+    console.log("Inventory saved.");
+  })
+  .catch(error => {
+    console.error("Error saving inventory:", error);
+  });
+}
+
+// Load inventory from Firestore on page load
+function loadInventory() {
+  db.collection('inventory').doc('userInventory').get()
+    .then(doc => {
+      if (doc.exists) {
+        currentInventory = doc.data().items || [];
+      } else {
+        currentInventory = [];
+      }
+      displayInventory();
+    })
+    .catch(error => {
+      console.error("Error loading inventory:", error);
+    });
+}
+
+// Initial setup
+generateClanBtn.addEventListener('click', generateClan);
+loadInventory();
+switchTab('camp');
+
+// Example: Simulate collecting an item every 15 seconds (for testing)
+setInterval(() => {
+  const possibleItems = ['Herb', 'Fish', 'Rabbit Foot', 'Feather', 'Shiny Stone'];
+  const randomItem = possibleItems[Math.floor(Math.random() * possibleItems.length)];
+  collectItem(randomItem);
+  console.log(`Collected item: ${randomItem}`);
+}, 15000);
