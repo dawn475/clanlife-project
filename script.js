@@ -1,12 +1,13 @@
 // Firebase config
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID",
-  databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com"
+  apiKey: "AIzaSyCYMR8LL_cfHNswh7nU8l4gwxWxKmiJOjc",
+  authDomain: "clanlife-project.firebaseapp.com",
+  projectId: "clanlife-project",
+  storageBucket: "clanlife-project.firebasestorage.app",
+  messagingSenderId: "553812082452",
+  appId: "1:553812082452:web:0bb5f381c2d7b113d48c01",
+  measurementId: "G-4PPGL63VKN",
+  databaseURL: "https://clanlife-project-default-rtdb.firebaseio.com"
 };
 
 // Initialize Firebase
@@ -119,4 +120,3 @@ function loadData() {
     }
   });
 }
-
