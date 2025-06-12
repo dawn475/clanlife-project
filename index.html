@@ -7,40 +7,33 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="auth-section">
-    <input type="email" id="email" placeholder="Email" />
-    <input type="password" id="password" placeholder="Password" />
-    <button onclick="signUp()">Sign Up</button>
-    <button onclick="logIn()">Log In</button>
-    <button onclick="logOut()">Log Out</button>
+  <div id="auth-container">
+    <h1>ClanLife</h1>
+    <div id="auth-forms">
+      <input type="email" id="email" placeholder="Email" />
+      <input type="password" id="password" placeholder="Password" />
+      <button id="signup-btn">Sign Up</button>
+      <button id="login-btn">Login</button>
+    </div>
+    <p id="auth-message"></p>
   </div>
 
-  <div id="game-section" style="display: none;">
-    <h2>Welcome to ClanLife</h2>
-
+  <div id="game-container" style="display: none;">
+    <h2>Welcome to ClanLife!</h2>
     <div id="camp">
-      <h3>Camp</h3>
-      <p>Total Dens: <span id="denCount">0</span> / 10</p>
-      <button onclick="createDen()">Create Den</button>
-      <div id="dens"></div>
-      <div id="nursery"><strong>Nursery:</strong> For expecting Kindlekeepers</div>
+      <img src="images/placeholder-sprite.png" alt="Cat Sprite" id="cat-sprite"/>
+      <p>Your cat is here!</p>
+      <button onclick="collectItem()">Explore</button>
+      <p id="item-result"></p>
+      <h3>Inventory:</h3>
+      <ul id="inventory-list"></ul>
     </div>
-
-    <div id="explore">
-      <h3>Explore</h3>
-      <button onclick="collectItem()">Collect Item</button>
-      <p id="foundItem"></p>
-    </div>
-
-    <div id="inventory">
-      <h3>Inventory</h3>
-      <ul id="inventoryList"></ul>
-    </div>
+    <button onclick="logout()">Logout</button>
   </div>
 
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
