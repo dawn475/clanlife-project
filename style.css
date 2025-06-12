@@ -3,6 +3,9 @@ body {
   padding: 20px;
   background-color: #1e1e1e;
   color: #f5f5f5;
+  /* Add smooth font rendering for crisp text */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 button {
@@ -14,26 +17,35 @@ button {
   background-color: #333;
   color: #ffc966;
   font-weight: bold;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, color 0.3s;
+  /* Add a subtle box-shadow on hover for depth */
+  box-shadow: none;
 }
 
 button:hover {
   background-color: #ffb84d;
   color: #222;
+  box-shadow: 0 2px 8px rgba(255, 184, 77, 0.5);
 }
 
 .tabs {
   margin-top: 20px;
+  /* Use flexbox to align buttons nicely */
+  display: flex;
+  gap: 10px;
 }
 
 .tab-button {
   background-color: #333;
-  margin-right: 5px;
+  margin-right: 0; /* removed since gap handles spacing */
+  flex-grow: 1;    /* spread buttons evenly */
+  text-align: center;
 }
 
 .tab-button.active {
   background-color: #ffc966;
   color: #222;
+  font-weight: 700;
 }
 
 .tab-content {
@@ -43,6 +55,8 @@ button:hover {
   background-color: #2c2c2c;
   border-radius: 6px;
   min-height: 150px;
+  /* Smooth fade-in */
+  animation: fadeIn 0.3s ease forwards;
 }
 
 .tab-content.active {
@@ -59,4 +73,12 @@ button:hover {
   margin: 5px 0;
   padding: 8px;
   border-radius: 4px;
+  /* Slight shadow for depth */
+  box-shadow: inset 0 0 5px #555;
+}
+
+/* Optional fadeIn animation */
+@keyframes fadeIn {
+  from {opacity: 0;}
+  to {opacity: 1;}
 }
