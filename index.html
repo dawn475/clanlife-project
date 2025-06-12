@@ -2,50 +2,48 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ClanLife</title>
-
-  <link rel="stylesheet" href="style.css" />
-
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="mid">
 
-  <h1>ClanLife Project</h1>
-
-  <!-- Biome Selection -->
-  <div id="biomeSelection">
-    <h2>Select Your Biome</h2>
-    <button class="biomeBtn" data-biome="forest">Forest</button>
-    <button class="biomeBtn" data-biome="mountain">Mountain</button>
-    <button class="biomeBtn" data-biome="river">River</button>
+<!-- Biome Selection -->
+<div id="chooseBiomeScreen" class="modal-screen">
+  <div class="modal-box">
+    <h2>Choose Your Biome</h2>
+    <label for="biomeSelect">Biome:</label>
+    <select id="biomeSelect">
+      <option value="">--Select a biome--</option>
+      <option value="forest">Forest</option>
+      <option value="coast">Coast</option>
+      <option value="mountains">Mountains</option>
+      <option value="plains">Plains</option>
+      <option value="swamp">Swamp</option>
+      <option value="tundra">Tundra</option>
+    </select>
+    <p id="biomeDescription" class="description-text"></p>
+    <button id="confirmBiome" class="main-btn">Confirm Biome</button>
+    <div id="clanPreview"></div>
   </div>
+</div>
 
-  <!-- Clan generation button (hidden until biome selected) -->
-  <button id="generateClanBtn" style="display:none;">Generate Clan</button>
+<!-- Game Interface -->
+<div id="appRoot" style="display:none;">
+  <nav>
+    <button onclick="navigateTo('camp')">Camp</button>
+    <button onclick="navigateTo('explore')">Explore</button>
+    <button onclick="navigateTo('inventory')">Inventory</button>
+    <button onclick="navigateTo('crossroads')">Crossroads</button>
+    <select id="uiModeSelect">
+      <option value="light">☀️ Light</option>
+      <option value="mid" selected>🌗 Mid</option>
+      <option value="dark">🌑 Dark</option>
+    </select>
+  </nav>
+  <main id="mainContent"></main>
+</div>
 
-  <!-- Tabs for Camp & Inventory (hidden until biome selected) -->
-  <div class="tabs" style="display:none;">
-    <button id="tabCamp" class="tab-button active">Camp</button>
-    <button id="tabInventory" class="tab-button">Inventory</button>
-  </div>
-
-  <!-- Camp Content -->
-  <div id="campContent" class="tab-content active">
-    <h2>Camp</h2>
-    <p>Generate your clan and see the cats here.</p>
-  </div>
-
-  <!-- Inventory Content -->
-  <div id="inventoryContent" class="tab-content">
-    <h2>Inventory</h2>
-    <p>Your collected items will appear here.</p>
-    <ul id="inventoryList"></ul>
-  </div>
-
-  <script src="script.js"></script>
+<script src="main.js"></script>
 </body>
 </html>
-
