@@ -1,13 +1,15 @@
-// Firebase Configuration
+// ✅ Firebase Config
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "SENDER_ID",
-  appId: "APP_ID"
+  apiKey: "AIzaSyCYMR8LL_cfHNswh7nU8l4gwxWxKmiJOjc",
+  authDomain: "clanlife-project.firebaseapp.com",
+  projectId: "clanlife-project",
+  storageBucket: "clanlife-project.firebasestorage.app",
+  messagingSenderId: "553812082452",
+  appId: "1:553812082452:web:0bb5f381c2d7b113d48c01",
+  measurementId: "G-4PPGL63VKN"
 };
 
+// ✅ Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
@@ -20,12 +22,12 @@ let userData = {
   campLimit: 10
 };
 
-// UI Mode switching
+// 🌙 UI Mode switching
 document.getElementById("uiModeSelect").addEventListener("change", (e) => {
   document.body.className = e.target.value;
 });
 
-// Biome Descriptions
+// 🌎 Biome Descriptions
 const biomeDescriptions = {
   forest: "A lush biome with dense trees and mossy undergrowth.",
   coast: "Windswept beaches and salty breezes greet you here.",
@@ -35,7 +37,7 @@ const biomeDescriptions = {
   tundra: "Snow blankets the land and survival is harsh."
 };
 
-// Biome selection logic
+// 🏞️ Biome selection logic
 const biomeSelect = document.getElementById("biomeSelect");
 const biomeDescription = document.getElementById("biomeDescription");
 const confirmBiome = document.getElementById("confirmBiome");
@@ -56,7 +58,7 @@ confirmBiome.addEventListener("click", () => {
   navigateTo("camp");
 });
 
-// Navigation
+// 📍 Navigation
 function navigateTo(view) {
   const main = document.getElementById("mainContent");
   if (view === "camp") {
@@ -87,7 +89,7 @@ function navigateTo(view) {
   }
 }
 
-// Exploration Logic
+// 🧭 Exploration Logic
 function explore() {
   const items = ["Moss", "Twigs", "Feather", "Stone", "Bark"];
   const found = items[Math.floor(Math.random() * items.length)];
@@ -97,14 +99,14 @@ function explore() {
   navigateTo("inventory");
 }
 
-// Save Data to Firebase
+// 💾 Save Data to Firebase
 function saveData() {
   const user = auth.currentUser;
   if (!user) return;
   db.collection("users").doc(user.uid).set(userData);
 }
 
-// Load Data from Firebase
+// 🔁 Load Data from Firebase
 function loadData() {
   const user = auth.currentUser;
   if (!user) return;
@@ -121,7 +123,7 @@ function loadData() {
   });
 }
 
-// Auto-login Anonymous
+// 👤 Auto-login Anonymously
 auth.onAuthStateChanged(user => {
   if (user) {
     loadData();
