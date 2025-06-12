@@ -1,191 +1,131 @@
-const mainArea = document.getElementById("main-area");
-
-let clanName = "Sunclan"; // Optional: user-defined
-let campLimit = 10;
-let builtDens = 1;
-const maxDens = 3;
-
-let inventory = {
-  wood: 5,
-  moss: 3,
-  stone: 2
+// Firebase Configuration
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "SENDER_ID",
+  appId: "APP_ID"
 };
 
-let currentClan = [
-  { name: "Virelai", role: "Leader", traits: ["Wise", "Fierce"] },
-  { name: "Astreia", role: "Warrior", traits: ["Loyal", "Curious"] },
-  { name: "Stratus", role: "Queen", traits: ["Calm", "Gentle"] },
-  { name: "Thornkit", role: "Kit", traits: ["Playful"] }
-];
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-// Utility
-function randomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+let userData = {
+  biome: null,
+  dens: 1,
+  nursery: 1,
+  inventory: [],
+  campLimit: 10
+};
 
-// Main Navigation
-function navigateTo(page) {
-  const pages = {
-    camp: renderCamp,
-    explore: renderExplore,
-    inventory: renderInventory,
-    crossroads: renderCrossroads
-  };
-  (pages[page] || renderComingSoon)();
-}
+// UI Mode switching
+document.getElementById("uiModeSelect").addEventListener("change", (e) => {
+  document.body.className = e.target.value;
+});
 
-// Camp UI
-function renderCamp() {
-  const nurseryCats = currentClan.filter(cat => cat.role === "Queen");
+// Biome Descriptions
+const biomeDescriptions = {
+  forest: "A lush biome with dense trees and mossy undergrowth.",
+  coast: "Windswept beaches and salty breezes greet you here.",
+  mountains: "High peaks and cold winds challenge your Clan.",
+  plains: "Open fields offer little cover but plenty of prey.",
+  swamp: "Murky waters and fog create mystery and danger.",
+  tundra: "Snow blankets the land and survival is harsh."
+};
 
-  let html = `<h2>${clanName || "Your"} Camp</h2>`;
-  html += `<p><strong>Camp Space:</strong> ${currentClan.length} / ${campLimit}</p>`;
-  html += `<p><strong>Dens:</strong> ${builtDens} / ${maxDens}</p>`;
+// Biome selection logic
+const biomeSelect = document.getElementById("biomeSelect");
+const biomeDescription = document.getElementById("biomeDescription");
+const confirmBiome = document.getElementById("confirmBiome");
+const appRoot = document.getElementById("appRoot");
 
-  html += `<h3>Dens</h3><ul>`;
-  for (let i = 1; i <= builtDens; i++) {
-    html += `<li>Den ${i}</li>`;
-  }
-  html += `</ul>`;
+biomeSelect.addEventListener("change", () => {
+  const biome = biomeSelect.value;
+  biomeDescription.textContent = biomeDescriptions[biome] || "";
+});
 
-  html += `<h3>Nursery</h3>`;
-  if (nurseryCats.length > 0) {
-    html += `<ul>`;
-    nurseryCats.forEach(cat => {
-      html += `<li><strong>${cat.name}</strong> — ${cat.traits.join(", ")}</li>`;
-    });
-    html += `</ul>`;
-  } else {
-    html += `<p>No expecting queens at the moment.</p>`;
-  }
+confirmBiome.addEventListener("click", () => {
+  const selectedBiome = biomeSelect.value;
+  if (!selectedBiome) return alert("Please select a biome.");
+  userData.biome = selectedBiome;
+  saveData();
+  document.getElementById("chooseBiomeScreen").style.display = "none";
+  appRoot.style.display = "block";
+  navigateTo("camp");
+});
 
-  if (builtDens < maxDens && currentClan.length < campLimit) {
-    html += `
-      <button onclick="buildDen()">Build Another Den</button>
-      <p>Costs: 3 wood, 2 moss, 1 stone</p>
+// Navigation
+function navigateTo(view) {
+  const main = document.getElementById("mainContent");
+  if (view === "camp") {
+    main.innerHTML = `
+      <h2>Camp</h2>
+      <div class="camp-status">
+        <p>Biome: ${userData.biome}</p>
+        <p>Dens: ${userData.dens}</p>
+        <p>Nursery: ${userData.nursery}</p>
+        <p>Camp Space Used: ${userData.dens + userData.nursery}/${userData.campLimit}</p>
+      </div>
     `;
-  }
-
-  mainArea.innerHTML = html;
-}
-
-// Inventory UI
-function renderInventory() {
-  let html = `<h2>Inventory</h2><ul>`;
-  for (const item in inventory) {
-    html += `<li><strong>${item}</strong>: ${inventory[item]}</li>`;
-  }
-  html += `</ul><button onclick="gatherMaterials()">Gather Materials</button>`;
-  mainArea.innerHTML = html;
-}
-
-// Explore Page (Placeholder)
-function renderExplore() {
-  mainArea.innerHTML = `
-    <h2>Explore</h2>
-    <p>Search the territory to find materials and events. (Coming soon!)</p>
-  `;
-}
-
-// Crossroads Page (Placeholder)
-function renderCrossroads() {
-  mainArea.innerHTML = `
-    <h2>Crossroads</h2>
-    <p>Connect with nearby clans and wanderers. (Coming soon!)</p>
-  `;
-}
-
-// Coming Soon Fallback
-function renderComingSoon() {
-  mainArea.innerHTML = "<h2>Coming soon…</h2>";
-}
-
-// Den Builder
-function buildDen() {
-  if (inventory.wood >= 3 && inventory.moss >= 2 && inventory.stone >= 1) {
-    inventory.wood -= 3;
-    inventory.moss -= 2;
-    inventory.stone -= 1;
-    builtDens++;
-    alert("A new den has been built!");
-    renderCamp();
+  } else if (view === "inventory") {
+    main.innerHTML = `
+      <h2>Inventory</h2>
+      <div class="inventory-list">
+        ${userData.inventory.length === 0 ? "<p>No items collected yet.</p>" : `<ul>${userData.inventory.map(item => `<li>${item}</li>`).join("")}</ul>`}
+      </div>
+    `;
+  } else if (view === "explore") {
+    main.innerHTML = `
+      <h2>Explore</h2>
+      <p>Click the button to explore and find items!</p>
+      <button class="collect-btn" onclick="explore()">Explore</button>
+    `;
   } else {
-    alert("Not enough materials!");
+    main.innerHTML = `<h2>Crossroads</h2><p>Coming soon...</p>`;
   }
 }
 
-// Simulated Gathering
-function gatherMaterials() {
-  const gain = {
-    wood: randomInt(0, 2),
-    moss: randomInt(0, 1),
-    stone: randomInt(0, 1)
-  };
-  for (const item in gain) {
-    inventory[item] += gain[item];
-  }
-  alert(`You gathered materials!\n+${gain.wood} wood, +${gain.moss} moss, +${gain.stone} stone`);
-  renderInventory();
+// Exploration Logic
+function explore() {
+  const items = ["Moss", "Twigs", "Feather", "Stone", "Bark"];
+  const found = items[Math.floor(Math.random() * items.length)];
+  userData.inventory.push(found);
+  saveData();
+  alert(`You found: ${found}`);
+  navigateTo("inventory");
 }
-// ─── 7. Camp and Inventory Systems ────────────────────────────────
 
-let structures = [
-  { type: 'Den', name: 'Main Den' },
-  { type: 'Nursery', name: 'Nursery' }
-];
-let inventory = {
-  wood: 10,
-  stone: 5,
-  herbs: 3
-};
-let maxStructures = 10;
+// Save Data to Firebase
+function saveData() {
+  const user = auth.currentUser;
+  if (!user) return;
+  db.collection("users").doc(user.uid).set(userData);
+}
 
-function renderCamp() {
-  let campHTML = `<h2>${clanName || "Your"} Camp</h2><h3>Structures</h3><ul>`;
-  structures.forEach(s => {
-    campHTML += `<li><strong>${s.name}</strong> — ${s.type}</li>`;
+// Load Data from Firebase
+function loadData() {
+  const user = auth.currentUser;
+  if (!user) return;
+  db.collection("users").doc(user.uid).get().then(doc => {
+    if (doc.exists) {
+      userData = doc.data();
+    }
+    if (!userData.biome) {
+      document.getElementById("chooseBiomeScreen").style.display = "flex";
+    } else {
+      appRoot.style.display = "block";
+      navigateTo("camp");
+    }
   });
-  campHTML += `</ul>`;
+}
 
-  if (structures.length < maxStructures) {
-    campHTML += `
-      <button onclick="buildStructure('Den')">Build Den</button>
-      <button onclick="buildStructure('Nursery')">Build Nursery</button>
-    `;
+// Auto-login Anonymous
+auth.onAuthStateChanged(user => {
+  if (user) {
+    loadData();
   } else {
-    campHTML += `<p>Camp is full. Max structures reached (${maxStructures}).</p>`;
+    auth.signInAnonymously().catch(console.error);
   }
-
-  mainArea.innerHTML = campHTML;
-}
-
-function buildStructure(type) {
-  if (structures.length >= maxStructures) return alert("Camp is full!");
-
-  const name = prompt(`Name your new ${type.toLowerCase()}:`);
-  if (!name || name.trim().length < 2) return;
-
-  structures.push({ type, name: name.trim() });
-  renderCamp();
-}
-
-function renderInventory() {
-  let invHTML = `<h2>Inventory</h2><ul>`;
-  for (const item in inventory) {
-    invHTML += `<li><strong>${item}</strong>: ${inventory[item]}</li>`;
-  }
-  invHTML += `</ul>`;
-  mainArea.innerHTML = invHTML;
-}
-
-// Extend navigation
-function navigateTo(page) {
-  const pages = {
-    camp: renderCamp,
-    explore: () => mainArea.innerHTML = "<h2>Explore</h2><p>Search the territory…</p>",
-    inventory: renderInventory,
-    crossroads: () => mainArea.innerHTML = "<h2>Crossroads</h2><p>Meet neighbouring clans…</p>"
-  };
-  if (pages[page]) pages[page]();
-  else mainArea.innerHTML = "<h2>Coming soon…</h2>";
-}
+});
