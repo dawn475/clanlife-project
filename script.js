@@ -6,117 +6,104 @@ const firebaseConfig = {
   storageBucket: "clanlife-project.firebasestorage.app",
   messagingSenderId: "553812082452",
   appId: "1:553812082452:web:0bb5f381c2d7b113d48c01",
-  measurementId: "G-4PPGL63VKN",
-  databaseURL: "https://clanlife-project-default-rtdb.firebaseio.com"
+  measurementId: "G-4PPGL63VKN"
 };
 
-// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
-const db = firebase.database();
+const db = firebase.firestore();
+
+const signupBtn = document.getElementById("signup-btn");
+const loginBtn = document.getElementById("login-btn");
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+const message = document.getElementById("auth-message");
+const gameContainer = document.getElementById("game-container");
+const authContainer = document.getElementById("auth-container");
+const inventoryList = document.getElementById("inventory-list");
 
 let currentUser = null;
-let denCount = 0;
-let inventory = [];
+let userInventory = [];
 
-// Auth functions
-function signUp() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+signupBtn.addEventListener("click", () => {
+  const email = emailInput.value;
+  const password = passwordInput.value;
   auth.createUserWithEmailAndPassword(email, password)
-    .then(userCredential => {
-      alert("Signed up!");
-      currentUser = userCredential.user;
-      saveData();
-      showGame();
+    .then((userCredential) => {
+      message.textContent = "Signup successful!";
+      saveInventory([]);
     })
-    .catch(error => alert(error.message));
-}
+    .catch(error => {
+      message.textContent = error.message;
+    });
+});
 
-function logIn() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+loginBtn.addEventListener("click", () => {
+  const email = emailInput.value;
+  const password = passwordInput.value;
   auth.signInWithEmailAndPassword(email, password)
-    .then(userCredential => {
-      currentUser = userCredential.user;
-      loadData();
-      showGame();
+    .then(() => {
+      message.textContent = "";
     })
-    .catch(error => alert(error.message));
-}
+    .catch(error => {
+      message.textContent = error.message;
+    });
+});
 
-function logOut() {
-  auth.signOut().then(() => {
-    alert("Logged out.");
-    document.getElementById("game-section").style.display = "none";
-    document.getElementById("auth-section").style.display = "block";
-  });
-}
-
-// Show game after login
-function showGame() {
-  document.getElementById("auth-section").style.display = "none";
-  document.getElementById("game-section").style.display = "block";
-}
-
-// Den logic
-function createDen() {
-  if (denCount < 10) {
-    const denDiv = document.createElement("div");
-    denDiv.textContent = `Den ${denCount + 1}`;
-    document.getElementById("dens").appendChild(denDiv);
-    denCount++;
-    document.getElementById("denCount").textContent = denCount;
-    saveData();
+auth.onAuthStateChanged(user => {
+  if (user) {
+    currentUser = user;
+    showGame();
+    loadInventory();
   } else {
-    alert("Camp is full. Maximum 10 dens.");
+    showAuth();
   }
+});
+
+function logout() {
+  auth.signOut();
 }
 
-// Inventory logic
+function showGame() {
+  authContainer.style.display = "none";
+  gameContainer.style.display = "block";
+}
+
+function showAuth() {
+  authContainer.style.display = "block";
+  gameContainer.style.display = "none";
+}
+
 function collectItem() {
-  const items = ["Feather", "Herb", "Shiny Rock", "Insect", "Leaf"];
+  const items = ["Feather", "Shiny Stone", "Leaf", "Berry"];
   const item = items[Math.floor(Math.random() * items.length)];
-  inventory.push(item);
-  document.getElementById("foundItem").textContent = `You found: ${item}`;
-  updateInventory();
-  saveData();
+  userInventory.push(item);
+  document.getElementById("item-result").textContent = `You found a ${item}!`;
+  updateInventoryUI();
+  saveInventory(userInventory);
 }
 
-function updateInventory() {
-  const list = document.getElementById("inventoryList");
-  list.innerHTML = "";
-  inventory.forEach(i => {
+function updateInventoryUI() {
+  inventoryList.innerHTML = "";
+  userInventory.forEach(item => {
     const li = document.createElement("li");
-    li.textContent = i;
-    list.appendChild(li);
+    li.textContent = item;
+    inventoryList.appendChild(li);
   });
 }
 
-// Save to Firebase
-function saveData() {
+function saveInventory(inventory) {
   if (!currentUser) return;
-  db.ref("users/" + currentUser.uid).set({
-    denCount,
-    inventory
-  });
+  db.collection("users").doc(currentUser.uid).set({ inventory });
 }
 
-// Load from Firebase
-function loadData() {
+function loadInventory() {
   if (!currentUser) return;
-  db.ref("users/" + currentUser.uid).once("value").then(snapshot => {
-    const data = snapshot.val();
-    if (data) {
-      denCount = data.denCount || 0;
-      inventory = data.inventory || [];
-      document.getElementById("denCount").textContent = denCount;
-      for (let i = 0; i < denCount; i++) {
-        const denDiv = document.createElement("div");
-        denDiv.textContent = `Den ${i + 1}`;
-        document.getElementById("dens").appendChild(denDiv);
+  db.collection("users").doc(currentUser.uid).get()
+    .then(doc => {
+      if (doc.exists) {
+        userInventory = doc.data().inventory || [];
+        updateInventoryUI();
       }
-      updateInventory();
-    }
-  });
+    });
 }
