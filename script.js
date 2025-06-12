@@ -1,4 +1,4 @@
-// Your Firebase config
+// Firebase config (replace with your own if needed)
 const firebaseConfig = {
   apiKey: "AIzaSyCYMR8LL_cfHNswh7nU8l4gwxWxKmiJOjc",
   authDomain: "clanlife-project.firebaseapp.com",
@@ -14,17 +14,32 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 // DOM Elements
+const biomeSelectionDiv = document.getElementById('biomeSelection');
 const generateClanBtn = document.getElementById('generateClanBtn');
 const tabCamp = document.getElementById('tabCamp');
 const tabInventory = document.getElementById('tabInventory');
 const campContent = document.getElementById('campContent');
 const inventoryContent = document.getElementById('inventoryContent');
 const inventoryList = document.getElementById('inventoryList');
+const tabsDiv = document.querySelector('.tabs');
 
 let currentClan = null;
 let currentInventory = [];
 
-// Tab switching
+// --- Biome Selection ---
+document.querySelectorAll('.biomeBtn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const selectedBiome = btn.dataset.biome;
+    localStorage.setItem('selectedBiome', selectedBiome);
+    alert(`Biome "${selectedBiome}" selected!`);
+
+    biomeSelectionDiv.style.display = 'none';
+    tabsDiv.style.display = 'block';
+    generateClanBtn.style.display = 'inline-block';
+  });
+});
+
+// --- Tab Switching ---
 function switchTab(tabName) {
   if (tabName === 'camp') {
     tabCamp.classList.add('active');
@@ -42,14 +57,12 @@ function switchTab(tabName) {
 tabCamp.addEventListener('click', () => switchTab('camp'));
 tabInventory.addEventListener('click', () => switchTab('inventory'));
 
-// Generate a clan with up to 10 cats (simplified example)
+// --- Clan Generation ---
 function generateClan() {
-  // Example cat data generation
   const catNames = ['Starfire', 'Ashpaw', 'Moonclaw', 'Brightleaf', 'Stormtail', 'Sunwhisker', 'Mistfur', 'Shadowstep', 'Goldengaze', 'Frostpelt'];
   const roles = ['Leader', 'Deputy', 'Medicine Cat', 'Warrior', 'Apprentice', 'Elder', 'Queen'];
 
   const cats = [];
-
   for (let i = 0; i < 10; i++) {
     cats.push({
       name: catNames[i],
@@ -60,6 +73,7 @@ function generateClan() {
   const clanData = {
     cats: cats,
     createdAt: new Date().toISOString(),
+    biome: localStorage.getItem('selectedBiome') || 'unknown'
   };
 
   // Save clan to Firestore
@@ -76,9 +90,9 @@ function generateClan() {
     });
 }
 
-// Display clan cats in Camp tab
+// --- Display Clan ---
 function displayClan(clan) {
-  campContent.innerHTML = '<h2>Camp</h2><h3>Clan Cats:</h3>';
+  campContent.innerHTML = `<h2>Camp</h2><h3>Biome: ${clan.biome}</h3><h3>Clan Cats:</h3>`;
   clan.cats.forEach(cat => {
     const p = document.createElement('p');
     p.textContent = `${cat.name} - ${cat.role}`;
@@ -86,7 +100,7 @@ function displayClan(clan) {
   });
 }
 
-// Inventory management
+// --- Inventory Display ---
 function displayInventory() {
   inventoryList.innerHTML = '';
 
@@ -102,7 +116,7 @@ function displayInventory() {
   });
 }
 
-// Simulate item collection (you can call this function during exploration)
+// --- Collect Item (simulate exploration) ---
 function collectItem(itemName) {
   const existingItem = currentInventory.find(item => item.name === itemName);
   if (existingItem) {
@@ -114,9 +128,9 @@ function collectItem(itemName) {
   displayInventory();
 }
 
-// Save inventory to Firestore (you can customize based on user ID)
+// --- Save Inventory to Firestore ---
 function saveInventory() {
-  // For this example, saving under a fixed document (you should adapt this for users)
+  // Saving to a fixed doc; ideally you'd use user auth to save per-user
   db.collection('inventory').doc('userInventory').set({
     items: currentInventory,
     updatedAt: new Date().toISOString(),
@@ -129,7 +143,7 @@ function saveInventory() {
   });
 }
 
-// Load inventory from Firestore on page load
+// --- Load Inventory from Firestore ---
 function loadInventory() {
   db.collection('inventory').doc('userInventory').get()
     .then(doc => {
@@ -145,12 +159,27 @@ function loadInventory() {
     });
 }
 
-// Initial setup
-generateClanBtn.addEventListener('click', generateClan);
-loadInventory();
-switchTab('camp');
+// --- Initial Setup on page load ---
+window.onload = () => {
+  const biome = localStorage.getItem('selectedBiome');
+  if (biome) {
+    biomeSelectionDiv.style.display = 'none';
+    tabsDiv.style.display = 'block';
+    generateClanBtn.style.display = 'inline-block';
+  } else {
+    biomeSelectionDiv.style.display = 'block';
+    tabsDiv.style.display = 'none';
+    generateClanBtn.style.display = 'none';
+  }
 
-// Example: Simulate collecting an item every 15 seconds (for testing)
+  loadInventory();
+  switchTab('camp');
+};
+
+// --- Event Listeners ---
+generateClanBtn.addEventListener('click', generateClan);
+
+// --- Simulate item collection every 15 seconds ---
 setInterval(() => {
   const possibleItems = ['Herb', 'Fish', 'Rabbit Foot', 'Feather', 'Shiny Stone'];
   const randomItem = possibleItems[Math.floor(Math.random() * possibleItems.length)];
