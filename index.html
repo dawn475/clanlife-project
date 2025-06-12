@@ -15,21 +15,30 @@
 
   <h1>ClanLife Project</h1>
 
-  <!-- Buttons -->
-  <button id="generateClanBtn">Generate Clan</button>
+  <!-- Biome Selection -->
+  <div id="biomeSelection">
+    <h2>Select Your Biome</h2>
+    <button class="biomeBtn" data-biome="forest">Forest</button>
+    <button class="biomeBtn" data-biome="mountain">Mountain</button>
+    <button class="biomeBtn" data-biome="river">River</button>
+  </div>
 
-  <!-- Tabs -->
-  <div class="tabs">
+  <!-- Clan generation button (hidden until biome selected) -->
+  <button id="generateClanBtn" style="display:none;">Generate Clan</button>
+
+  <!-- Tabs for Camp & Inventory (hidden until biome selected) -->
+  <div class="tabs" style="display:none;">
     <button id="tabCamp" class="tab-button active">Camp</button>
     <button id="tabInventory" class="tab-button">Inventory</button>
   </div>
 
-  <!-- Tab content -->
+  <!-- Camp Content -->
   <div id="campContent" class="tab-content active">
     <h2>Camp</h2>
     <p>Generate your clan and see the cats here.</p>
   </div>
 
+  <!-- Inventory Content -->
   <div id="inventoryContent" class="tab-content">
     <h2>Inventory</h2>
     <p>Your collected items will appear here.</p>
@@ -39,3 +48,4 @@
   <script src="script.js"></script>
 </body>
 </html>
+
