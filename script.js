@@ -1,29 +1,25 @@
-/* ╔══════════════════════════════════════════════════════════════════════╗
-   ║  1.  Firebase initialisation                                       ║
-   ╚══════════════════════════════════════════════════════════════════════╝ */
+// 1. Firebase setup
 const firebaseConfig = {
-  apiKey:            "AIzaSyCYMR8LL_cfHNswh7nU8l4gwxWxKmiJOjc",
-  authDomain:        "clanlife-project.firebaseapp.com",
-  projectId:         "clanlife-project",
-  storageBucket:     "clanlife-project.appspot.com",
+  apiKey: "AIzaSyCYMR8LL_cfHNswh7nU8l4gwxWxKmiJOjc",
+  authDomain: "clanlife-project.firebaseapp.com",
+  projectId: "clanlife-project",
+  storageBucket: "clanlife-project.appspot.com",
   messagingSenderId: "553812082452",
-  appId:             "1:553812082452:web:0bb5f381c2d7b113d48c01",
-  measurementId:     "G-4PPGL63VKN"
+  appId: "1:553812082452:web:0bb5f381c2d7b113d48c01",
+  measurementId: "G-4PPGL63VKN"
 };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
-const db   = firebase.firestore();
+const db = firebase.firestore();
 
-/* ╔══════════════════════════════════════════════════════════════════════╗
-   ║  2.  Static data                                                    ║
-   ╚══════════════════════════════════════════════════════════════════════╝ */
+// 2. Static data
 const biomeDescriptions = {
-  forest:    "Dense trees and filtered sunlight. A traditional and balanced home.",
-  coast:     "Salty breezes and shifting sands. Ideal for agile and curious cats.",
+  forest: "Dense trees and filtered sunlight. A traditional and balanced home.",
+  coast: "Salty breezes and shifting sands. Ideal for agile and curious cats.",
   mountains: "Rocky heights and thin air. Suits the tough and resilient.",
-  plains:    "Open skies and golden grasses. Great for swift, observant cats.",
-  swamp:     "Misty marshes full of secrets. Favored by stealthy and clever cats.",
-  tundra:    "Harsh cold and endless white. Only the most resourceful survive here."
+  plains: "Open skies and golden grasses. Great for swift, observant cats.",
+  swamp: "Misty marshes full of secrets. Favored by stealthy and clever cats.",
+  tundra: "Harsh cold and endless white. Only the most resourceful survive here."
 };
 
 const catNames = ["Ash","Breeze","Cinder","Dusk","Ember","Fern","Gale","Hollow",
@@ -51,7 +47,6 @@ function generateClan() {
   const kits = totalCats - warriors - apprentices - elders - queens;
 
   let clan = [];
-
   for (let i = 0; i < warriors; i++) clan.push(generateCat("Warrior"));
   for (let i = 0; i < apprentices; i++) clan.push(generateCat("Apprentice"));
   for (let i = 0; i < elders; i++) clan.push(generateCat("Elder"));
@@ -74,34 +69,30 @@ function shuffleArray(arr) {
   return array;
 }
 
-/* ╔══════════════════════════════════════════════════════════════════════╗
-   ║  3.  DOM references                                                 ║
-   ╚══════════════════════════════════════════════════════════════════════╝ */
-const authModal   = document.getElementById("authModal");
-const authTitle   = document.getElementById("authTitle");
-const emailInput  = document.getElementById("authEmail");
-const passInput   = document.getElementById("authPass");
-const authSubmit  = document.getElementById("authSubmit");
-const authToggle  = document.getElementById("authToggle");
-const authError   = document.getElementById("authError");
+// 3. DOM references
+const authModal = document.getElementById("authModal");
+const authTitle = document.getElementById("authTitle");
+const emailInput = document.getElementById("authEmail");
+const passInput = document.getElementById("authPass");
+const authSubmit = document.getElementById("authSubmit");
+const authToggle = document.getElementById("authToggle");
+const authError = document.getElementById("authError");
 
 const chooseScreen = document.getElementById("chooseBiomeScreen");
-let biomeSelect    = document.getElementById("biomeSelect");
-let biomeDesc      = document.getElementById("biomeDescription");
-let confirmBiome   = document.getElementById("confirmBiome");
+const biomeSelect = document.getElementById("biomeSelect");
+const biomeDesc = document.getElementById("biomeDescription");
+const confirmBiome = document.getElementById("confirmBiome");
 
-const appRoot   = document.getElementById("appRoot");
+const appRoot = document.getElementById("appRoot");
 const uiModeSel = document.getElementById("uiModeSelect");
-const mainArea  = document.getElementById("mainContent");
+const mainArea = document.getElementById("mainContent");
 
-/* ╔══════════════════════════════════════════════════════════════════════╗
-   ║  4.  UI helpers                                                     ║
-   ╚══════════════════════════════════════════════════════════════════════╝ */
+// 4. UI helpers
 function navigateTo(page) {
   const pages = {
-    camp:       "<h2>Clan Camp</h2><p>Your cats are resting…</p>",
-    explore:    "<h2>Explore</h2><p>Search the territory…</p>",
-    inventory:  "<h2>Inventory</h2><p>Here are your items…</p>",
+    camp: "<h2>Clan Camp</h2><p>Your cats are resting…</p>",
+    explore: "<h2>Explore</h2><p>Search the territory…</p>",
+    inventory: "<h2>Inventory</h2><p>Here are your items…</p>",
     crossroads: "<h2>Crossroads</h2><p>Meet neighbouring clans…</p>"
   };
   mainArea.innerHTML = pages[page] ?? "<h2>Coming soon…</h2>";
@@ -112,9 +103,7 @@ uiModeSel.addEventListener("change", () => {
   document.body.classList.add(uiModeSel.value);
 });
 
-/* ╔══════════════════════════════════════════════════════════════════════╗
-   ║  5.  Biome selection + clan generation                              ║
-   ╚══════════════════════════════════════════════════════════════════════╝ */
+// 5. Biome selection and clan display
 let clanDisplayContainer = null;
 let rerollBtn = null;
 
@@ -125,7 +114,6 @@ biomeSelect.addEventListener("change", () => {
 confirmBiome.addEventListener("click", async () => {
   const biome = biomeSelect.value;
   if (!biome) return alert("Please choose a biome first.");
-
   const user = auth.currentUser;
   if (!user) return alert("You need to be logged in.");
 
@@ -148,7 +136,6 @@ confirmBiome.addEventListener("click", async () => {
       displayClan(currentClan);
       rerollCount--;
       rerollBtn.textContent = `Reroll Clan (${rerollCount} left)`;
-      if (rerollCount <= 0) rerollBtn.disabled = true;
     });
   }
 
@@ -187,22 +174,34 @@ function displayClan(clan) {
   if (!clanDisplayContainer) return;
 
   clanDisplayContainer.innerHTML = "<h3>Your Clan (10 cats):</h3>";
-  const ul = document.createElement("ul");
+  const grid = document.createElement("div");
+  grid.className = "clan-container";
 
   clan.forEach(cat => {
-    const li = document.createElement("li");
-    li.textContent = `${cat.name} — ${cat.role}`;
-    ul.appendChild(li);
+    const card = document.createElement("div");
+    card.className = "clan-card";
+
+    const sprite = document.createElement("div");
+    sprite.className = "cat-sprite";
+    sprite.setAttribute("data-role", cat.role.toLowerCase());
+
+    const name = document.createElement("h4");
+    name.textContent = cat.name;
+
+    const role = document.createElement("span");
+    role.textContent = cat.role;
+
+    card.appendChild(sprite);
+    card.appendChild(name);
+    card.appendChild(role);
+    grid.appendChild(card);
   });
 
-  clanDisplayContainer.appendChild(ul);
+  clanDisplayContainer.appendChild(grid);
 }
 
-/* ╔══════════════════════════════════════════════════════════════════════╗
-   ║  6.  Auth modal logic                                               ║
-   ╚══════════════════════════════════════════════════════════════════════╝ */
+// 6. Auth modal
 let authMode = "login";
-
 function setAuthMode(mode) {
   authMode = mode;
   authTitle.textContent = mode === "login" ? "Log In" : "Sign Up";
@@ -224,10 +223,9 @@ authSubmit.addEventListener("click", async () => {
   }
 
   try {
-    const cred =
-      authMode === "login"
-        ? await auth.signInWithEmailAndPassword(email, pass)
-        : await auth.createUserWithEmailAndPassword(email, pass);
+    const cred = authMode === "login"
+      ? await auth.signInWithEmailAndPassword(email, pass)
+      : await auth.createUserWithEmailAndPassword(email, pass);
 
     if (authMode === "signup") {
       await db.doc(`users/${cred.user.uid}`).set({
@@ -254,9 +252,7 @@ authModal.addEventListener("click", e => {
   }
 });
 
-/* ╔══════════════════════════════════════════════════════════════════════╗
-   ║  7.  Firebase auth state listener                                   ║
-   ╚══════════════════════════════════════════════════════════════════════╝ */
+// 7. Firebase auth state listener
 auth.onAuthStateChanged(async user => {
   if (!user) {
     appRoot.style.display = "none";
@@ -280,7 +276,6 @@ auth.onAuthStateChanged(async user => {
       rerollCount = 2;
       currentClan = [];
       if (rerollBtn) rerollBtn.textContent = `Reroll Clan (${rerollCount} left)`;
-      if (rerollBtn) rerollBtn.disabled = false;
       if (clanDisplayContainer) clanDisplayContainer.innerHTML = "";
       confirmBiome.style.display = "inline-block";
       delete confirmBiome.dataset.clanLocked;
@@ -294,9 +289,6 @@ auth.onAuthStateChanged(async user => {
       currentClan = data.clan || [];
     }
   } catch (err) {
-    console.error("Error loading user data:", err);
-    authModal.style.display = "flex";
-    appRoot.style.display = "none";
-    chooseScreen.style.display = "none";
+    console.error("Error loading user:", err);
   }
 });
