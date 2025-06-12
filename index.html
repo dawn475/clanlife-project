@@ -5,8 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ClanLife</title>
 
-  <!-- (Optional) Main stylesheet -->
+  <!-- Stylesheet -->
   <link rel="stylesheet" href="style.css" />
+
+  <!-- Optional: Favicon to prevent 404 error -->
+  <link rel="icon" href="data:," />
 </head>
 <body data-biome="">
 
@@ -90,15 +93,5 @@
 
   <!-- ───  App Logic  ─────────────────────────────────────────────────────── -->
   <script src="script.js" defer></script>
-
-  <script>
-    // Enable Confirm Biome button only when a biome is selected
-    const biomeSelect = document.getElementById("biomeSelect");
-    const confirmBtn = document.getElementById("confirmBiome");
-    biomeSelect.addEventListener("change", () => {
-      confirmBtn.disabled = !biomeSelect.value;
-      confirmBtn.setAttribute("aria-disabled", confirmBtn.disabled ? "true" : "false");
-    });
-  </script>
 </body>
 </html>
