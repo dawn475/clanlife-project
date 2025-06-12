@@ -32,9 +32,22 @@ const catNames = ["Ash", "Breeze", "Cinder", "Dusk", "Ember", "Fern", "Gale", "H
 const suffixes = ["fur", "claw", "tail", "whisker", "pelt", "step", "fang", "shade", "leap", "gaze"];
 const traits = ["Loyal", "Clever", "Brave", "Cautious", "Kind", "Strong", "Stealthy", "Curious", "Wise", "Impulsive"];
 
+// Starting camp limits
+const MAX_CAMP_SPACES = 10;
+const MAX_DENS = 3;  // 1 starting den + 2 buildable dens
+const NURSERY_CAPACITY = 1;  // one nursery den
+
+// Initial materials needed to build den
+const MATERIALS_REQUIRED_PER_DEN = 5;
+
 let currentClan = [];
 let rerollCount = 2;
 let clanName = "";
+let playerCamp = {
+  densBuilt: 1,   // player starts with 1 den built
+  nurseryBuilt: true, // nursery always built once clan created
+  materials: 0    // materials gathered to build dens
+};
 
 /* ╔══════════════════════════════════════════════════════════════════════╗
    ║  3.  Cat generation                                                 ║
@@ -131,6 +144,13 @@ confirmBiome.addEventListener("click", async () => {
     currentClan = generateClan();
   }
 
+  // Reset camp when new clan created
+  playerCamp = {
+    densBuilt: 1,
+    nurseryBuilt: true,
+    materials: 0
+  };
+
   displayClan(currentClan);
 
   if (!confirmBiome.dataset.clanLocked) {
@@ -151,7 +171,8 @@ confirmBiome.addEventListener("click", async () => {
           {
             biome,
             clan: currentClan,
-            clanName: clanName.trim()
+            clanName: clanName.trim(),
+            playerCamp
           },
           { merge: true }
         );
@@ -197,13 +218,103 @@ uiModeSel.addEventListener("change", () => {
 });
 
 function navigateTo(page) {
-  const pages = {
-    camp: `<h2>${clanName || "Your"} Clan Camp</h2><p>Your cats are resting…</p>`,
-    explore: "<h2>Explore</h2><p>Search the territory…</p>",
-    inventory: "<h2>Inventory</h2><p>Here are your items…</p>",
-    crossroads: "<h2>Crossroads</h2><p>Meet neighbouring clans…</p>"
-  };
-  mainArea.innerHTML = pages[page] ?? "<h2>Coming soon…</h2>";
+  if(page === "camp") {
+    renderCampPage();
+  } else {
+    const pages = {
+      explore: "<h2>Explore</h2><p>Search the territory…</p>",
+      inventory: "<h2>Inventory</h2><p>Here are your items…</p>",
+      crossroads: "<h2>Crossroads</h2><p>Meet neighbouring clans…</p>"
+    };
+    mainArea.innerHTML = pages[page] ?? "<h2>Coming soon…</h2>";
+  }
+}
+
+/**
+ * Render the camp page with dens, nursery, clan cats, materials, and building controls.
+ */
+function renderCampPage() {
+  let campHtml = `<h2>${clanName || "Your"} Clan Camp</h2>`;
+  campHtml += `<p>Camp Space: ${currentClan.length} / ${MAX_CAMP_SPACES}</p>`;
+  campHtml += `<p>Materials gathered: ${playerCamp.materials}</p>`;
+
+  // Dens built display
+  campHtml += `<div><h3>Dens</h3><p>You have built <strong>${playerCamp.densBuilt}</strong> dens (max ${MAX_DENS})</p>`;
+  campHtml += `<button id="buildDenBtn" ${playerCamp.densBuilt >= MAX_DENS || playerCamp.materials < MATERIALS_REQUIRED_PER_DEN ? "disabled" : ""}>Build a New Den (${MATERIALS_REQUIRED_PER_DEN} materials)</button></div>`;
+
+  // Nursery info
+  campHtml += `<div><h3>Nursery</h3><p>${playerCamp.nurseryBuilt ? "A nursery den is set up for expecting queens." : "No nursery den built yet."}</p></div>`;
+
+  // Clan cats list
+  campHtml += `<div><h3>Clan Cats (${currentClan.length} cats)</h3><ul>`;
+  currentClan.forEach(cat => {
+    campHtml += `<li><strong>${cat.name}</strong> — ${cat.role} (${cat.traits.join(", ")})</li>`;
+  });
+  campHtml += "</ul></div>";
+
+  // Materials gather button
+  campHtml += `<button id="gatherMaterialsBtn">Gather Materials</button>`;
+
+  mainArea.innerHTML = campHtml;
+
+  // Add event listeners to buttons
+  document.getElementById("gatherMaterialsBtn").addEventListener("click", () => {
+    gatherMaterials();
+  });
+
+  const buildDenBtn = document.getElementById("buildDenBtn");
+  if(buildDenBtn) {
+    buildDenBtn.addEventListener("click", () => {
+      buildDen();
+    });
+  }
+}
+
+/**
+ * Simulate gathering materials (adds 1-3 materials)
+ */
+function gatherMaterials() {
+  const gained = randomInt(1, 3);
+  playerCamp.materials += gained;
+  alert(`You gathered ${gained} materials.`);
+  savePlayerCamp();
+  renderCampPage();
+}
+
+/**
+ * Build a new den if possible
+ */
+function buildDen() {
+  if(playerCamp.materials < MATERIALS_REQUIRED_PER_DEN) {
+    alert("Not enough materials to build a den.");
+    return;
+  }
+  if(playerCamp.densBuilt >= MAX_DENS) {
+    alert("You have reached the maximum number of dens.");
+    return;
+  }
+  playerCamp.materials -= MATERIALS_REQUIRED_PER_DEN;
+  playerCamp.densBuilt++;
+  alert("You built a new den!");
+  savePlayerCamp();
+  renderCampPage();
+}
+
+/**
+ * Save playerCamp data back to Firestore and local state
+ */
+async function savePlayerCamp() {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  try {
+    await db.doc(`users/${user.uid}`).set(
+      { playerCamp },
+      { merge: true }
+    );
+  } catch(err) {
+    console.error("Error saving camp data:", err);
+  }
 }
 
 /* ╔══════════════════════════════════════════════════════════════════════╗
@@ -229,6 +340,11 @@ auth.onAuthStateChanged(async user => {
       biomeDesc.textContent = "";
       currentClan = [];
       rerollCount = 2;
+      playerCamp = {
+        densBuilt: 1,
+        nurseryBuilt: true,
+        materials: 0
+      };
       if (clanDisplayContainer) clanDisplayContainer.innerHTML = "";
       if (rerollBtn) rerollBtn.textContent = `Reroll Clan (${rerollCount} left)`;
       confirmBiome.style.display = "inline-block";
@@ -236,6 +352,11 @@ auth.onAuthStateChanged(async user => {
     } else {
       currentClan = data.clan;
       clanName = data.clanName;
+      playerCamp = data.playerCamp || {
+        densBuilt: 1,
+        nurseryBuilt: true,
+        materials: 0
+      };
       document.body.setAttribute("data-biome", data.biome);
       localStorage.setItem("selectedBiome", data.biome);
       localStorage.setItem("clanName", data.clanName);
