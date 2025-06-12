@@ -4,46 +4,43 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ClanLife</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body class="mid">
-
-<!-- Biome Selection -->
-<div id="chooseBiomeScreen" class="modal-screen">
-  <div class="modal-box">
-    <h2>Choose Your Biome</h2>
-    <label for="biomeSelect">Biome:</label>
-    <select id="biomeSelect">
-      <option value="">--Select a biome--</option>
-      <option value="forest">Forest</option>
-      <option value="coast">Coast</option>
-      <option value="mountains">Mountains</option>
-      <option value="plains">Plains</option>
-      <option value="swamp">Swamp</option>
-      <option value="tundra">Tundra</option>
-    </select>
-    <p id="biomeDescription" class="description-text"></p>
-    <button id="confirmBiome" class="main-btn">Confirm Biome</button>
-    <div id="clanPreview"></div>
+<body>
+  <div id="auth-section">
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
+    <button onclick="signUp()">Sign Up</button>
+    <button onclick="logIn()">Log In</button>
+    <button onclick="logOut()">Log Out</button>
   </div>
-</div>
 
-<!-- Game Interface -->
-<div id="appRoot" style="display:none;">
-  <nav>
-    <button onclick="navigateTo('camp')">Camp</button>
-    <button onclick="navigateTo('explore')">Explore</button>
-    <button onclick="navigateTo('inventory')">Inventory</button>
-    <button onclick="navigateTo('crossroads')">Crossroads</button>
-    <select id="uiModeSelect">
-      <option value="light">☀️ Light</option>
-      <option value="mid" selected>🌗 Mid</option>
-      <option value="dark">🌑 Dark</option>
-    </select>
-  </nav>
-  <main id="mainContent"></main>
-</div>
+  <div id="game-section" style="display: none;">
+    <h2>Welcome to ClanLife</h2>
 
-<script src="main.js"></script>
+    <div id="camp">
+      <h3>Camp</h3>
+      <p>Total Dens: <span id="denCount">0</span> / 10</p>
+      <button onclick="createDen()">Create Den</button>
+      <div id="dens"></div>
+      <div id="nursery"><strong>Nursery:</strong> For expecting Kindlekeepers</div>
+    </div>
+
+    <div id="explore">
+      <h3>Explore</h3>
+      <button onclick="collectItem()">Collect Item</button>
+      <p id="foundItem"></p>
+    </div>
+
+    <div id="inventory">
+      <h3>Inventory</h3>
+      <ul id="inventoryList"></ul>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
