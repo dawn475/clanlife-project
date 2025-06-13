@@ -4,36 +4,53 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ClanLife</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 </head>
 <body>
   <div id="auth-container">
-    <h1>ClanLife</h1>
-    <div id="auth-forms">
-      <input type="email" id="email" placeholder="Email" />
-      <input type="password" id="password" placeholder="Password" />
-      <button id="signup-btn">Sign Up</button>
-      <button id="login-btn">Login</button>
-    </div>
+    <h2>ClanLife Login</h2>
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
+    <button id="signup-btn">Sign Up</button>
+    <button id="login-btn">Log In</button>
     <p id="auth-message"></p>
   </div>
 
   <div id="game-container" style="display: none;">
-    <h2>Welcome to ClanLife!</h2>
-    <div id="camp">
-      <img src="images/placeholder-sprite.png" alt="Cat Sprite" id="cat-sprite"/>
-      <p>Your cat is here!</p>
+    <nav>
+      <button onclick="showTab('camp')">Camp</button>
+      <button onclick="showTab('explore')">Explore</button>
+      <button onclick="showTab('inventory')">Inventory</button>
+      <button onclick="showTab('clan-info')">Clan Info</button>
+      <button onclick="logout()">Logout</button>
+    </nav>
+
+    <section id="camp" class="tab">
+      <h2>Camp</h2>
+      <img src="https://raw.githubusercontent.com/dawn475/clanlife-project/main/Images/placeholder-sprite.png" alt="Cat Sprite" id="cat-sprite"/>
+      <p>Your cat is resting here.</p>
+    </section>
+
+    <section id="explore" class="tab" style="display: none;">
+      <h2>Explore</h2>
       <button onclick="collectItem()">Explore</button>
       <p id="item-result"></p>
-      <h3>Inventory:</h3>
+    </section>
+
+    <section id="inventory" class="tab" style="display: none;">
+      <h2>Inventory</h2>
       <ul id="inventory-list"></ul>
-    </div>
-    <button onclick="logout()">Logout</button>
+    </section>
+
+    <section id="clan-info" class="tab" style="display: none;">
+      <h2>Clan Info</h2>
+      <p>Your clan's story and status will go here.</p>
+    </section>
   </div>
 
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
