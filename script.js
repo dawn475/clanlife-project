@@ -1,3 +1,4 @@
+document.addEventListener("DOMContentLoaded", function () {
 // Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyCYMR8LL_cfHNswh7nU8l4gwxWxKmiJOjc",
@@ -190,4 +191,5 @@ function loadDens() {
       }
       updateDenList();
     });
-}
+  }
+});
