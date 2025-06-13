@@ -1,37 +1,39 @@
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f4f4f4;
+  font-family: Arial, sans-serif;
+  background-color: #fefcf9;
+  color: #333;
   margin: 0;
   padding: 0;
   text-align: center;
+}
+
+nav {
+  background-color: #444;
+  padding: 10px;
+}
+
+nav button {
+  margin: 5px;
+  padding: 10px 15px;
+  background-color: #eee;
+  border: none;
+  cursor: pointer;
+}
+
+nav button:hover {
+  background-color: #ddd;
 }
 
 #auth-container, #game-container {
   padding: 20px;
 }
 
-input {
-  margin: 5px;
-  padding: 8px;
-  width: 200px;
-}
-
-button {
-  margin: 5px;
-  padding: 10px 20px;
-  background-color: #ffaa33;
-  color: white;
-  border: none;
-  cursor: pointer;
-  border-radius: 5px;
-}
-
-button:hover {
-  background-color: #ff8800;
-}
-
-#cat-sprite {
+img#cat-sprite {
   width: 200px;
   height: auto;
-  margin: 20px 0;
+  margin-top: 10px;
+}
+
+.tab {
+  margin-top: 20px;
 }
