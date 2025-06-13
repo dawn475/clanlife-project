@@ -20,24 +20,40 @@
   </div>
 
   <div id="game-container" style="display:none;">
-    <h1>Welcome to ClanLife</h1>
+    <h1>Welcome to ClanLife!</h1>
     <button onclick="logout()">Logout</button>
     
     <div id="tabs">
       <button onclick="showTab('explore')">Explore</button>
-      <button disabled>Camp (coming soon)</button>
-      <button disabled>Clan (coming soon)</button>
-      <button disabled>Profile (coming soon)</button>
+      <button onclick="showTab('camp')">Camp</button>
+      <button onclick="showTab('clan')">Clan</button>
+      <button onclick="showTab('profile')">Profile</button>
     </div>
 
-    <div id="explore-tab" class="tab-content">
+    <div id="explore" class="tab-content">
       <h2>Explore</h2>
       <img id="cat-sprite" src="https://raw.githubusercontent.com/dawn475/clanlife-project/main/Images/placeholder-sprite.png" alt="Cat Sprite" style="max-width: 200px;"/>
+      <p>Your cat is here!</p>
+      <button onclick="collectItem()">Explore</button>
       <p id="item-result"></p>
-      <button onclick="collectItem()">Search for Item</button>
     </div>
 
-    <h2>Inventory</h2>
+    <div id="camp" class="tab-content" style="display:none;">
+      <h2>Camp</h2>
+      <p>Camp features coming soon!</p>
+    </div>
+
+    <div id="clan" class="tab-content" style="display:none;">
+      <h2>Clan</h2>
+      <p>Clan information will go here.</p>
+    </div>
+
+    <div id="profile" class="tab-content" style="display:none;">
+      <h2>Profile</h2>
+      <p>Player profile and stats coming soon!</p>
+    </div>
+
+    <h2>Inventory:</h2>
     <ul id="inventory-list"></ul>
   </div>
 
