@@ -24,7 +24,7 @@ const inventoryList = document.getElementById("inventory-list");
 
 let currentUser = null;
 let userInventory = [];
-let userDens = [];
+let dens = [];
 
 // Auth
 signupBtn.addEventListener("click", () => {
@@ -127,51 +127,15 @@ function createDen() {
   const name = input.value.trim();
   if (!name) return;
 
-  userDens.push(name);
-  input.value = "";
-  updateDenUI();
-  saveDens(userDens);
-}
-
-function updateDenUI() {
-  const denList = document.getElementById("den-list");
-  denList.innerHTML = "";
-  userDens.forEach(name => {
-    const li = document.createElement("li");
-    li.textContent = name;
-    denList.appendChild(li);
-  });
-}
-
-function saveDens(dens) {
-  if (!currentUser) return;
-  db.collection("users").doc(currentUser.uid).set({ dens }, { merge: true });
-}
-
-function loadDens() {
-  if (!currentUser) return;
-  db.collection("users").doc(currentUser.uid).get()
-    .then(doc => {
-      if (doc.exists) {
-        userDens = doc.data().dens || [];
-        updateDenUI();
-      }
-    });
-}
-let dens = [];
-
-function createDen() {
-  const denNameInput = document.getElementById("den-name-input");
-  const denName = denNameInput.value.trim();
-  if (denName === "") return;
-
   const den = {
-    name: denName,
-    cats: [], // Future use
+    name: name,
+    cats: [] // for future cat assignments
   };
+
   dens.push(den);
-  denNameInput.value = "";
+  input.value = "";
   updateDenList();
+  saveDens(dens);
 }
 
 function updateDenList() {
@@ -194,12 +158,36 @@ function updateDenList() {
     denContent.className = "den-content";
     denContent.style.display = "none";
 
-    const exampleCat = document.createElement("p");
-    exampleCat.textContent = "🧶 A cat will live here.";
-    denContent.appendChild(exampleCat);
+    if (den.cats.length > 0) {
+      den.cats.forEach(cat => {
+        const catP = document.createElement("p");
+        catP.textContent = `🐾 ${cat}`;
+        denContent.appendChild(catP);
+      });
+    } else {
+      const exampleCat = document.createElement("p");
+      exampleCat.textContent = "🧶 A cat will live here.";
+      denContent.appendChild(exampleCat);
+    }
 
     denBlock.appendChild(denHeader);
     denBlock.appendChild(denContent);
     denList.appendChild(denBlock);
   });
+}
+
+function saveDens(densData) {
+  if (!currentUser) return;
+  db.collection("users").doc(currentUser.uid).set({ dens: densData }, { merge: true });
+}
+
+function loadDens() {
+  if (!currentUser) return;
+  db.collection("users").doc(currentUser.uid).get()
+    .then(doc => {
+      if (doc.exists) {
+        dens = doc.data().dens || [];
+        updateDenList();
+      }
+    });
 }
