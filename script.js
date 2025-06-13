@@ -158,3 +158,48 @@ function loadDens() {
       }
     });
 }
+let dens = [];
+
+function createDen() {
+  const denNameInput = document.getElementById("den-name-input");
+  const denName = denNameInput.value.trim();
+  if (denName === "") return;
+
+  const den = {
+    name: denName,
+    cats: [], // Future use
+  };
+  dens.push(den);
+  denNameInput.value = "";
+  updateDenList();
+}
+
+function updateDenList() {
+  const denList = document.getElementById("den-list");
+  denList.innerHTML = "";
+
+  dens.forEach((den, index) => {
+    const denBlock = document.createElement("div");
+    denBlock.classList.add("den");
+
+    const denHeader = document.createElement("h4");
+    denHeader.textContent = den.name;
+    denHeader.style.cursor = "pointer";
+    denHeader.onclick = () => {
+      const content = denBlock.querySelector(".den-content");
+      content.style.display = content.style.display === "none" ? "block" : "none";
+    };
+
+    const denContent = document.createElement("div");
+    denContent.className = "den-content";
+    denContent.style.display = "none";
+
+    const exampleCat = document.createElement("p");
+    exampleCat.textContent = "🧶 A cat will live here.";
+    denContent.appendChild(exampleCat);
+
+    denBlock.appendChild(denHeader);
+    denBlock.appendChild(denContent);
+    denList.appendChild(denBlock);
+  });
+}
