@@ -13,7 +13,6 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// Elements
 const signupBtn = document.getElementById("signup-btn");
 const loginBtn = document.getElementById("login-btn");
 const emailInput = document.getElementById("email");
@@ -25,7 +24,9 @@ const inventoryList = document.getElementById("inventory-list");
 
 let currentUser = null;
 let userInventory = [];
+let userDens = [];
 
+// Auth
 signupBtn.addEventListener("click", () => {
   const email = emailInput.value;
   const password = passwordInput.value;
@@ -33,6 +34,7 @@ signupBtn.addEventListener("click", () => {
     .then(() => {
       message.textContent = "Signup successful!";
       saveInventory([]);
+      saveDens([]);
     })
     .catch(error => {
       message.textContent = error.message;
@@ -56,6 +58,7 @@ auth.onAuthStateChanged(user => {
     currentUser = user;
     showGame();
     loadInventory();
+    loadDens();
   } else {
     showAuth();
   }
@@ -65,10 +68,10 @@ function logout() {
   auth.signOut();
 }
 
+// UI switching
 function showGame() {
   authContainer.style.display = "none";
   gameContainer.style.display = "block";
-  showTab('camp');
 }
 
 function showAuth() {
@@ -76,13 +79,14 @@ function showAuth() {
   gameContainer.style.display = "none";
 }
 
-function showTab(tabId) {
-  document.querySelectorAll(".tab").forEach(tab => {
+function showTab(tabName) {
+  document.querySelectorAll(".tab-content").forEach(tab => {
     tab.style.display = "none";
   });
-  document.getElementById(tabId).style.display = "block";
+  document.getElementById(tabName).style.display = "block";
 }
 
+// Exploration logic
 function collectItem() {
   const items = ["Feather", "Shiny Stone", "Leaf", "Berry"];
   const item = items[Math.floor(Math.random() * items.length)];
@@ -103,7 +107,7 @@ function updateInventoryUI() {
 
 function saveInventory(inventory) {
   if (!currentUser) return;
-  db.collection("users").doc(currentUser.uid).set({ inventory });
+  db.collection("users").doc(currentUser.uid).set({ inventory }, { merge: true });
 }
 
 function loadInventory() {
@@ -116,9 +120,41 @@ function loadInventory() {
       }
     });
 }
-function showTab(tabId) {
-  const allTabs = document.querySelectorAll(".tab-content");
-  allTabs.forEach(tab => {
-    tab.style.display = (tab.id === tabId) ? "block" : "none";
+
+// Den system
+function createDen() {
+  const input = document.getElementById("den-name-input");
+  const name = input.value.trim();
+  if (!name) return;
+
+  userDens.push(name);
+  input.value = "";
+  updateDenUI();
+  saveDens(userDens);
+}
+
+function updateDenUI() {
+  const denList = document.getElementById("den-list");
+  denList.innerHTML = "";
+  userDens.forEach(name => {
+    const li = document.createElement("li");
+    li.textContent = name;
+    denList.appendChild(li);
   });
+}
+
+function saveDens(dens) {
+  if (!currentUser) return;
+  db.collection("users").doc(currentUser.uid).set({ dens }, { merge: true });
+}
+
+function loadDens() {
+  if (!currentUser) return;
+  db.collection("users").doc(currentUser.uid).get()
+    .then(doc => {
+      if (doc.exists) {
+        userDens = doc.data().dens || [];
+        updateDenUI();
+      }
+    });
 }
