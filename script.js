@@ -116,3 +116,9 @@ function loadInventory() {
       }
     });
 }
+function showTab(tabId) {
+  const allTabs = document.querySelectorAll(".tab-content");
+  allTabs.forEach(tab => {
+    tab.style.display = (tab.id === tabId) ? "block" : "none";
+  });
+}
