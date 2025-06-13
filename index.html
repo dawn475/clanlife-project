@@ -38,15 +38,19 @@
       <p id="item-result"></p>
     </div>
 
-    <div id="camp" class="tab-content" style="display:none;">
-      <h2>Camp</h2>
-      <p>Camp features coming soon!</p>
-      <h3>Create a Den</h3>
-<input type="text" id="den-name-input" placeholder="Enter den name" />
-<button onclick="createDen()">Add Den</button>
+  <div id="camp" class="tab-content" style="display:none;">
+  <h2>Camp: Your Clan's Home</h2>
 
-<ul id="den-list"></ul>
-    </div>
+  <div>
+    <h3>Create a Den</h3>
+    <input type="text" id="den-name-input" placeholder="Enter den name" />
+    <button onclick="createDen()">Add Den</button>
+  </div>
+
+  <div id="den-list" class="den-list">
+    <!-- Dens will appear here -->
+  </div>
+</div>
 
     <div id="clan" class="tab-content" style="display:none;">
       <h2>Clan</h2>
