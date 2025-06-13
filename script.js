@@ -34,7 +34,7 @@ signupBtn.addEventListener("click", () => {
     .then(() => {
       message.textContent = "Signup successful!";
       saveInventory([]);
-      saveDens([]);
+      initializeDens();
     })
     .catch(error => {
       message.textContent = error.message;
@@ -86,7 +86,7 @@ function showTab(tabName) {
   document.getElementById(tabName).style.display = "block";
 }
 
-// Exploration logic
+// Inventory
 function collectItem() {
   const items = ["Feather", "Shiny Stone", "Leaf", "Berry"];
   const item = items[Math.floor(Math.random() * items.length)];
@@ -121,21 +121,27 @@ function loadInventory() {
     });
 }
 
-// Den system
+// Dens (Limited to 3)
+function initializeDens() {
+  dens = [{ name: "Main Den", cats: [] }];
+  updateDenList();
+  saveDens();
+}
+
 function createDen() {
   const input = document.getElementById("den-name-input");
   const name = input.value.trim();
   if (!name) return;
 
-  const den = {
-    name: name,
-    cats: [] // for future cat assignments
-  };
+  if (dens.length >= 3) {
+    alert("You’ve reached the maximum number of dens. More can be unlocked with crafting in future updates.");
+    return;
+  }
 
-  dens.push(den);
+  dens.push({ name, cats: [] });
   input.value = "";
   updateDenList();
-  saveDens(dens);
+  saveDens();
 }
 
 function updateDenList() {
@@ -158,17 +164,9 @@ function updateDenList() {
     denContent.className = "den-content";
     denContent.style.display = "none";
 
-    if (den.cats.length > 0) {
-      den.cats.forEach(cat => {
-        const catP = document.createElement("p");
-        catP.textContent = `🐾 ${cat}`;
-        denContent.appendChild(catP);
-      });
-    } else {
-      const exampleCat = document.createElement("p");
-      exampleCat.textContent = "🧶 A cat will live here.";
-      denContent.appendChild(exampleCat);
-    }
+    const exampleCat = document.createElement("p");
+    exampleCat.textContent = "🧶 A cat will live here.";
+    denContent.appendChild(exampleCat);
 
     denBlock.appendChild(denHeader);
     denBlock.appendChild(denContent);
@@ -176,18 +174,20 @@ function updateDenList() {
   });
 }
 
-function saveDens(densData) {
+function saveDens() {
   if (!currentUser) return;
-  db.collection("users").doc(currentUser.uid).set({ dens: densData }, { merge: true });
+  db.collection("users").doc(currentUser.uid).set({ dens }, { merge: true });
 }
 
 function loadDens() {
   if (!currentUser) return;
   db.collection("users").doc(currentUser.uid).get()
     .then(doc => {
-      if (doc.exists) {
-        dens = doc.data().dens || [];
-        updateDenList();
+      if (doc.exists && doc.data().dens) {
+        dens = doc.data().dens;
+      } else {
+        initializeDens();
       }
+      updateDenList();
     });
 }
