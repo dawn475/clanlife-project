@@ -51,6 +51,24 @@
   <div id="den-list" class="den-list">
     <!-- Dens will appear here -->
   </div>
+  <hr />
+<div id="cat-management">
+  <h3>Cat Management</h3>
+  <div>
+    <input type="text" id="cat-name-input" placeholder="Cat Name" />
+    <select id="cat-age-input">
+      <option value="Kit">Kit</option>
+      <option value="Apprentice">Apprentice</option>
+      <option value="Warrior">Warrior</option>
+      <option value="Elder">Elder</option>
+    </select>
+    <button onclick="addCat()">Add Cat</button>
+  </div>
+
+  <div id="unassigned-cats">
+    <h4>Unassigned Cats</h4>
+    <ul id="unassigned-cats-list"></ul>
+  </div>
 </div>
 
     <div id="clan" class="tab-content" style="display:none;">
