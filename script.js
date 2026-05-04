@@ -261,3 +261,27 @@ document.addEventListener("DOMContentLoaded", function () {
   window.createDen = createDen;
   window.addCat = addCat;
 });
+
+import { listenForAuth } from "./js/auth.js";
+import { loadUserData } from "./js/database.js";
+import { createStarterData } from "./js/setup.js";
+import { gameState } from "./script.js";
+
+listenForAuth(async (user) => {
+  if (user) {
+    gameState.user = user;
+
+    let data = await loadUserData(user.uid);
+
+    if (!data) {
+      await createStarterData(user.uid);
+      data = await loadUserData(user.uid);
+    }
+
+    gameState.clan = data.clan;
+    gameState.inventory = data.inventory;
+    gameState.currency = data.currency;
+
+    console.log("Game Loaded:", gameState);
+  }
+});
