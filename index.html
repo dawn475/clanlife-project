@@ -403,8 +403,8 @@ label { font-size: 0.9em; color: var(--muted); margin-bottom: 4px; display: bloc
     </div>
     <div id="login-form" class="auth-form">
       <div>
-        <label>Username</label>
-        <input type="text" id="login-user" placeholder="Your username" />
+        <label>Email</label>
+        <input type="email" id="login-user" placeholder="Your email" />
       </div>
       <div>
         <label>Password</label>
@@ -416,12 +416,12 @@ label { font-size: 0.9em; color: var(--muted); margin-bottom: 4px; display: bloc
     </div>
     <div id="register-form" class="auth-form hidden">
       <div>
-        <label>Username</label>
-        <input type="text" id="reg-user" placeholder="Choose a username" />
+        <label>Email</label>
+        <input type="email" id="reg-user" placeholder="Your email" />
       </div>
       <div>
         <label>Password</label>
-        <input type="password" id="reg-pass" placeholder="Choose a password" />
+        <input type="password" id="reg-pass" placeholder="Choose a password (6+ chars)" />
       </div>
       <div>
         <label>Confirm Password</label>
@@ -821,7 +821,29 @@ label { font-size: 0.9em; color: var(--muted); margin-bottom: 4px; display: bloc
   </div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
 <script>
+// ============================================================
+//  FIREBASE
+// ============================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyBiWNaiYJUuRNS7XfmfC7WeCqj6_Tomlhc",
+  authDomain: "clanlife.firebaseapp.com",
+  databaseURL: "https://clanlife-default-rtdb.firebaseio.com",
+  projectId: "clanlife",
+  storageBucket: "clanlife.firebasestorage.app",
+  messagingSenderId: "107579649711",
+  appId: "1:107579649711:web:9d52fbb4286f6e54a56e5a",
+  measurementId: "G-39L5X9Z2ZQ"
+};
+firebase.initializeApp(firebaseConfig);
+const fbAuth = firebase.auth();
+const fbDb = firebase.firestore();
+let fbUid = null;
+
 // ============================================================
 //  STATE
 // ============================================================
@@ -968,17 +990,20 @@ function switchAuthTab(tab) {
   document.getElementById('register-form').classList.toggle('hidden', tab!=='register');
 }
 
-function doLogin() {
-  const user = document.getElementById('login-user').value.trim();
+async function doLogin() {
+  const email = document.getElementById('login-user').value.trim();
   const pass = document.getElementById('login-pass').value;
-  if(!user||!pass){ toast('Please fill all fields','error'); return; }
-  const saved = localStorage.getItem('clanlife_user_'+user);
-  if(!saved){ toast('User not found','error'); return; }
-  const data = JSON.parse(saved);
-  if(data.password!==btoa(pass)){ toast('Incorrect password','error'); return; }
-  gameState = {...gameState, ...data.gameState, user};
-  toast('Welcome back, '+user+'! 🐾','success');
-  startGame();
+  if(!email||!pass){ toast('Please fill all fields','error'); return; }
+  try {
+    const cred = await fbAuth.signInWithEmailAndPassword(email, pass);
+    fbUid = cred.user.uid;
+    gameState.user = email;
+    await loadGameFromFirestore(fbUid);
+    toast('Welcome back! 🐾','success');
+    startGame();
+  } catch(err) {
+    toast(err.message, 'error');
+  }
 }
 
 function doGuest() {
@@ -987,20 +1012,51 @@ function doGuest() {
   startGame();
 }
 
-function doLogout() {
-  saveGame();
+async function doLogout() {
+  await saveGame();
+  await fbAuth.signOut();
+  fbUid = null;
   gameState = { user:null,clan:null,cats:[],inventory:{},currencies:{basic:100,premium:10},stats:{explores:0,bred:0,moons:1},setupComplete:false,leaderRerolls:4,starterRerolls:4,selectedLeader:null,selectedBiome:'forest',exploreBiome:'forest',breedParent1:null,breedParent2:null,activeParentSlot:null };
   document.getElementById('auth-screen').classList.remove('hidden');
   document.getElementById('game-screen').classList.add('hidden');
   document.getElementById('setup-screen').classList.add('hidden');
 }
 
-function saveGame() {
-  if(!gameState.user||gameState.user==='Guest') return;
-  const toSave = { gameState: { ...gameState, user: undefined } };
-  const saved = JSON.parse(localStorage.getItem('clanlife_user_'+gameState.user)||'{}');
-  localStorage.setItem('clanlife_user_'+gameState.user, JSON.stringify({...saved, gameState: toSave.gameState}));
+async function saveGame() {
+  if(!fbUid || !gameState.user || gameState.user==='Guest') return;
+  const toSave = { ...gameState };
+  delete toSave.user;
+  try {
+    await fbDb.collection('users').doc(fbUid).set(toSave, { merge: true });
+  } catch(err) {
+    console.error('Save failed:', err);
+  }
 }
+
+async function loadGameFromFirestore(uid) {
+  try {
+    const doc = await fbDb.collection('users').doc(uid).get();
+    if (doc.exists) {
+      const data = doc.data();
+      const user = gameState.user;
+      Object.assign(gameState, data);
+      gameState.user = user;
+    }
+  } catch(err) {
+    console.error('Load failed:', err);
+  }
+}
+
+// Auto-login on page reload if Firebase session is still active
+fbAuth.onAuthStateChanged(async (user) => {
+  if (user && !gameState.user) {
+    fbUid = user.uid;
+    gameState.user = user.email;
+    await loadGameFromFirestore(user.uid);
+    toast('Welcome back! 🐾','success');
+    startGame();
+  }
+});
 
 function startGame() {
   document.getElementById('auth-screen').classList.add('hidden');
@@ -1869,24 +1925,26 @@ function toast(msg, type='') {
 setInterval(()=>{ if(gameState.setupComplete) saveGame(); }, 60000);
 
 // ============================================================
-//  PASSWORD STORAGE (basic btoa — for demo; use hashing in prod)
+//  FIREBASE REGISTRATION
 // ============================================================
-function doRegister() {
-  const user=document.getElementById('reg-user').value.trim();
+async function doRegister() {
+  const email=document.getElementById('reg-user').value.trim();
   const pass=document.getElementById('reg-pass').value;
   const conf=document.getElementById('reg-confirm').value;
-  if(!user||!pass||!conf){ toast('Please fill all fields','error'); return; }
+  if(!email||!pass||!conf){ toast('Please fill all fields','error'); return; }
   if(pass!==conf){ toast('Passwords do not match','error'); return; }
-  if(user.length<3){ toast('Username must be at least 3 characters','error'); return; }
-  if(localStorage.getItem('clanlife_user_'+user)){ toast('Username already taken','error'); return; }
-  const gs={...gameState};
-  gs.user=undefined;
-  gs.stats.joined=new Date().toLocaleDateString();
-  localStorage.setItem('clanlife_user_'+user, JSON.stringify({password:btoa(pass),gameState:gs}));
-  gameState.user=user;
-  gameState.stats.joined=gs.stats.joined;
-  toast('Welcome to ClanLife, '+user+'! 🐾','success');
-  startGame();
+  if(pass.length<6){ toast('Password must be at least 6 characters','error'); return; }
+  try {
+    const cred = await fbAuth.createUserWithEmailAndPassword(email, pass);
+    fbUid = cred.user.uid;
+    gameState.user = email;
+    gameState.stats.joined = new Date().toLocaleDateString();
+    await saveGame();
+    toast('Welcome to ClanLife! 🐾','success');
+    startGame();
+  } catch(err) {
+    toast(err.message, 'error');
+  }
 }
 </script>
 
