@@ -283,5 +283,21 @@ listenForAuth(async (user) => {
     gameState.currency = data.currency;
 
     console.log("Game Loaded:", gameState);
+
+    import { generateCat } from "./generator.js";
+import { renderClan } from "./clan.js";
+
+let gameState = {
+  clan: []
+};
+
+// TEST BUTTON FUNCTION
+window.testGenerate = function () {
+  const cat = generateCat();
+
+  gameState.clan.push(cat);
+
+  renderClan(gameState);
+};
   }
 });
