@@ -981,20 +981,6 @@ function doLogin() {
   startGame();
 }
 
-function doRegister() {
-  const user = document.getElementById('reg-user').value.trim();
-  const pass = document.getElementById('reg-pass').value;
-  const conf = document.getElementById('reg-confirm').value;
-  if(!user||!pass||!conf){ toast('Please fill all fields','error'); return; }
-  if(pass!==conf){ toast('Passwords do not match','error'); return; }
-  if(user.length<3){ toast('Username must be at least 3 characters','error'); return; }
-  if(localStorage.getItem('clanlife_user_'+user)){ toast('Username taken','error'); return; }
-  gameState.user = user;
-  gameState.stats.joined = new Date().toLocaleDateString();
-  toast('Account created! Welcome, '+user+' 🌿');
-  startGame();
-}
-
 function doGuest() {
   gameState.user = 'Guest';
   toast('Continuing as Guest — progress won\'t save');
@@ -1901,10 +1887,11 @@ function doRegister() {
   gameState.stats.joined=gs.stats.joined;
   toast('Welcome to ClanLife, '+user+'! 🐾','success');
   startGame();
-  <div id="clan-container"></div>
-
-<button onclick="testGenerate()">Generate Cat</button>
-  <script type="module" src="js/script.js"></script>
+}
 </script>
+
+<div id="clan-container"></div>
+<button onclick="testGenerate()">Generate Cat</button>
+<script type="module" src="js/script.js"></script>
 </body>
 </html>
