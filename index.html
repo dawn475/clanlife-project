@@ -1,93 +1,1907 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ClanLife</title>
-  <link rel="stylesheet" href="style.css"/>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ClanLife</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Uncial+Antiqua&display=swap" rel="stylesheet" />
+<style>
+/* ===================== RESET & ROOT ===================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #0d0b08;
+  --bg2:       #131009;
+  --bg3:       #1c1710;
+  --panel:     #1e1a12;
+  --panel2:    #252018;
+  --border:    #3a3020;
+  --border2:   #4d4228;
+  --gold:      #c8963e;
+  --gold2:     #e3b96a;
+  --gold3:     #f5d898;
+  --amber:     #d4821a;
+  --cream:     #f0e4c4;
+  --muted:     #8a7a5c;
+  --muted2:    #6a5c40;
+  --green:     #5a8a4a;
+  --green2:    #7ab860;
+  --red:       #a03030;
+  --red2:      #d44040;
+  --blue:      #3a6a9a;
+  --blue2:     #6aace0;
+  --purple:    #7a4a9a;
+  --purple2:   #b080d0;
+  --premium:   #e8c060;
+  --premium2:  #fff0a0;
+  --font-h:    'Cinzel Decorative', serif;
+  --font-d:    'Uncial Antiqua', serif;
+  --font-b:    'Crimson Pro', serif;
+  --radius:    6px;
+  --shadow:    0 4px 24px rgba(0,0,0,0.7);
+}
+
+html, body { height: 100%; font-family: var(--font-b); background: var(--bg); color: var(--cream); font-size: 16px; line-height: 1.5; overflow-x: hidden; }
+
+/* ===================== SCROLLBAR ===================== */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* ===================== UTILITY ===================== */
+.hidden { display: none !important; }
+.flex { display: flex; }
+.col { flex-direction: column; }
+.gap-sm { gap: 8px; }
+.gap { gap: 14px; }
+.gap-lg { gap: 22px; }
+.wrap { flex-wrap: wrap; }
+.center { align-items: center; }
+.jc { justify-content: center; }
+.between { justify-content: space-between; }
+.grow { flex: 1; }
+.mt { margin-top: 14px; }
+.mt-sm { margin-top: 8px; }
+.bold { font-weight: 600; }
+.italic { font-style: italic; }
+.small { font-size: 0.85em; }
+.muted { color: var(--muted); }
+.gold { color: var(--gold2); }
+.premium-col { color: var(--premium); }
+.green-col { color: var(--green2); }
+.red-col { color: var(--red2); }
+.text-center { text-align: center; }
+.w100 { width: 100%; }
+
+/* ===================== DECORATIVE ===================== */
+.divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+.divider-gold { border-color: var(--border2); }
+
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 100px; font-size: 0.78em; font-weight: 600; letter-spacing: 0.04em; }
+.badge-gold { background: #2a220e; color: var(--gold2); border: 1px solid var(--border2); }
+.badge-green { background: #1a2a12; color: var(--green2); border: 1px solid #3a5a2a; }
+.badge-blue { background: #101c2a; color: var(--blue2); border: 1px solid #2a4a6a; }
+.badge-purple { background: #1e1228; color: var(--purple2); border: 1px solid #4a2a6a; }
+.badge-red { background: #2a0e0e; color: var(--red2); border: 1px solid #5a2020; }
+.badge-premium { background: #2a2010; color: var(--premium); border: 1px solid #6a5a20; }
+
+/* ===================== BUTTONS ===================== */
+button { font-family: var(--font-b); cursor: pointer; border: none; border-radius: var(--radius); transition: all 0.18s; font-size: 1em; }
+
+.btn { padding: 8px 18px; background: var(--panel2); color: var(--cream); border: 1px solid var(--border2); }
+.btn:hover { background: var(--panel); border-color: var(--gold); color: var(--gold2); }
+.btn-primary { background: linear-gradient(135deg, #2a1e08, #3d2c10); color: var(--gold2); border: 1px solid var(--gold); }
+.btn-primary:hover { background: linear-gradient(135deg, #3d2c10, #5a4018); box-shadow: 0 0 12px rgba(200,150,62,0.3); }
+.btn-danger { background: #2a0e0e; color: var(--red2); border: 1px solid var(--red); }
+.btn-danger:hover { background: #3a1212; }
+.btn-premium { background: linear-gradient(135deg, #2a2008, #4a3810); color: var(--premium); border: 1px solid var(--premium); font-weight: 600; }
+.btn-premium:hover { background: linear-gradient(135deg, #4a3810, #6a5018); box-shadow: 0 0 16px rgba(232,192,96,0.4); }
+.btn-sm { padding: 5px 12px; font-size: 0.88em; }
+.btn-lg { padding: 12px 28px; font-size: 1.1em; }
+.btn-icon { width: 34px; height: 34px; padding: 0; display: inline-flex; align-items: center; justify-content: center; font-size: 1.1em; }
+
+button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ===================== INPUTS ===================== */
+input, select, textarea {
+  font-family: var(--font-b); font-size: 1em;
+  background: var(--bg2); color: var(--cream);
+  border: 1px solid var(--border2); border-radius: var(--radius);
+  padding: 8px 12px; width: 100%; outline: none;
+  transition: border-color 0.18s;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--gold); }
+select option { background: var(--bg2); }
+label { font-size: 0.9em; color: var(--muted); margin-bottom: 4px; display: block; }
+
+/* ===================== CARDS ===================== */
+.card { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+.card-gold { border-color: var(--border2); }
+.card-premium { border-color: var(--premium); background: linear-gradient(135deg, var(--panel), #201808); }
+
+/* ===================== PROGRESS BARS ===================== */
+.progress { background: var(--bg2); border-radius: 100px; height: 8px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 100px; transition: width 0.4s; }
+.progress-fill.health { background: linear-gradient(90deg, var(--red), var(--green2)); }
+.progress-fill.xp { background: linear-gradient(90deg, var(--blue), var(--purple2)); }
+.progress-fill.hunger { background: linear-gradient(90deg, var(--amber), var(--gold2)); }
+
+/* ===================== NOTIFICATIONS ===================== */
+#toast-container { position: fixed; top: 18px; right: 18px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+.toast { background: var(--panel2); border: 1px solid var(--border2); border-radius: 8px; padding: 10px 18px; font-size: 0.95em; color: var(--cream); box-shadow: var(--shadow); pointer-events: all; animation: toastIn 0.3s ease; max-width: 320px; }
+.toast.success { border-color: var(--green); color: var(--green2); }
+.toast.error { border-color: var(--red); color: var(--red2); }
+.toast.premium { border-color: var(--premium); color: var(--premium); }
+@keyframes toastIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+/* ===================== MODALS ===================== */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.82); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.modal { background: var(--panel); border: 1px solid var(--border2); border-radius: 12px; padding: 28px; max-width: 520px; width: 100%; max-height: 85vh; overflow-y: auto; box-shadow: var(--shadow); position: relative; }
+.modal-lg { max-width: 720px; }
+.modal-title { font-family: var(--font-h); font-size: 1.2em; color: var(--gold2); margin-bottom: 18px; text-align: center; }
+.modal-close { position: absolute; top: 14px; right: 14px; background: none; color: var(--muted); font-size: 1.4em; border: none; cursor: pointer; }
+.modal-close:hover { color: var(--cream); }
+
+/* ===================== AUTH SCREEN ===================== */
+#auth-screen {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at 50% 0%, #1e1408 0%, var(--bg) 70%);
+  padding: 20px;
+}
+.auth-box { width: 100%; max-width: 400px; }
+.auth-logo { text-align: center; margin-bottom: 32px; }
+.auth-logo h1 { font-family: var(--font-h); font-size: 2.2em; color: var(--gold2); text-shadow: 0 0 30px rgba(200,150,62,0.5); letter-spacing: 2px; }
+.auth-logo p { color: var(--muted); font-style: italic; margin-top: 4px; }
+.auth-tabs { display: flex; gap: 0; background: var(--bg2); border-radius: 8px; overflow: hidden; margin-bottom: 20px; border: 1px solid var(--border); }
+.auth-tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; color: var(--muted); transition: all 0.2s; background: none; border: none; font-family: var(--font-b); font-size: 1em; }
+.auth-tab.active { background: var(--panel2); color: var(--gold2); }
+.auth-form { display: flex; flex-direction: column; gap: 14px; }
+.auth-divider { text-align: center; color: var(--muted); font-size: 0.85em; }
+
+/* ===================== GAME LAYOUT ===================== */
+#game-screen { display: flex; flex-direction: column; min-height: 100vh; }
+
+/* Top bar */
+#topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--bg2); border-bottom: 1px solid var(--border);
+  padding: 8px 18px; position: sticky; top: 0; z-index: 100;
+  gap: 14px;
+}
+.topbar-logo { font-family: var(--font-h); font-size: 1em; color: var(--gold2); white-space: nowrap; }
+.topbar-currencies { display: flex; gap: 14px; align-items: center; }
+.currency-display { display: flex; align-items: center; gap: 5px; font-size: 0.9em; }
+.currency-icon { font-size: 1.1em; }
+.currency-basic { color: var(--gold2); }
+.currency-premium { color: var(--premium); }
+.topbar-user { display: flex; align-items: center; gap: 10px; }
+.user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--panel2); border: 2px solid var(--border2); display: flex; align-items: center; justify-content: center; font-size: 1em; }
+
+/* Nav */
+#nav {
+  background: var(--bg2); border-bottom: 1px solid var(--border);
+  display: flex; overflow-x: auto; padding: 0 8px;
+  gap: 2px; flex-shrink: 0;
+}
+.nav-btn {
+  padding: 10px 16px; font-family: var(--font-b); font-size: 0.92em;
+  background: none; border: none; color: var(--muted); white-space: nowrap;
+  border-bottom: 2px solid transparent; transition: all 0.18s;
+  border-radius: 0;
+}
+.nav-btn:hover { color: var(--cream); }
+.nav-btn.active { color: var(--gold2); border-bottom-color: var(--gold); }
+
+/* Main area */
+#main-area { flex: 1; padding: 20px; max-width: 1100px; margin: 0 auto; width: 100%; }
+.page { display: none; }
+.page.active { display: block; }
+
+/* Page headings */
+.page-title { font-family: var(--font-h); font-size: 1.4em; color: var(--gold2); margin-bottom: 4px; }
+.page-sub { color: var(--muted); font-style: italic; font-size: 0.95em; margin-bottom: 20px; }
+
+/* ===================== SETUP WIZARD ===================== */
+#setup-screen { min-height: 100vh; background: radial-gradient(ellipse at 50% 0%, #1a1208 0%, var(--bg) 80%); padding: 30px 20px; display: flex; flex-direction: column; align-items: center; }
+.setup-box { width: 100%; max-width: 800px; }
+.setup-step { display: none; }
+.setup-step.active { display: block; }
+.setup-title { font-family: var(--font-h); font-size: 1.6em; color: var(--gold2); text-align: center; margin-bottom: 8px; }
+.setup-sub { text-align: center; color: var(--muted); font-style: italic; margin-bottom: 28px; }
+.setup-progress { display: flex; gap: 8px; justify-content: center; margin-bottom: 30px; }
+.setup-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border2); transition: all 0.3s; }
+.setup-dot.done { background: var(--green2); }
+.setup-dot.active { background: var(--gold2); box-shadow: 0 0 8px rgba(200,150,62,0.5); }
+
+.cat-pick-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px; }
+.cat-pick-card {
+  background: var(--panel); border: 2px solid var(--border);
+  border-radius: 10px; padding: 18px; cursor: pointer;
+  transition: all 0.2s; text-align: center;
+}
+.cat-pick-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+.cat-pick-card.selected { border-color: var(--gold); background: #1e1808; box-shadow: 0 0 16px rgba(200,150,62,0.2); }
+.cat-pick-art { font-size: 3em; margin-bottom: 10px; }
+.cat-pick-name { font-family: var(--font-d); font-size: 1.15em; color: var(--gold2); margin-bottom: 4px; }
+.cat-pick-desc { font-size: 0.85em; color: var(--muted); font-style: italic; }
+.cat-stat-row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 0.85em; }
+.cat-stat-row .progress { flex: 1; margin-left: 8px; height: 6px; }
+
+.reroll-bar { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 16px; }
+.reroll-count { font-size: 0.9em; color: var(--muted); }
+
+/* ===================== CLAN PAGE ===================== */
+.clan-header { background: linear-gradient(135deg, var(--panel), var(--bg2)); border: 1px solid var(--border2); border-radius: 10px; padding: 22px; margin-bottom: 20px; }
+.clan-banner-icon { font-size: 3.5em; margin-bottom: 8px; }
+.clan-name-display { font-family: var(--font-h); font-size: 1.8em; color: var(--gold2); }
+.clan-stats-row { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 14px; }
+.clan-stat { text-align: center; }
+.clan-stat-val { font-size: 1.5em; font-family: var(--font-d); color: var(--gold2); }
+.clan-stat-lbl { font-size: 0.8em; color: var(--muted); }
+
+.cat-roster { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }
+.cat-card {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px; cursor: pointer;
+  transition: all 0.18s;
+}
+.cat-card:hover { border-color: var(--border2); transform: translateY(-1px); box-shadow: var(--shadow); }
+.cat-card-art { font-size: 2.2em; text-align: center; margin-bottom: 8px; }
+.cat-card-name { font-family: var(--font-d); color: var(--gold2); font-size: 1em; text-align: center; margin-bottom: 4px; }
+.cat-card-role { text-align: center; font-size: 0.8em; }
+
+/* ===================== CROSSROADS ===================== */
+.crossroads-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; }
+.crossroads-spot {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 10px; padding: 20px 14px; text-align: center;
+  cursor: pointer; transition: all 0.2s;
+}
+.crossroads-spot:hover { border-color: var(--gold); transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+.spot-icon { font-size: 2.5em; margin-bottom: 10px; }
+.spot-name { font-family: var(--font-d); color: var(--gold2); font-size: 1em; margin-bottom: 4px; }
+.spot-desc { font-size: 0.8em; color: var(--muted); font-style: italic; }
+
+/* ===================== EXPLORE ACTIVITY ===================== */
+.explore-area { display: grid; grid-template-columns: 1fr 340px; gap: 20px; }
+@media (max-width: 700px) { .explore-area { grid-template-columns: 1fr; } }
+.explore-scene { background: var(--panel); border: 1px solid var(--border2); border-radius: 10px; padding: 20px; min-height: 320px; }
+.explore-log { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; height: 320px; overflow-y: auto; }
+.log-entry { padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 0.9em; }
+.log-entry:last-child { border-bottom: none; }
+.log-entry.loot { color: var(--gold2); }
+.log-entry.danger { color: var(--red2); }
+.log-entry.success { color: var(--green2); }
+.log-entry.premium { color: var(--premium); }
+
+.biome-btn { padding: 12px; border-radius: 8px; background: var(--panel2); border: 1px solid var(--border); text-align: center; cursor: pointer; transition: all 0.18s; }
+.biome-btn:hover, .biome-btn.active { border-color: var(--gold); color: var(--gold2); }
+.biome-icon { font-size: 1.8em; margin-bottom: 4px; }
+.biome-name { font-size: 0.88em; font-family: var(--font-d); }
+
+/* ===================== INVENTORY ===================== */
+.inventory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+.item-slot {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 8px; padding: 12px 8px; text-align: center;
+  cursor: pointer; transition: all 0.18s; position: relative;
+}
+.item-slot:hover { border-color: var(--border2); }
+.item-slot.empty { opacity: 0.3; cursor: default; }
+.item-slot.premium { border-color: var(--premium); }
+.item-icon { font-size: 2em; margin-bottom: 6px; }
+.item-name { font-size: 0.82em; color: var(--cream); }
+.item-qty { position: absolute; top: 6px; right: 8px; font-size: 0.75em; color: var(--gold2); font-weight: 600; }
+.item-rarity { font-size: 0.72em; margin-top: 2px; }
+
+/* ===================== SHOP ===================== */
+.shop-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+.shop-tab { padding: 8px 18px; cursor: pointer; color: var(--muted); background: none; border: none; font-family: var(--font-b); font-size: 0.95em; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.18s; }
+.shop-tab.active { color: var(--gold2); border-bottom-color: var(--gold); }
+.shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+.shop-item { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 18px; text-align: center; }
+.shop-item.premium { border-color: var(--premium); background: linear-gradient(135deg, var(--panel), #1e1808); }
+.shop-item-icon { font-size: 2.8em; margin-bottom: 10px; }
+.shop-item-name { font-family: var(--font-d); color: var(--gold2); margin-bottom: 4px; }
+.shop-item-desc { font-size: 0.82em; color: var(--muted); font-style: italic; margin-bottom: 12px; }
+.shop-item-price { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 10px; font-weight: 600; }
+
+/* ===================== BREEDING ===================== */
+.breeding-area { display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; margin-bottom: 20px; }
+.parent-slot { background: var(--panel); border: 2px dashed var(--border2); border-radius: 10px; padding: 20px; text-align: center; min-height: 140px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+.parent-slot.filled { border-style: solid; border-color: var(--gold); }
+.breeding-arrow { font-size: 2em; color: var(--muted); }
+.breeding-result { background: var(--panel2); border: 1px solid var(--border2); border-radius: 10px; padding: 20px; min-height: 160px; }
+
+/* ===================== USER PROFILE ===================== */
+.profile-avatar-area { text-align: center; margin-bottom: 24px; }
+.profile-avatar-big { width: 90px; height: 90px; border-radius: 50%; background: var(--panel2); border: 3px solid var(--gold); margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-size: 3em; cursor: pointer; }
+.profile-stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.profile-stat-card { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 14px; text-align: center; }
+.profile-stat-val { font-size: 1.8em; font-family: var(--font-d); color: var(--gold2); }
+.profile-stat-lbl { font-size: 0.8em; color: var(--muted); }
+
+/* ===================== TRAINING ===================== */
+.training-cat-list { display: flex; flex-direction: column; gap: 10px; }
+.training-cat-row { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 14px; display: flex; align-items: center; gap: 14px; }
+.training-cat-info { flex: 1; }
+.training-cat-name { font-family: var(--font-d); color: var(--gold2); }
+.training-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ===================== GIVING TREE ===================== */
+.tree-area { text-align: center; }
+.giving-tree-icon { font-size: 5em; margin: 20px 0 16px; }
+.tree-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-top: 20px; }
+
+/* ===================== TRADING SPOT ===================== */
+.trade-area { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 600px) { .trade-area { grid-template-columns: 1fr; } }
+
+/* ===================== GAMES ===================== */
+.game-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 24px; text-align: center; cursor: pointer; transition: all 0.2s; }
+.game-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+.game-card-icon { font-size: 3em; margin-bottom: 12px; }
+.game-card-name { font-family: var(--font-d); color: var(--gold2); font-size: 1.1em; margin-bottom: 6px; }
+
+/* ===================== CAT DETAIL MODAL ===================== */
+.cat-detail-header { display: flex; gap: 20px; align-items: flex-start; margin-bottom: 20px; }
+.cat-detail-art { font-size: 4em; }
+.cat-stat-list { display: flex; flex-direction: column; gap: 8px; }
+.cat-stat-item { display: flex; align-items: center; gap: 10px; font-size: 0.9em; }
+.cat-stat-name { width: 70px; color: var(--muted); }
+.cat-stat-bar { flex: 1; }
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 600px) {
+  .topbar-currencies { display: none; }
+  #main-area { padding: 12px; }
+  .cat-roster { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ===================== PARCHMENT TEXTURE ===================== */
+.parchment {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
+/* ===================== ANIMATIONS ===================== */
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.6} }
+@keyframes shimmer { 0%{background-position:-200%}100%{background-position:200%} }
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)} }
+.animate-in { animation: fadeIn 0.35s ease forwards; }
+
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { from{transform:rotate(0deg)}to{transform:rotate(360deg)} }
+
+.glow-gold { text-shadow: 0 0 18px rgba(200,150,62,0.6); }
+.shimmer-text {
+  background: linear-gradient(90deg, var(--gold2), var(--gold3), var(--gold2));
+  background-size: 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 2.5s linear infinite;
+}
+</style>
 </head>
 <body>
-  <div id="auth-container">
-    <h2>Login or Sign Up</h2>
-    <input type="email" id="email" placeholder="Email"/>
-    <input type="password" id="password" placeholder="Password"/>
-    <button id="signup-btn">Sign Up</button>
-    <button id="login-btn">Log In</button>
-    <p id="auth-message"></p>
-  </div>
 
-  <div id="game-container" style="display:none;">
-    <h1>Welcome to ClanLife!</h1>
-    <button onclick="logout()">Logout</button>
-    
-    <div id="tabs">
-      <button onclick="showTab('explore')">Explore</button>
-      <button onclick="showTab('camp')">Camp</button>
-      <button onclick="showTab('clan')">Clan</button>
-      <button onclick="showTab('profile')">Profile</button>
-      <button onclick="showTab('inventory')">Inventory</button>
+<!-- =========== TOAST =========== -->
+<div id="toast-container"></div>
+
+<!-- =========== AUTH SCREEN =========== -->
+<div id="auth-screen">
+  <div class="auth-box animate-in">
+    <div class="auth-logo">
+      <div style="font-size:3em;margin-bottom:8px">🐾</div>
+      <h1 class="shimmer-text">ClanLife</h1>
+      <p>Where legends of the wild begin</p>
     </div>
-
-    <div id="explore" class="tab-content">
-      <h2>Explore</h2>
-      <img id="cat-sprite" src="https://raw.githubusercontent.com/dawn475/clanlife-project/main/Images/placeholder-sprite.png" alt="Cat Sprite" style="max-width: 200px;"/>
-      <p>Your cat is here!</p>
-      <button onclick="collectItem()">Explore</button>
-      <p id="item-result"></p>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login')">Log In</button>
+      <button class="auth-tab" onclick="switchAuthTab('register')">Sign Up</button>
     </div>
-
-  <div id="camp" class="tab-content" style="display:none;">
-  <h2>Camp: Your Clan's Home</h2>
-
-  <div>
-    <h3>Create a Den</h3>
-    <input type="text" id="den-name-input" placeholder="Enter den name" />
-    <button onclick="createDen()">Add Den</button>
-  </div>
-
-  <div id="den-list" class="den-list">
-    <!-- Dens will appear here -->
-  </div>
-  <hr />
-<div id="cat-management">
-  <h3>Cat Management</h3>
-  <div>
-    <input type="text" id="cat-name-input" placeholder="Cat Name" />
-    <select id="cat-age-input">
-      <option value="Kit">Kit</option>
-      <option value="Apprentice">Apprentice</option>
-      <option value="Warrior">Warrior</option>
-      <option value="Elder">Elder</option>
-    </select>
-    <button onclick="addCat()">Add Cat</button>
-  </div>
-
-  <div id="unassigned-cats">
-    <h4>Unassigned Cats</h4>
-    <ul id="unassigned-cats-list"></ul>
+    <div id="login-form" class="auth-form">
+      <div>
+        <label>Username</label>
+        <input type="text" id="login-user" placeholder="Your username" />
+      </div>
+      <div>
+        <label>Password</label>
+        <input type="password" id="login-pass" placeholder="Your password" />
+      </div>
+      <button class="btn btn-primary btn-lg w100" onclick="doLogin()">Enter the Wild 🌿</button>
+      <div class="auth-divider">or play as guest (no save)</div>
+      <button class="btn w100" onclick="doGuest()">Continue as Guest</button>
+    </div>
+    <div id="register-form" class="auth-form hidden">
+      <div>
+        <label>Username</label>
+        <input type="text" id="reg-user" placeholder="Choose a username" />
+      </div>
+      <div>
+        <label>Password</label>
+        <input type="password" id="reg-pass" placeholder="Choose a password" />
+      </div>
+      <div>
+        <label>Confirm Password</label>
+        <input type="password" id="reg-confirm" placeholder="Confirm password" />
+      </div>
+      <button class="btn btn-primary btn-lg w100" onclick="doRegister()">Create Account 🐱</button>
+    </div>
   </div>
 </div>
 
-    <div id="clan" class="tab-content" style="display:none;">
-      <h2>Clan</h2>
-      <p>Clan information will go here.</p>
+<!-- =========== SETUP WIZARD =========== -->
+<div id="setup-screen" class="hidden">
+  <div class="setup-box animate-in">
+    <div class="auth-logo">
+      <div style="font-size:2.5em;margin-bottom:8px">⚔️</div>
+      <h1 class="shimmer-text" style="font-size:1.8em;">Begin Your Legend</h1>
+    </div>
+    <div class="setup-progress">
+      <div class="setup-dot active" id="dot-1"></div>
+      <div class="setup-dot" id="dot-2"></div>
+      <div class="setup-dot" id="dot-3"></div>
     </div>
 
-    <div id="profile" class="tab-content" style="display:none;">
-      <h2>Profile</h2>
-      <p>Player profile and stats coming soon!</p>
+    <!-- Step 1: Clan Name -->
+    <div class="setup-step active" id="step-1">
+      <h2 class="setup-title">Name Your Clan</h2>
+      <p class="setup-sub">Choose wisely — your clan's name will echo through the forest forever</p>
+      <div class="card" style="margin-bottom:20px">
+        <label>Clan Name (the word before "Clan")</label>
+        <input type="text" id="clan-name-input" placeholder="e.g. Thunder, Shadow, River..." maxlength="20" />
+        <div style="margin-top:12px">
+          <label>Choose Your Biome</label>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px" id="biome-picker">
+            <div class="biome-btn active" onclick="pickBiome(this,'forest')" data-biome="forest"><div class="biome-icon">🌲</div><div class="biome-name">Forest</div></div>
+            <div class="biome-btn" onclick="pickBiome(this,'river')" data-biome="river"><div class="biome-icon">🏞️</div><div class="biome-name">Riverlands</div></div>
+            <div class="biome-btn" onclick="pickBiome(this,'moor')" data-biome="moor"><div class="biome-icon">🌾</div><div class="biome-name">Moor</div></div>
+            <div class="biome-btn" onclick="pickBiome(this,'mountain')" data-biome="mountain"><div class="biome-icon">⛰️</div><div class="biome-name">Mountain</div></div>
+            <div class="biome-btn" onclick="pickBiome(this,'swamp')" data-biome="swamp"><div class="biome-icon">🌿</div><div class="biome-name">Swamp</div></div>
+            <div class="biome-btn" onclick="pickBiome(this,'tundra')" data-biome="tundra"><div class="biome-icon">❄️</div><div class="biome-name">Tundra</div></div>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-lg w100" onclick="goStep(2)">Continue →</button>
     </div>
 
-  <div id="inventory" class="tab-content" style="display:none;">
-  <h2>Inventory</h2>
-  <ul id="inventory-list"></ul>
+    <!-- Step 2: Pick Leader -->
+    <div class="setup-step hidden" id="step-2">
+      <h2 class="setup-title">Choose Your Leader</h2>
+      <p class="setup-sub">Three cats stand ready to lead. Choose one as your Clan's first leader. You have <span id="leader-rerolls">4</span> rerolls.</p>
+      <div class="reroll-bar">
+        <span class="reroll-count">Rerolls remaining: <strong id="leader-reroll-count">4</strong></span>
+        <button class="btn btn-sm" onclick="rerollLeaders()" id="reroll-leaders-btn">🎲 Reroll Leaders</button>
+      </div>
+      <div class="cat-pick-grid" id="leader-pick-grid"></div>
+      <button class="btn btn-primary btn-lg w100" onclick="confirmLeader()" id="confirm-leader-btn" disabled>Appoint as Leader →</button>
+    </div>
+
+    <!-- Step 3: Starting Cats -->
+    <div class="setup-step hidden" id="step-3">
+      <h2 class="setup-title">Your Starting Clan</h2>
+      <p class="setup-sub">6 cats have gathered to join your clan. Reroll any you don't like — you have <span id="starter-rerolls-left">4</span> rerolls.</p>
+      <div class="reroll-bar">
+        <span class="reroll-count">Rerolls remaining: <strong id="starter-reroll-count">4</strong></span>
+        <button class="btn btn-sm" onclick="rerollAllStarters()" id="reroll-starters-btn">🎲 Reroll All</button>
+      </div>
+      <div class="cat-pick-grid" id="starter-grid"></div>
+      <button class="btn btn-primary btn-lg w100" onclick="finalizeSetup()" style="margin-top:16px">Begin Clan Life! 🐾</button>
+    </div>
+  </div>
 </div>
 
-  <script src="script.js"></script>
+<!-- =========== MAIN GAME =========== -->
+<div id="game-screen" class="hidden">
 
-<script type="module" src="script.js"></script>
+  <!-- Top Bar -->
+  <div id="topbar">
+    <div class="topbar-logo">🐾 ClanLife</div>
+    <div class="topbar-currencies">
+      <div class="currency-display currency-basic">
+        <span class="currency-icon">🍂</span>
+        <span id="currency-basic-display">0</span>
+        <span class="muted small">Leaves</span>
+      </div>
+      <div class="currency-display currency-premium">
+        <span class="currency-icon">⭐</span>
+        <span id="currency-premium-display">0</span>
+        <span class="muted small">Stardust</span>
+      </div>
+      <button class="btn btn-premium btn-sm" onclick="showPage('shop')">+ Get Stardust</button>
+    </div>
+    <div class="topbar-user">
+      <span class="muted small" id="topbar-username"></span>
+      <div class="user-avatar" onclick="showPage('profile')">🐱</div>
+      <button class="btn btn-sm" onclick="doLogout()">↩</button>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <div id="nav">
+    <button class="nav-btn active" onclick="showPage('clan')">🏕️ Clan</button>
+    <button class="nav-btn" onclick="showPage('crossroads')">🌿 Crossroads</button>
+    <button class="nav-btn" onclick="showPage('explore')">🗺️ Explore</button>
+    <button class="nav-btn" onclick="showPage('breeding')">💞 Breeding</button>
+    <button class="nav-btn" onclick="showPage('inventory')">🎒 Inventory</button>
+    <button class="nav-btn" onclick="showPage('shop')">🛒 Shop</button>
+    <button class="nav-btn" onclick="showPage('profile')">👤 Profile</button>
+  </div>
+
+  <!-- Main Area -->
+  <div id="main-area">
+
+    <!-- ===== CLAN PAGE ===== -->
+    <div id="page-clan" class="page active">
+      <div class="clan-header parchment" id="clan-header-display">
+        <div class="clan-banner-icon">🏕️</div>
+        <div class="clan-name-display glow-gold" id="clan-name-display">ThunderClan</div>
+        <div id="clan-biome-badge" class="mt-sm"></div>
+        <div class="clan-stats-row">
+          <div class="clan-stat"><div class="clan-stat-val" id="clan-cat-count">0</div><div class="clan-stat-lbl">Cats</div></div>
+          <div class="clan-stat"><div class="clan-stat-val" id="clan-moon-count">1</div><div class="clan-stat-lbl">Moons Old</div></div>
+          <div class="clan-stat"><div class="clan-stat-val" id="clan-rep">0</div><div class="clan-stat-lbl">Reputation</div></div>
+          <div class="clan-stat"><div class="clan-stat-val" id="clan-prey">0</div><div class="clan-stat-lbl">Prey</div></div>
+        </div>
+      </div>
+
+      <div class="flex between center mt" style="margin-bottom:12px">
+        <div class="page-title" style="margin:0">Your Cats</div>
+        <div class="flex gap-sm">
+          <button class="btn btn-sm" onclick="advanceMoon()">🌙 Next Moon</button>
+          <button class="btn btn-primary btn-sm" onclick="openBreedingModal()">+ Add Cat</button>
+        </div>
+      </div>
+      <div class="cat-roster" id="cat-roster"></div>
+    </div>
+
+    <!-- ===== CROSSROADS ===== -->
+    <div id="page-crossroads" class="page">
+      <div class="page-title">The Crossroads</div>
+      <p class="page-sub">A bustling gathering place — explore the many paths and activities available to your clan</p>
+      <div class="crossroads-grid">
+        <div class="crossroads-spot" onclick="goActivity('exploring')"><div class="spot-icon">🌲</div><div class="spot-name">Exploring</div><div class="spot-desc">Venture into the wilds</div></div>
+        <div class="crossroads-spot" onclick="goActivity('patrolling')"><div class="spot-icon">⚔️</div><div class="spot-name">Patrolling</div><div class="spot-desc">Guard your territory</div></div>
+        <div class="crossroads-spot" onclick="goActivity('herb-gathering')"><div class="spot-icon">🌿</div><div class="spot-name">Herb Gathering</div><div class="spot-desc">Collect medicinal plants</div></div>
+        <div class="crossroads-spot" onclick="goActivity('hunting')"><div class="spot-icon">🐦</div><div class="spot-name">Hunting</div><div class="spot-desc">Feed your clanmates</div></div>
+        <div class="crossroads-spot" onclick="showGivingTree()"><div class="spot-icon">🌳</div><div class="spot-name">Giving Tree</div><div class="spot-desc">Leave or find gifts</div></div>
+        <div class="crossroads-spot" onclick="showTradingSpot()"><div class="spot-icon">🤝</div><div class="spot-name">Trading Spot</div><div class="spot-desc">Trade with other clans</div></div>
+        <div class="crossroads-spot" onclick="showGames()"><div class="spot-icon">🎮</div><div class="spot-name">Games</div><div class="spot-desc">Play & earn leaves</div></div>
+        <div class="crossroads-spot" onclick="showKitTraining()"><div class="spot-icon">🐾</div><div class="spot-name">Kit Training</div><div class="spot-desc">Train your apprentices</div></div>
+      </div>
+
+      <!-- Activity results area -->
+      <div id="crossroads-activity" class="mt hidden">
+        <hr class="divider divider-gold">
+        <div id="activity-content"></div>
+      </div>
+    </div>
+
+    <!-- ===== EXPLORE PAGE ===== -->
+    <div id="page-explore" class="page">
+      <div class="page-title">Explore</div>
+      <p class="page-sub">Send a cat on an expedition to gather resources, face encounters, and discover rare items</p>
+      <div class="explore-area">
+        <div class="explore-scene parchment">
+          <div style="margin-bottom:14px">
+            <label>Select Cat to Send</label>
+            <select id="explore-cat-select"></select>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px" id="explore-biome-btns">
+            <div class="biome-btn active" onclick="selectExploreBiome(this,'forest')"><div class="biome-icon">🌲</div><div class="biome-name">Forest</div></div>
+            <div class="biome-btn" onclick="selectExploreBiome(this,'river')"><div class="biome-icon">🏞️</div><div class="biome-name">River</div></div>
+            <div class="biome-btn" onclick="selectExploreBiome(this,'moor')"><div class="biome-icon">🌾</div><div class="biome-name">Moor</div></div>
+            <div class="biome-btn" onclick="selectExploreBiome(this,'mountain')"><div class="biome-icon">⛰️</div><div class="biome-name">Mountain</div></div>
+            <div class="biome-btn" onclick="selectExploreBiome(this,'swamp')"><div class="biome-icon">🌿</div><div class="biome-name">Swamp</div></div>
+            <div class="biome-btn" onclick="selectExploreBiome(this,'cave')"><div class="biome-icon">🦇</div><div class="biome-name">Dark Cave</div></div>
+          </div>
+          <button class="btn btn-primary w100 btn-lg" onclick="doExplore()" id="explore-btn">🗺️ Begin Exploration</button>
+          <div id="explore-result" style="margin-top:16px"></div>
+        </div>
+        <div>
+          <div class="muted small" style="margin-bottom:8px">Activity Log</div>
+          <div class="explore-log" id="explore-log">
+            <div class="log-entry muted italic">Your exploration log will appear here...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== BREEDING PAGE ===== -->
+    <div id="page-breeding" class="page">
+      <div class="page-title">Breeding Den</div>
+      <p class="page-sub">Pair two cats to produce a litter. Stats and traits are inherited from both parents.</p>
+      <div class="breeding-area">
+        <div class="parent-slot" id="parent-slot-1" onclick="openParentPicker(1)">
+          <div style="font-size:2em">🐱</div>
+          <div class="muted">Click to select mother</div>
+        </div>
+        <div class="breeding-arrow">💞</div>
+        <div class="parent-slot" id="parent-slot-2" onclick="openParentPicker(2)">
+          <div style="font-size:2em">🐱</div>
+          <div class="muted">Click to select father</div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-bottom:20px">
+        <button class="btn btn-primary btn-lg" onclick="doBreeding()" id="breed-btn">💞 Begin Breeding</button>
+      </div>
+      <div class="breeding-result" id="breeding-result">
+        <div class="muted italic text-center" style="padding:30px">Select two cats and click Breed to see your litter</div>
+      </div>
+    </div>
+
+    <!-- ===== INVENTORY PAGE ===== -->
+    <div id="page-inventory" class="page">
+      <div class="page-title">Inventory</div>
+      <p class="page-sub">Items, herbs, prey, and crafting materials collected on your journeys</p>
+      <div class="flex gap-sm" style="margin-bottom:18px;flex-wrap:wrap">
+        <button class="btn btn-sm active" onclick="filterInv('all',this)">All</button>
+        <button class="btn btn-sm" onclick="filterInv('herb',this)">🌿 Herbs</button>
+        <button class="btn btn-sm" onclick="filterInv('prey',this)">🐦 Prey</button>
+        <button class="btn btn-sm" onclick="filterInv('craft',this)">⚙️ Crafting</button>
+        <button class="btn btn-sm" onclick="filterInv('special',this)">✨ Special</button>
+      </div>
+      <div class="inventory-grid" id="inventory-grid"></div>
+    </div>
+
+    <!-- ===== SHOP PAGE ===== -->
+    <div id="page-shop" class="page">
+      <div class="page-title">Shop</div>
+      <div class="shop-tabs">
+        <button class="shop-tab active" onclick="switchShopTab('basic',this)">🍂 Leaf Market</button>
+        <button class="shop-tab" onclick="switchShopTab('premium',this)">⭐ Stardust Emporium</button>
+        <button class="shop-tab" onclick="switchShopTab('buystardust',this)">💫 Get Stardust</button>
+      </div>
+      <div id="shop-basic" class="shop-grid"></div>
+      <div id="shop-premium" class="shop-grid hidden"></div>
+      <div id="shop-buystardust" class="hidden">
+        <div class="text-center" style="padding:30px 0">
+          <div style="font-size:4em;margin-bottom:16px">⭐</div>
+          <div class="page-title glow-gold">Get Stardust</div>
+          <p class="muted" style="margin-bottom:28px">Stardust is the premium currency of ClanLife. Use it in the Stardust Emporium for rare cats, exclusive items, and special boosts.</p>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;max-width:600px;margin:0 auto">
+            <div class="card card-premium" style="cursor:pointer" onclick="buyStardust(100,5)">
+              <div style="font-size:2.5em;margin-bottom:8px">⭐</div>
+              <div class="premium-col bold">100 Stardust</div>
+              <div class="muted small mt-sm">$0.99</div>
+              <button class="btn btn-premium btn-sm w100 mt">Buy</button>
+            </div>
+            <div class="card card-premium" style="cursor:pointer" onclick="buyStardust(550,25)">
+              <div style="font-size:2.5em;margin-bottom:8px">⭐⭐</div>
+              <div class="premium-col bold">550 Stardust</div>
+              <div class="muted small mt-sm">$4.99 <span class="badge badge-green">Best Value</span></div>
+              <button class="btn btn-premium btn-sm w100 mt">Buy</button>
+            </div>
+            <div class="card card-premium" style="cursor:pointer" onclick="buyStardust(1200,50)">
+              <div style="font-size:2.5em;margin-bottom:8px">⭐⭐⭐</div>
+              <div class="premium-col bold">1200 Stardust</div>
+              <div class="muted small mt-sm">$9.99</div>
+              <button class="btn btn-premium btn-sm w100 mt">Buy</button>
+            </div>
+          </div>
+          <p class="muted small mt" style="font-style:italic">(Demo: clicking buy gives free stardust for testing)</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PROFILE PAGE ===== -->
+    <div id="page-profile" class="page">
+      <div class="page-title">Your Profile</div>
+      <p class="page-sub">Manage your account and view your achievements</p>
+      <div class="profile-avatar-area">
+        <div class="profile-avatar-big" onclick="changeAvatar()" title="Click to change avatar" id="profile-avatar-display">🐱</div>
+        <div style="font-family:var(--font-d);font-size:1.3em;color:var(--gold2)" id="profile-username-display">Player</div>
+        <div class="muted small mt-sm" id="profile-joined">Joined recently</div>
+      </div>
+      <div class="profile-stats-grid">
+        <div class="profile-stat-card"><div class="profile-stat-val" id="stat-cats">0</div><div class="profile-stat-lbl">Total Cats</div></div>
+        <div class="profile-stat-card"><div class="profile-stat-val" id="stat-moons">1</div><div class="profile-stat-lbl">Moons Played</div></div>
+        <div class="profile-stat-card"><div class="profile-stat-val" id="stat-explores">0</div><div class="profile-stat-lbl">Explorations</div></div>
+        <div class="profile-stat-card"><div class="profile-stat-val" id="stat-bred">0</div><div class="profile-stat-lbl">Cats Bred</div></div>
+      </div>
+      <hr class="divider divider-gold">
+      <div class="card">
+        <div style="font-family:var(--font-d);color:var(--gold2);margin-bottom:14px">Account Settings</div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div>
+            <label>Display Username</label>
+            <input type="text" id="profile-edit-name" placeholder="Your display name" />
+          </div>
+          <div>
+            <label>Theme</label>
+            <select id="profile-theme" onchange="changeTheme(this.value)">
+              <option value="dark">🌙 Dark (Default)</option>
+              <option value="forest">🌲 Forest Glade</option>
+              <option value="dusk">🌅 Dusk</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="saveProfileSettings()">Save Changes</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end main-area -->
+</div><!-- end game-screen -->
+
+<!-- =========== MODALS =========== -->
+
+<!-- Cat Detail Modal -->
+<div id="modal-cat" class="modal-overlay hidden" onclick="closeModal('modal-cat')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal('modal-cat')">✕</button>
+    <div id="modal-cat-content"></div>
+  </div>
+</div>
+
+<!-- Parent Picker Modal -->
+<div id="modal-parent" class="modal-overlay hidden" onclick="closeModal('modal-parent')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal('modal-parent')">✕</button>
+    <div class="modal-title">Select a Cat</div>
+    <div id="modal-parent-list" style="display:flex;flex-direction:column;gap:8px"></div>
+  </div>
+</div>
+
+<!-- Item Detail Modal -->
+<div id="modal-item" class="modal-overlay hidden" onclick="closeModal('modal-item')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal('modal-item')">✕</button>
+    <div id="modal-item-content"></div>
+  </div>
+</div>
+
+<!-- Giving Tree Modal -->
+<div id="modal-tree" class="modal-overlay hidden" onclick="closeModal('modal-tree')">
+  <div class="modal modal-lg" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal('modal-tree')">✕</button>
+    <div class="modal-title">🌳 The Giving Tree</div>
+    <div class="tree-area">
+      <div class="giving-tree-icon">🌳</div>
+      <p class="muted italic">An ancient tree where clanmates leave gifts for those in need. Check back each moon for new offerings.</p>
+      <div class="tree-grid" id="tree-gifts"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Trading Modal -->
+<div id="modal-trade" class="modal-overlay hidden" onclick="closeModal('modal-trade')">
+  <div class="modal modal-lg" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal('modal-trade')">✕</button>
+    <div class="modal-title">🤝 Trading Spot</div>
+    <div class="trade-area">
+      <div>
+        <div style="font-family:var(--font-d);color:var(--gold2);margin-bottom:10px">Your Offer</div>
+        <select id="trade-your-item" style="margin-bottom:8px"><option>Choose an item...</option></select>
+        <input type="number" id="trade-your-qty" placeholder="Quantity" min="1" value="1" style="margin-bottom:12px"/>
+      </div>
+      <div>
+        <div style="font-family:var(--font-d);color:var(--gold2);margin-bottom:10px">Merchant Offers</div>
+        <div id="trade-offers" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+    </div>
+    <button class="btn btn-primary w100 mt" onclick="doTrade()">Complete Trade</button>
+  </div>
+</div>
+
+<!-- Games Modal -->
+<div id="modal-games" class="modal-overlay hidden" onclick="closeModal('modal-games')">
+  <div class="modal modal-lg" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal('modal-games')">✕</button>
+    <div class="modal-title">🎮 Games</div>
+    <p class="muted text-center" style="margin-bottom:20px">Play mini-games to earn Leaves!</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px" id="games-list"></div>
+  </div>
+</div>
+
+<!-- Kit Training Modal -->
+<div id="modal-training" class="modal-overlay hidden" onclick="closeModal('modal-training')">
+  <div class="modal modal-lg" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal('modal-training')">✕</button>
+    <div class="modal-title">🐾 Kit Training</div>
+    <p class="muted text-center" style="margin-bottom:20px">Train apprentices to raise their stats and promote them to warriors.</p>
+    <div class="training-cat-list" id="training-list"></div>
+  </div>
+</div>
+
+<!-- Prey Catch Game Modal -->
+<div id="modal-preygame" class="modal-overlay hidden" onclick="closeModal('modal-preygame')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal('modal-preygame')">✕</button>
+    <div class="modal-title">🐦 Quick Hunt</div>
+    <p class="muted text-center" style="margin-bottom:16px">Tap the prey as fast as you can! 10 seconds.</p>
+    <div id="prey-game-area" style="min-height:200px;position:relative;background:var(--bg2);border-radius:8px;border:1px solid var(--border);margin-bottom:14px;overflow:hidden">
+      <div id="prey-score-display" style="text-align:center;padding:20px">
+        <div style="font-size:3em;margin-bottom:8px">🐦</div>
+        <div class="muted">Press Start to play!</div>
+      </div>
+    </div>
+    <button class="btn btn-primary w100" id="prey-game-btn" onclick="startPreyGame()">▶ Start Hunt</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  STATE
+// ============================================================
+let gameState = {
+  user: null,
+  clan: null,
+  cats: [],
+  inventory: {},
+  currencies: { basic: 100, premium: 10 },
+  stats: { explores: 0, bred: 0, moons: 1 },
+  setupComplete: false,
+  leaderRerolls: 4,
+  starterRerolls: 4,
+  selectedLeader: null,
+  selectedBiome: 'forest',
+  exploreBiome: 'forest',
+  breedParent1: null,
+  breedParent2: null,
+  activeParentSlot: null,
+};
+
+// ============================================================
+//  CAT DATA
+// ============================================================
+const CAT_PREFIXES = ['Thunder','Shadow','River','Wind','Sky','Storm','Ember','Frost','Ash','Blaze','Fern','Moss','Oak','Pine','Silver','Gold','Copper','Iron','Moon','Sun','Star','Hawk','Crow','Sparrow','Robin','Jay','Dove','Raven','Dusk','Dawn','Twilight','Bracken','Briar','Holly','Ivy','Heather','Sorrel','Sage','Yarrow','Clover','Willow','Cedar','Birch'];
+const CAT_SUFFIXES_WARRIOR = ['heart','pelt','claw','fang','tail','stripe','whisker','leap','spring','flight','breeze','storm','shade','light','fire','blaze','brook','pool','stream','fall','stone','rock','cliff','ridge','mist','fog','dew','rain','snow','frost','wind','gust','eye','nose','ear','fur'];
+const CAT_SUFFIXES_KIT = ['kit'];
+const CAT_SUFFIXES_APP = ['paw'];
+const ROLES = ['Warrior','Warrior','Warrior','Warrior','Apprentice','Medicine Cat','Elder'];
+const COAT_COLORS = ['ginger','black','white','tabby','gray','cream','tortoiseshell','calico','brown','blue-gray','silver'];
+const COAT_PATTERNS = ['solid','striped','spotted','ticked','patched','mackerel','classic','bicolor'];
+const EYE_COLORS = ['amber','green','blue','gold','hazel','copper','yellow','gray'];
+const SPECIAL_TRAITS = ['Brave','Cunning','Loyal','Swift','Strong','Wise','Gentle','Fierce','Quiet','Bold','Cheerful','Stubborn','Kind','Sharp','Mysterious','Reckless','Patient','Witty'];
+const CAT_ARTS = ['🐱','😺','😸','😹','😻','🐈','🐾'];
+const ROLE_ICONS = { Leader:'⚔️', Deputy:'🛡️', Warrior:'🗡️', Apprentice:'📚', 'Medicine Cat':'🌿', Kit:'🐾', Elder:'🌙' };
+
+function genCatName(role='Warrior') {
+  const pre = CAT_PREFIXES[Math.floor(Math.random()*CAT_PREFIXES.length)];
+  let suf;
+  if(role==='Kit') suf='kit';
+  else if(role==='Apprentice') suf='paw';
+  else suf = CAT_SUFFIXES_WARRIOR[Math.floor(Math.random()*CAT_SUFFIXES_WARRIOR.length)];
+  return pre+suf;
+}
+
+function genCat(role='Warrior', forceLeader=false) {
+  const r = forceLeader ? 'Leader' : role;
+  const name = genCatName(r==='Leader'?'Warrior':r);
+  const displayName = r==='Leader' ? name.replace(/paw|kit$/,'star') : name;
+  return {
+    id: 'cat_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+    name: displayName,
+    role: r,
+    age: r==='Kit'?0:r==='Apprentice'?Math.floor(Math.random()*6)+6:r==='Elder'?Math.floor(Math.random()*40)+80:Math.floor(Math.random()*60)+16,
+    coat: COAT_COLORS[Math.floor(Math.random()*COAT_COLORS.length)],
+    pattern: COAT_PATTERNS[Math.floor(Math.random()*COAT_PATTERNS.length)],
+    eyes: EYE_COLORS[Math.floor(Math.random()*EYE_COLORS.length)],
+    art: CAT_ARTS[Math.floor(Math.random()*CAT_ARTS.length)],
+    traits: [SPECIAL_TRAITS[Math.floor(Math.random()*SPECIAL_TRAITS.length)], SPECIAL_TRAITS[Math.floor(Math.random()*SPECIAL_TRAITS.length)]],
+    stats: {
+      health: Math.floor(Math.random()*30)+70,
+      attack: Math.floor(Math.random()*40)+20,
+      speed: Math.floor(Math.random()*40)+20,
+      stamina: Math.floor(Math.random()*40)+20,
+      wisdom: Math.floor(Math.random()*40)+20,
+    },
+    xp: 0, maxXp: 100,
+    hunger: 100,
+    alive: true,
+    gender: Math.random()>0.5?'she-cat':'tom',
+    mother: null, father: null,
+  };
+}
+
+function gen3Leaders() {
+  return [genCat('Warrior',true),genCat('Warrior',true),genCat('Warrior',true)];
+}
+
+function gen6Starters() {
+  const roles=['Warrior','Warrior','Warrior','Apprentice','Medicine Cat','Kit'];
+  return roles.map(r=>genCat(r));
+}
+
+// ============================================================
+//  ITEMS & INVENTORY
+// ============================================================
+const ITEMS_DB = {
+  // Herbs
+  marigold:   {name:'Marigold',icon:'🌼',type:'herb',rarity:'common',desc:'Stops infection and soothes wounds.',effect:'heal'},
+  catmint:    {name:'Catmint',icon:'🌿',type:'herb',rarity:'uncommon',desc:'Cures greencough and whitecough.',effect:'cure'},
+  borage:     {name:'Borage Leaves',icon:'🌱',type:'herb',rarity:'common',desc:'Helps nursing queens produce more milk.',effect:'nursing'},
+  goldenrod:  {name:'Goldenrod',icon:'💛',type:'herb',rarity:'uncommon',desc:'Powerful healing herb for wounds.',effect:'heal2'},
+  cobweb:     {name:'Cobweb',icon:'🕸️',type:'herb',rarity:'common',desc:'Stops bleeding quickly.',effect:'bleed'},
+  feverfew:   {name:'Feverfew',icon:'🌸',type:'herb',rarity:'rare',desc:'Reduces fever and head pain.',effect:'fever'},
+  yarrow:     {name:'Yarrow',icon:'🌾',type:'herb',rarity:'uncommon',desc:'Causes vomiting to expel poison.',effect:'poison'},
+  // Prey
+  sparrow:    {name:'Sparrow',icon:'🐦',type:'prey',rarity:'common',desc:'A small bird. Feeds one cat.',effect:'feed1'},
+  rabbit:     {name:'Rabbit',icon:'🐇',type:'prey',rarity:'common',desc:'A plump rabbit. Feeds two cats.',effect:'feed2'},
+  vole:       {name:'Vole',icon:'🐭',type:'prey',rarity:'common',desc:'A small vole.',effect:'feed1'},
+  salmon:     {name:'Salmon',icon:'🐟',type:'prey',rarity:'uncommon',desc:'A large fish, rare but filling.',effect:'feed3'},
+  deer:       {name:'Deer',icon:'🦌',type:'prey',rarity:'rare',desc:'A mighty deer. Feeds the whole clan!',effect:'feed10'},
+  // Crafting
+  feather:    {name:'Feather',icon:'🪶',type:'craft',rarity:'common',desc:'Soft feather for bedding and crafts.'},
+  stick:      {name:'Sturdy Stick',icon:'🪵',type:'craft',rarity:'common',desc:'Used in various den repairs.'},
+  stone:      {name:'River Stone',icon:'🪨',type:'craft',rarity:'uncommon',desc:'Smooth stone for tools.'},
+  clay:       {name:'Clay',icon:'🟤',type:'craft',rarity:'common',desc:'Can be molded into pots for herbs.'},
+  bone:       {name:'Bone Shard',icon:'🦴',type:'craft',rarity:'uncommon',desc:'Sharp and useful.'},
+  // Special / Premium
+  moonstone:  {name:'Moonstone',icon:'🌕',type:'special',rarity:'legendary',premium:true,desc:'A sacred stone. Grants visions of StarClan.'},
+  stardust:   {name:'StarClan Blessing',icon:'✨',type:'special',rarity:'legendary',premium:true,desc:'Blesses one cat with permanent stat boost.'},
+  goldenleaf: {name:'Golden Leaf',icon:'🍂',type:'special',rarity:'epic',desc:'Worth 50 Leaves when traded.'},
+};
+
+const BIOME_LOOT = {
+  forest:   ['marigold','feather','sparrow','vole','stick','goldenrod','rabbit','bone'],
+  river:    ['cobweb','salmon','stone','feather','vole','rabbit','marigold'],
+  moor:     ['rabbit','yarrow','feather','borage','vole','goldenrod','stick'],
+  mountain: ['stone','bone','feverfew','rabbit','deer','clay','cobweb'],
+  swamp:    ['borage','catmint','clay','vole','sparrow','yarrow','cobweb'],
+  cave:     ['stone','bone','moonstone','goldenleaf','clay','cobweb'],
+  tundra:   ['feverfew','cobweb','rabbit','deer','stone','bone'],
+};
+
+function addInventory(itemId, qty=1) {
+  if(!gameState.inventory[itemId]) gameState.inventory[itemId]=0;
+  gameState.inventory[itemId]+=qty;
+}
+
+function removeInventory(itemId, qty=1) {
+  if(!gameState.inventory[itemId]) return false;
+  if(gameState.inventory[itemId]<qty) return false;
+  gameState.inventory[itemId]-=qty;
+  if(gameState.inventory[itemId]<=0) delete gameState.inventory[itemId];
+  return true;
+}
+
+// ============================================================
+//  AUTH
+// ============================================================
+function switchAuthTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.auth-tab')[tab==='login'?0:1].classList.add('active');
+  document.getElementById('login-form').classList.toggle('hidden', tab!=='login');
+  document.getElementById('register-form').classList.toggle('hidden', tab!=='register');
+}
+
+function doLogin() {
+  const user = document.getElementById('login-user').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  if(!user||!pass){ toast('Please fill all fields','error'); return; }
+  const saved = localStorage.getItem('clanlife_user_'+user);
+  if(!saved){ toast('User not found','error'); return; }
+  const data = JSON.parse(saved);
+  if(data.password!==btoa(pass)){ toast('Incorrect password','error'); return; }
+  gameState = {...gameState, ...data.gameState, user};
+  toast('Welcome back, '+user+'! 🐾','success');
+  startGame();
+}
+
+function doRegister() {
+  const user = document.getElementById('reg-user').value.trim();
+  const pass = document.getElementById('reg-pass').value;
+  const conf = document.getElementById('reg-confirm').value;
+  if(!user||!pass||!conf){ toast('Please fill all fields','error'); return; }
+  if(pass!==conf){ toast('Passwords do not match','error'); return; }
+  if(user.length<3){ toast('Username must be at least 3 characters','error'); return; }
+  if(localStorage.getItem('clanlife_user_'+user)){ toast('Username taken','error'); return; }
+  gameState.user = user;
+  gameState.stats.joined = new Date().toLocaleDateString();
+  toast('Account created! Welcome, '+user+' 🌿');
+  startGame();
+}
+
+function doGuest() {
+  gameState.user = 'Guest';
+  toast('Continuing as Guest — progress won\'t save');
+  startGame();
+}
+
+function doLogout() {
+  saveGame();
+  gameState = { user:null,clan:null,cats:[],inventory:{},currencies:{basic:100,premium:10},stats:{explores:0,bred:0,moons:1},setupComplete:false,leaderRerolls:4,starterRerolls:4,selectedLeader:null,selectedBiome:'forest',exploreBiome:'forest',breedParent1:null,breedParent2:null,activeParentSlot:null };
+  document.getElementById('auth-screen').classList.remove('hidden');
+  document.getElementById('game-screen').classList.add('hidden');
+  document.getElementById('setup-screen').classList.add('hidden');
+}
+
+function saveGame() {
+  if(!gameState.user||gameState.user==='Guest') return;
+  const toSave = { gameState: { ...gameState, user: undefined } };
+  const saved = JSON.parse(localStorage.getItem('clanlife_user_'+gameState.user)||'{}');
+  localStorage.setItem('clanlife_user_'+gameState.user, JSON.stringify({...saved, gameState: toSave.gameState}));
+}
+
+function startGame() {
+  document.getElementById('auth-screen').classList.add('hidden');
+  if(gameState.setupComplete) {
+    showGameScreen();
+  } else {
+    showSetup();
+  }
+}
+
+// ============================================================
+//  SETUP WIZARD
+// ============================================================
+let leaderCandidates=[], starterCandidates=[];
+
+function showSetup() {
+  document.getElementById('setup-screen').classList.remove('hidden');
+  setStep(1);
+  leaderCandidates = gen3Leaders();
+  renderLeaderPicks();
+  starterCandidates = gen6Starters();
+  renderStarterPicks();
+}
+
+function setStep(n) {
+  document.querySelectorAll('.setup-step').forEach(s=>s.classList.add('hidden'));
+  document.getElementById('step-'+n).classList.remove('hidden');
+  document.querySelectorAll('.setup-dot').forEach((d,i)=>{
+    d.classList.remove('active','done');
+    if(i+1<n) d.classList.add('done');
+    if(i+1===n) d.classList.add('active');
+  });
+}
+
+function goStep(n) {
+  if(n===2) {
+    const name = document.getElementById('clan-name-input').value.trim();
+    if(!name){ toast('Please name your clan first','error'); return; }
+    gameState.clan = name+'Clan';
+    gameState.selectedBiome = document.querySelector('#biome-picker .active')?.dataset.biome||'forest';
+  }
+  setStep(n);
+}
+
+function pickBiome(el, biome) {
+  document.querySelectorAll('#biome-picker .biome-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  gameState.selectedBiome = biome;
+}
+
+function renderLeaderPicks() {
+  const grid = document.getElementById('leader-pick-grid');
+  grid.innerHTML = '';
+  leaderCandidates.forEach((cat,i)=>{
+    const sel = gameState.selectedLeader===i;
+    grid.innerHTML += `
+    <div class="cat-pick-card ${sel?'selected':''}" onclick="selectLeader(${i})">
+      <div class="cat-pick-art">${cat.art}</div>
+      <div class="cat-pick-name">${cat.name}</div>
+      <div class="cat-pick-desc">${cat.gender} · ${cat.coat} ${cat.pattern}</div>
+      <div class="cat-pick-desc" style="margin-top:4px">👁️ ${cat.eyes} eyes</div>
+      <div style="margin-top:8px;font-size:0.82em;color:var(--muted)">
+        ${cat.traits.map(t=>`<span class="badge badge-gold">${t}</span>`).join(' ')}
+      </div>
+      ${statBarsHtml(cat.stats)}
+    </div>`;
+  });
+  document.getElementById('leader-reroll-count').textContent = gameState.leaderRerolls;
+  document.getElementById('reroll-leaders-btn').disabled = gameState.leaderRerolls<=0;
+  document.getElementById('confirm-leader-btn').disabled = gameState.selectedLeader===null;
+}
+
+function statBarsHtml(stats) {
+  const entries = [['⚔️ ATK',stats.attack],['💨 SPD',stats.speed],['💚 STA',stats.stamina]];
+  return `<div style="margin-top:10px;display:flex;flex-direction:column;gap:4px">${entries.map(([l,v])=>`
+    <div class="cat-stat-row"><span>${l}</span><div class="progress cat-stat-bar" style="flex:1;margin-left:8px"><div class="progress-fill health" style="width:${v}%;background:var(--gold)"></div></div></div>`).join('')}</div>`;
+}
+
+function selectLeader(i) {
+  gameState.selectedLeader=i;
+  document.querySelectorAll('.cat-pick-card').forEach((c,j)=>{
+    if(c.parentElement===document.getElementById('leader-pick-grid'))
+      c.classList.toggle('selected',i===j);
+  });
+  document.getElementById('confirm-leader-btn').disabled=false;
+}
+
+function rerollLeaders() {
+  if(gameState.leaderRerolls<=0){ toast('No rerolls remaining','error'); return; }
+  gameState.leaderRerolls--;
+  gameState.selectedLeader=null;
+  leaderCandidates=gen3Leaders();
+  renderLeaderPicks();
+  toast('New leaders generated! 🎲');
+}
+
+function confirmLeader() {
+  if(gameState.selectedLeader===null){ toast('Select a leader first','error'); return; }
+  const leader = {...leaderCandidates[gameState.selectedLeader]};
+  leader.role='Leader';
+  leader.name = leader.name.replace(/(paw|kit|heart|pelt|claw|fang|tail|stripe|whisker|leap|spring|flight|breeze|storm|shade|light|fire|blaze|brook|pool|stream|fall|stone|rock|cliff|ridge|mist|fog|dew|rain|snow|frost|wind|gust|eye|nose|ear|fur)$/,'star');
+  gameState.selectedLeaderCat = leader;
+  setStep(3);
+}
+
+function renderStarterPicks() {
+  const grid = document.getElementById('starter-grid');
+  grid.innerHTML='';
+  starterCandidates.forEach((cat,i)=>{
+    grid.innerHTML+=`
+    <div class="cat-pick-card">
+      <div class="cat-pick-art">${cat.art}</div>
+      <div class="cat-pick-name">${cat.name}</div>
+      <div class="cat-pick-desc">${cat.role} · ${cat.gender}</div>
+      <div class="cat-pick-desc">${cat.coat} ${cat.pattern}</div>
+      <div style="margin-top:6px;font-size:0.82em">${cat.traits.map(t=>`<span class="badge badge-gold">${t}</span>`).join(' ')}</div>
+      ${statBarsHtml(cat.stats)}
+    </div>`;
+  });
+  document.getElementById('starter-reroll-count').textContent = gameState.starterRerolls;
+  document.getElementById('reroll-starters-btn').disabled = gameState.starterRerolls<=0;
+}
+
+function rerollAllStarters() {
+  if(gameState.starterRerolls<=0){ toast('No rerolls remaining','error'); return; }
+  gameState.starterRerolls--;
+  starterCandidates=gen6Starters();
+  renderStarterPicks();
+  toast('New starting cats generated! 🎲');
+}
+
+function finalizeSetup() {
+  gameState.cats = [gameState.selectedLeaderCat, ...starterCandidates];
+  gameState.setupComplete=true;
+  document.getElementById('setup-screen').classList.add('hidden');
+  showGameScreen();
+  saveGame();
+  toast('Your clan has been founded! Welcome, '+gameState.clan+'! 🐾','success');
+}
+
+// ============================================================
+//  GAME SCREEN
+// ============================================================
+function showGameScreen() {
+  document.getElementById('game-screen').classList.remove('hidden');
+  document.getElementById('setup-screen').classList.add('hidden');
+  updateTopbar();
+  showPage('clan');
+  populateExploreCatSelect();
+  renderShop();
+  renderInventory();
+}
+
+function updateTopbar() {
+  document.getElementById('topbar-username').textContent = gameState.user||'Guest';
+  document.getElementById('currency-basic-display').textContent = gameState.currencies.basic;
+  document.getElementById('currency-premium-display').textContent = gameState.currencies.premium;
+}
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  const page = document.getElementById('page-'+id);
+  if(page) { page.classList.add('active'); page.classList.add('animate-in'); }
+  document.querySelectorAll('.nav-btn').forEach(b=>{ if(b.getAttribute('onclick')===`showPage('${id}')`) b.classList.add('active'); });
+  if(id==='clan') renderClan();
+  if(id==='inventory') renderInventory();
+  if(id==='profile') renderProfile();
+}
+
+// ============================================================
+//  CLAN PAGE
+// ============================================================
+const BIOME_BADGES = { forest:'🌲 Forest',river:'🏞️ Riverlands',moor:'🌾 Moor',mountain:'⛰️ Mountain',swamp:'🌿 Swamp',tundra:'❄️ Tundra',cave:'🦇 Dark Cave' };
+
+function renderClan() {
+  document.getElementById('clan-name-display').textContent = gameState.clan||'Your Clan';
+  document.getElementById('clan-biome-badge').innerHTML = `<span class="badge badge-green">${BIOME_BADGES[gameState.selectedBiome]||'🌲 Forest'}</span>`;
+  document.getElementById('clan-cat-count').textContent = gameState.cats.filter(c=>c.alive).length;
+  document.getElementById('clan-moon-count').textContent = gameState.stats.moons;
+  document.getElementById('clan-rep').textContent = gameState.stats.reputation||0;
+  document.getElementById('clan-prey').textContent = (gameState.inventory.sparrow||0)+(gameState.inventory.rabbit||0)+(gameState.inventory.vole||0)+(gameState.inventory.salmon||0);
+  renderCatRoster();
+}
+
+function renderCatRoster() {
+  const roster = document.getElementById('cat-roster');
+  roster.innerHTML='';
+  if(!gameState.cats.length){ roster.innerHTML='<div class="muted italic" style="padding:20px">No cats in your clan yet.</div>'; return; }
+  gameState.cats.filter(c=>c.alive).forEach(cat=>{
+    const roleIcon = ROLE_ICONS[cat.role]||'🐱';
+    roster.innerHTML+=`
+    <div class="cat-card" onclick="openCatModal('${cat.id}')">
+      <div class="cat-card-art">${cat.art}</div>
+      <div class="cat-card-name">${cat.name}</div>
+      <div class="cat-card-role">${roleIcon} <span class="badge badge-gold">${cat.role}</span></div>
+      <div class="mt-sm small muted">${cat.coat} ${cat.pattern} · ${cat.eyes} eyes</div>
+      <div class="mt-sm"><div class="progress"><div class="progress-fill health" style="width:${cat.stats.health}%"></div></div></div>
+    </div>`;
+  });
+}
+
+function openCatModal(id) {
+  const cat = gameState.cats.find(c=>c.id===id);
+  if(!cat) return;
+  const html=`
+    <div class="cat-detail-header">
+      <div class="cat-detail-art">${cat.art}</div>
+      <div class="grow">
+        <div style="font-family:var(--font-h);font-size:1.2em;color:var(--gold2)">${cat.name}</div>
+        <div style="margin:6px 0">${ROLE_ICONS[cat.role]||''} <span class="badge badge-gold">${cat.role}</span> · ${cat.gender}</div>
+        <div class="muted small">${cat.coat} ${cat.pattern} coat · ${cat.eyes} eyes</div>
+        <div class="muted small">Age: ${cat.age} moons</div>
+        <div style="margin-top:8px">${cat.traits.map(t=>`<span class="badge badge-purple">${t}</span>`).join(' ')}</div>
+      </div>
+    </div>
+    <div class="cat-stat-list">
+      ${[['❤️ Health',cat.stats.health],['⚔️ Attack',cat.stats.attack],['💨 Speed',cat.stats.speed],['🏃 Stamina',cat.stats.stamina],['📖 Wisdom',cat.stats.wisdom]].map(([l,v])=>`
+      <div class="cat-stat-item">
+        <span class="cat-stat-name">${l}</span>
+        <div class="progress cat-stat-bar"><div class="progress-fill health" style="width:${v}%;background:var(--gold)"></div></div>
+        <span class="muted small" style="width:30px;text-align:right">${v}</span>
+      </div>`).join('')}
+    </div>
+    <div class="mt flex gap-sm flex-wrap">
+      ${cat.role==='Apprentice'?`<button class="btn btn-sm btn-primary" onclick="promoteToWarrior('${cat.id}');closeModal('modal-cat')">⬆️ Promote to Warrior</button>`:''}
+      ${cat.role!=='Leader'&&cat.role!=='Elder'?`<button class="btn btn-sm" onclick="retireCat('${cat.id}');closeModal('modal-cat')">🌙 Retire to Elder</button>`:''}
+      <button class="btn btn-danger btn-sm" onclick="if(confirm('Remove this cat from your clan?')){removeCat('${cat.id}');closeModal('modal-cat')}">❌ Remove</button>
+    </div>`;
+  document.getElementById('modal-cat-content').innerHTML=html;
+  openModal('modal-cat');
+}
+
+function promoteToWarrior(id) {
+  const cat = gameState.cats.find(c=>c.id===id);
+  if(cat) { cat.role='Warrior'; cat.name=cat.name.replace(/paw$/,''+CAT_SUFFIXES_WARRIOR[Math.floor(Math.random()*CAT_SUFFIXES_WARRIOR.length)]); toast(cat.name+' is now a warrior! ⚔️','success'); renderClan(); saveGame(); }
+}
+function retireCat(id) {
+  const cat = gameState.cats.find(c=>c.id===id);
+  if(cat) { cat.role='Elder'; toast(cat.name+' retires to the elder den 🌙'); renderClan(); saveGame(); }
+}
+function removeCat(id) {
+  gameState.cats = gameState.cats.filter(c=>c.id!==id);
+  renderClan(); saveGame(); toast('Cat removed from clan');
+}
+
+// ============================================================
+//  ADVANCE MOON
+// ============================================================
+function advanceMoon() {
+  gameState.stats.moons++;
+  gameState.cats.forEach(cat=>{
+    cat.age++;
+    cat.stats.health = Math.min(100, cat.stats.health + Math.floor(Math.random()*5));
+    cat.xp = Math.min(cat.maxXp, cat.xp + Math.floor(Math.random()*20)+5);
+    if(cat.xp>=cat.maxXp && cat.role==='Apprentice') {
+      cat.xp=0; promoteToWarrior(cat.id);
+    }
+  });
+  gameState.stats.reputation = (gameState.stats.reputation||0) + Math.floor(Math.random()*5);
+  // Random moon event
+  const events = ['A loner approaches asking to join the clan.','A harsh leaf-bare chills the air.','The hunting has been plentiful this moon!','A border skirmish with rogues.','StarClan sends a vision to your medicine cat.'];
+  toast('🌙 Moon '+gameState.stats.moons+' — '+events[Math.floor(Math.random()*events.length)]);
+  renderClan();
+  updateTopbar();
+  saveGame();
+}
+
+// ============================================================
+//  CROSSROADS
+// ============================================================
+function goActivity(type) {
+  const area = document.getElementById('crossroads-activity');
+  const content = document.getElementById('activity-content');
+  area.classList.remove('hidden');
+
+  const catOptions = gameState.cats.filter(c=>c.alive&&c.role!=='Kit').map(c=>`<option value="${c.id}">${c.name} (${c.role})</option>`).join('');
+
+  let html='';
+  if(type==='exploring') {
+    html=`<div class="page-title" style="margin-bottom:8px">🌲 Exploring</div>
+    <p class="muted" style="margin-bottom:12px">Send a cat to explore the territory and gather items.</p>
+    <select id="xr-cat" style="margin-bottom:12px">${catOptions}</select>
+    <button class="btn btn-primary" onclick="runActivity('exploring')">🗺️ Send Out</button>
+    <div id="xr-result" class="mt"></div>`;
+  } else if(type==='patrolling') {
+    html=`<div class="page-title" style="margin-bottom:8px">⚔️ Patrolling</div>
+    <p class="muted" style="margin-bottom:12px">Guard your borders and earn reputation.</p>
+    <select id="xr-cat" style="margin-bottom:12px">${catOptions}</select>
+    <button class="btn btn-primary" onclick="runActivity('patrolling')">🛡️ Send Patrol</button>
+    <div id="xr-result" class="mt"></div>`;
+  } else if(type==='herb-gathering') {
+    html=`<div class="page-title" style="margin-bottom:8px">🌿 Herb Gathering</div>
+    <p class="muted" style="margin-bottom:12px">Gather medicinal herbs for the medicine cat.</p>
+    <select id="xr-cat" style="margin-bottom:12px">${catOptions}</select>
+    <button class="btn btn-primary" onclick="runActivity('herb-gathering')">🌱 Gather Herbs</button>
+    <div id="xr-result" class="mt"></div>`;
+  } else if(type==='hunting') {
+    html=`<div class="page-title" style="margin-bottom:8px">🐦 Hunting</div>
+    <p class="muted" style="margin-bottom:12px">Hunt prey to feed your clanmates.</p>
+    <select id="xr-cat" style="margin-bottom:12px">${catOptions}</select>
+    <button class="btn btn-primary" onclick="runActivity('hunting')">🐾 Go Hunting</button>
+    <div id="xr-result" class="mt"></div>`;
+  }
+  content.innerHTML = html;
+  area.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function runActivity(type) {
+  const catSel = document.getElementById('xr-cat');
+  const catId = catSel?.value;
+  const cat = gameState.cats.find(c=>c.id===catId);
+  const result = document.getElementById('xr-result');
+
+  let loot=[], rep=0, leaves=0, msg='';
+
+  if(type==='exploring'||type==='hunting') {
+    const pool = type==='hunting' ? ['sparrow','rabbit','vole','salmon','deer'] : BIOME_LOOT[gameState.selectedBiome]||BIOME_LOOT.forest;
+    const count = Math.floor(Math.random()*3)+1;
+    for(let i=0;i<count;i++){
+      const item=pool[Math.floor(Math.random()*pool.length)];
+      addInventory(item);
+      loot.push(ITEMS_DB[item]);
+    }
+    leaves = Math.floor(Math.random()*15)+5;
+    gameState.currencies.basic += leaves;
+    msg = type==='hunting' ? `${cat?.name||'Your cat'} caught some prey!` : `${cat?.name||'Your cat'} found items on patrol!`;
+  } else if(type==='patrolling') {
+    rep = Math.floor(Math.random()*10)+5;
+    leaves = Math.floor(Math.random()*8)+3;
+    gameState.stats.reputation=(gameState.stats.reputation||0)+rep;
+    gameState.currencies.basic+=leaves;
+    msg = `${cat?.name||'Your cat'} patrolled the borders and drove off some rogues!`;
+  } else if(type==='herb-gathering') {
+    const herbs=['marigold','catmint','borage','goldenrod','cobweb','feverfew','yarrow'];
+    const count=Math.floor(Math.random()*3)+1;
+    for(let i=0;i<count;i++){
+      const h=herbs[Math.floor(Math.random()*herbs.length)];
+      addInventory(h);
+      loot.push(ITEMS_DB[h]);
+    }
+    msg=`${cat?.name||'Your cat'} gathered herbs from the territory!`;
+  }
+
+  gameState.stats.explores++;
+  updateTopbar();
+  renderInventory();
+  saveGame();
+
+  result.innerHTML=`
+    <div class="card card-gold animate-in">
+      <div class="bold green-col" style="margin-bottom:8px">✅ ${msg}</div>
+      ${loot.length?`<div class="muted small" style="margin-bottom:6px">Items found:</div>${loot.map(i=>`<span class="badge badge-gold">${i.icon} ${i.name}</span> `).join('')}`:''}
+      ${leaves?`<div class="mt-sm small gold">+${leaves} 🍂 Leaves</div>`:''}
+      ${rep?`<div class="mt-sm small green-col">+${rep} reputation</div>`:''}
+    </div>`;
+}
+
+// Giving Tree
+function showGivingTree() {
+  const gifts = [];
+  const pool = Object.entries(ITEMS_DB).filter(([,v])=>!v.premium);
+  for(let i=0;i<6;i++){
+    const [id,item]=pool[Math.floor(Math.random()*pool.length)];
+    gifts.push({id,item,claimed:false});
+  }
+  const grid = document.getElementById('tree-gifts');
+  grid.innerHTML=gifts.map((g,i)=>`
+    <div class="card" style="text-align:center" id="tree-gift-${i}">
+      <div style="font-size:2em;margin-bottom:8px">${g.item.icon}</div>
+      <div style="font-family:var(--font-d);color:var(--gold2);margin-bottom:4px">${g.item.name}</div>
+      <div class="muted small">${g.item.desc}</div>
+      <button class="btn btn-primary btn-sm w100 mt" onclick="claimGift('${g.id}',${i})">Claim 🍃</button>
+    </div>`).join('');
+  openModal('modal-tree');
+}
+
+function claimGift(itemId, idx) {
+  addInventory(itemId);
+  const el=document.getElementById('tree-gift-'+idx);
+  if(el) el.innerHTML=`<div class="muted italic">Claimed! 🌟</div>`;
+  toast('You claimed '+ITEMS_DB[itemId].name+'! 🌳','success');
+  renderInventory(); saveGame();
+}
+
+// Trading Spot
+function showTradingSpot() {
+  // Populate your items dropdown
+  const sel=document.getElementById('trade-your-item');
+  sel.innerHTML='<option value="">Choose an item...</option>';
+  Object.entries(gameState.inventory).forEach(([id,qty])=>{
+    if(ITEMS_DB[id]) sel.innerHTML+=`<option value="${id}">${ITEMS_DB[id].icon} ${ITEMS_DB[id].name} (x${qty})</option>`;
+  });
+  // Merchant offers
+  const offers=[
+    {give:'sparrow',want:'marigold',qty:2,wqty:1},
+    {give:'rabbit',want:'leaves',qty:1,wqty:20},
+    {give:'feather',want:'stone',qty:3,wqty:1},
+    {give:'stone',want:'goldenrod',qty:2,wqty:1},
+    {give:'bone',want:'cobweb',qty:1,wqty:2},
+  ];
+  document.getElementById('trade-offers').innerHTML=offers.map((o,i)=>`
+    <div class="card" style="display:flex;align-items:center;gap:12px;padding:10px">
+      <span>${ITEMS_DB[o.give]?.icon||'?'} x${o.qty} ${ITEMS_DB[o.give]?.name||o.give}</span>
+      <span class="muted">→</span>
+      <span class="gold">${o.want==='leaves'?'🍂 '+o.wqty+' Leaves':(ITEMS_DB[o.want]?.icon||'?')+' x'+o.wqty+' '+(ITEMS_DB[o.want]?.name||o.want)}</span>
+      <button class="btn btn-sm btn-primary" onclick="acceptTrade(${i},${JSON.stringify(o).split('"').join("'")})">Accept</button>
+    </div>`).join('');
+  openModal('modal-trade');
+}
+
+function acceptTrade(i, offerStr) {
+  const offer = typeof offerStr==='string'?JSON.parse(offerStr.replace(/'/g,'"')):offerStr;
+  if(!removeInventory(offer.give,offer.qty)){ toast('Not enough '+ITEMS_DB[offer.give]?.name,'error'); return; }
+  if(offer.want==='leaves') gameState.currencies.basic+=offer.wqty;
+  else addInventory(offer.want,offer.wqty);
+  toast('Trade complete! 🤝','success');
+  renderInventory(); updateTopbar(); saveGame();
+  closeModal('modal-trade');
+}
+
+function doTrade() { closeModal('modal-trade'); }
+
+// Games
+function showGames() {
+  const games=[
+    {name:'Quick Hunt',icon:'🐦',desc:'Tap prey before it escapes!',reward:'Leaves',fn:'openPreyGame()'},
+    {name:'Memory Herbs',icon:'🌿',desc:'Match herb cards to win!',reward:'Leaves',fn:'openMemoryGame()'},
+    {name:'Catch the Mouse',icon:'🐭',desc:'Catch the mouse with your paw!',reward:'Leaves',fn:'openMouseGame()'},
+  ];
+  document.getElementById('games-list').innerHTML=games.map(g=>`
+    <div class="game-card" onclick="${g.fn}">
+      <div class="game-card-icon">${g.icon}</div>
+      <div class="game-card-name">${g.name}</div>
+      <div class="muted small">${g.desc}</div>
+      <div class="gold small mt-sm">Earn: ${g.reward}</div>
+    </div>`).join('');
+  openModal('modal-games');
+}
+
+// Prey tap game
+let preyGameActive=false, preyScore=0, preyTimer;
+
+function openPreyGame() {
+  closeModal('modal-games');
+  preyScore=0; preyGameActive=false;
+  document.getElementById('prey-game-btn').textContent='▶ Start Hunt';
+  document.getElementById('prey-score-display').innerHTML='<div style="font-size:3em">🐦</div><div class="muted">Press Start to play!</div>';
+  openModal('modal-preygame');
+}
+
+function startPreyGame() {
+  if(preyGameActive) return;
+  preyGameActive=true; preyScore=0;
+  document.getElementById('prey-game-btn').disabled=true;
+  let timeLeft=10;
+  const area=document.getElementById('prey-game-area');
+  const display=document.getElementById('prey-score-display');
+  display.innerHTML=`<div style="text-align:center;padding:10px"><div class="gold">Score: 0</div><div class="muted">⏱ ${timeLeft}s</div></div>`;
+  function spawnPrey() {
+    if(!preyGameActive) return;
+    const prey=document.createElement('div');
+    const icons=['🐦','🐭','🐇','🐟'];
+    prey.textContent=icons[Math.floor(Math.random()*icons.length)];
+    prey.style.cssText=`position:absolute;font-size:2em;cursor:pointer;user-select:none;top:${Math.floor(Math.random()*70+10)}%;left:${Math.floor(Math.random()*80+5)}%;transition:all 0.1s`;
+    prey.onclick=()=>{ preyScore++; display.innerHTML=`<div style="text-align:center;padding:10px"><div class="gold" style="font-size:1.2em">Score: ${preyScore}</div><div class="muted">⏱ ${timeLeft}s</div></div>`; prey.remove(); setTimeout(spawnPrey,300); };
+    area.appendChild(prey);
+    setTimeout(()=>prey.remove(),1500);
+  }
+  spawnPrey();
+  const tick=setInterval(()=>{
+    timeLeft--;
+    display.innerHTML=`<div style="text-align:center;padding:10px"><div class="gold" style="font-size:1.2em">Score: ${preyScore}</div><div class="muted">⏱ ${timeLeft}s</div></div>`;
+    if(timeLeft<=0){
+      clearInterval(tick);
+      preyGameActive=false;
+      const reward=preyScore*5;
+      gameState.currencies.basic+=reward;
+      updateTopbar(); saveGame();
+      document.getElementById('prey-game-area').innerHTML=`<div style="text-align:center;padding:30px"><div style="font-size:3em">🏆</div><div class="gold bold">Score: ${preyScore}</div><div class="green-col">+${reward} 🍂 Leaves!</div></div>`;
+      document.getElementById('prey-game-btn').textContent='▶ Play Again';
+      document.getElementById('prey-game-btn').disabled=false;
+      toast(`Quick Hunt over! Score: ${preyScore} (+${reward} Leaves) 🏆`,'success');
+    }
+  },1000);
+}
+
+function openMemoryGame() { toast('Memory Herbs — coming soon! 🌿'); closeModal('modal-games'); }
+function openMouseGame() { toast('Catch the Mouse — coming soon! 🐭'); closeModal('modal-games'); }
+
+// Kit Training
+function showKitTraining() {
+  const trainable=gameState.cats.filter(c=>c.alive&&(c.role==='Kit'||c.role==='Apprentice'));
+  const list=document.getElementById('training-list');
+  if(!trainable.length) { list.innerHTML='<div class="muted italic text-center" style="padding:20px">No kits or apprentices to train right now.</div>'; }
+  else list.innerHTML=trainable.map(cat=>`
+    <div class="training-cat-row">
+      <div style="font-size:2em">${cat.art}</div>
+      <div class="training-cat-info">
+        <div class="training-cat-name">${cat.name}</div>
+        <div class="muted small">${cat.role} · Age ${cat.age} moons</div>
+        <div class="mt-sm" style="display:flex;flex-direction:column;gap:4px">
+          <div style="font-size:0.8em;color:var(--muted)">XP: ${cat.xp}/${cat.maxXp}</div>
+          <div class="progress"><div class="progress-fill xp" style="width:${(cat.xp/cat.maxXp)*100}%"></div></div>
+        </div>
+      </div>
+      <div class="training-actions">
+        <button class="btn btn-sm btn-primary" onclick="trainCat('${cat.id}','battle')">⚔️ Battle</button>
+        <button class="btn btn-sm" onclick="trainCat('${cat.id}','hunt')">🐦 Hunt</button>
+        <button class="btn btn-sm" onclick="trainCat('${cat.id}','herb')">🌿 Herbs</button>
+      </div>
+    </div>`).join('');
+  openModal('modal-training');
+}
+
+function trainCat(id, type) {
+  const cat=gameState.cats.find(c=>c.id===id);
+  if(!cat) return;
+  const xpGain=Math.floor(Math.random()*20)+10;
+  cat.xp=Math.min(cat.maxXp,cat.xp+xpGain);
+  if(type==='battle') cat.stats.attack=Math.min(100,cat.stats.attack+Math.floor(Math.random()*3)+1);
+  if(type==='hunt') cat.stats.speed=Math.min(100,cat.stats.speed+Math.floor(Math.random()*3)+1);
+  if(type==='herb') cat.stats.wisdom=Math.min(100,cat.stats.wisdom+Math.floor(Math.random()*3)+1);
+  if(cat.xp>=cat.maxXp&&cat.role==='Apprentice') { promoteToWarrior(cat.id); closeModal('modal-training'); }
+  else toast(`${cat.name} trained! +${xpGain} XP 📚`,'success');
+  saveGame(); showKitTraining();
+}
+
+// ============================================================
+//  EXPLORE PAGE
+// ============================================================
+let exploreBiome='forest';
+function selectExploreBiome(el, biome) {
+  document.querySelectorAll('#explore-biome-btns .biome-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  exploreBiome=biome;
+}
+
+function populateExploreCatSelect() {
+  const sel=document.getElementById('explore-cat-select');
+  if(!sel) return;
+  sel.innerHTML=gameState.cats.filter(c=>c.alive&&c.role!=='Kit').map(c=>`<option value="${c.id}">${c.name} (${c.role})</option>`).join('');
+}
+
+function addExploreLog(msg, type='') {
+  const log=document.getElementById('explore-log');
+  const entry=document.createElement('div');
+  entry.className='log-entry '+(type);
+  entry.textContent=msg;
+  log.prepend(entry);
+  while(log.children.length>50) log.removeChild(log.lastChild);
+}
+
+function doExplore() {
+  const btn=document.getElementById('explore-btn');
+  const result=document.getElementById('explore-result');
+  const catId=document.getElementById('explore-cat-select').value;
+  const cat=gameState.cats.find(c=>c.id===catId);
+  if(!cat){ toast('Select a cat first','error'); return; }
+
+  btn.disabled=true;
+  btn.textContent='🗺️ Exploring...';
+  result.innerHTML='<div class="muted italic animate-in">Your cat ventures out...</div>';
+
+  setTimeout(()=>{
+    const pool=BIOME_LOOT[exploreBiome]||BIOME_LOOT.forest;
+    const loot=[];
+    const count=Math.floor(Math.random()*4)+1;
+    for(let i=0;i<count;i++){
+      const item=pool[Math.floor(Math.random()*pool.length)];
+      addInventory(item);
+      loot.push(ITEMS_DB[item]);
+    }
+    const leaves=Math.floor(Math.random()*20)+8;
+    gameState.currencies.basic+=leaves;
+    gameState.stats.explores++;
+
+    // Random encounter
+    const encounters=['All quiet on the borders.','A rogue cat was spotted but fled.','Found an abandoned Twoleg nest.','Crossed paths with a friendly loner.','A hawk circled overhead — stayed low.','Discovered a new prey-rich clearing!'];
+    const enc=encounters[Math.floor(Math.random()*encounters.length)];
+
+    loot.forEach(i=>addExploreLog(`Found: ${i.icon} ${i.name}`,'loot'));
+    addExploreLog(`+${leaves} Leaves earned`,'success');
+    addExploreLog(enc);
+    addExploreLog(`${cat.name} explored the ${exploreBiome}.`,'muted');
+
+    result.innerHTML=`
+      <div class="card card-gold animate-in">
+        <div class="bold green-col" style="margin-bottom:8px">✅ ${cat.name} returned safely!</div>
+        <div class="muted small italic" style="margin-bottom:10px">${enc}</div>
+        <div style="margin-bottom:8px">${loot.map(i=>`<span class="badge badge-gold">${i.icon} ${i.name}</span> `).join('')}</div>
+        <div class="gold small">+${leaves} 🍂 Leaves</div>
+      </div>`;
+
+    updateTopbar(); renderInventory(); saveGame();
+    btn.disabled=false; btn.textContent='🗺️ Begin Exploration';
+  }, 1800);
+}
+
+// ============================================================
+//  BREEDING
+// ============================================================
+function openParentPicker(slot) {
+  gameState.activeParentSlot=slot;
+  const list=document.getElementById('modal-parent-list');
+  const eligible=gameState.cats.filter(c=>c.alive&&(c.role==='Warrior'||c.role==='Leader'||c.role==='Deputy'));
+  list.innerHTML=eligible.map(cat=>`
+    <div class="training-cat-row" style="cursor:pointer" onclick="selectParent('${cat.id}')">
+      <div style="font-size:2em">${cat.art}</div>
+      <div class="training-cat-info">
+        <div class="training-cat-name">${cat.name}</div>
+        <div class="muted small">${cat.role} · ${cat.gender} · ${cat.coat} ${cat.pattern}</div>
+      </div>
+      <span class="badge badge-gold">${cat.gender==='she-cat'?'♀':'♂'}</span>
+    </div>`).join('');
+  openModal('modal-parent');
+}
+
+function selectParent(id) {
+  const cat=gameState.cats.find(c=>c.id===id);
+  const slot=gameState.activeParentSlot;
+  if(slot===1) gameState.breedParent1=cat;
+  else gameState.breedParent2=cat;
+  const slotEl=document.getElementById('parent-slot-'+slot);
+  slotEl.classList.add('filled');
+  slotEl.innerHTML=`<div style="font-size:2em">${cat.art}</div><div style="font-family:var(--font-d);color:var(--gold2)">${cat.name}</div><div class="muted small">${cat.gender}</div>`;
+  closeModal('modal-parent');
+}
+
+function doBreeding() {
+  const p1=gameState.breedParent1, p2=gameState.breedParent2;
+  if(!p1||!p2){ toast('Select both parents first','error'); return; }
+  if(p1.gender===p2.gender){ toast('Parents must be a tom and a she-cat','error'); return; }
+  const litterSize=Math.floor(Math.random()*4)+1;
+  const kits=[];
+  for(let i=0;i<litterSize;i++){
+    const kit=genCat('Kit');
+    kit.mother=p1.gender==='she-cat'?p1.id:p2.id;
+    kit.father=p1.gender==='tom'?p1.id:p2.id;
+    // Inherit some stats
+    kit.stats.attack=Math.floor((p1.stats.attack+p2.stats.attack)/2+Math.random()*10-5);
+    kit.stats.speed=Math.floor((p1.stats.speed+p2.stats.speed)/2+Math.random()*10-5);
+    kit.stats.stamina=Math.floor((p1.stats.stamina+p2.stats.stamina)/2+Math.random()*10-5);
+    kit.stats.wisdom=Math.floor((p1.stats.wisdom+p2.stats.wisdom)/2+Math.random()*10-5);
+    kit.coat=[p1.coat,p2.coat][Math.floor(Math.random()*2)];
+    kit.eyes=[p1.eyes,p2.eyes][Math.floor(Math.random()*2)];
+    gameState.cats.push(kit);
+    kits.push(kit);
+  }
+  gameState.stats.bred+=litterSize;
+  const br=document.getElementById('breeding-result');
+  br.innerHTML=`
+    <div class="animate-in">
+      <div class="bold green-col" style="margin-bottom:12px">🐾 A litter of ${litterSize} kit${litterSize>1?'s':''} was born!</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px">
+        ${kits.map(k=>`
+          <div class="cat-card">
+            <div class="cat-card-art">${k.art}</div>
+            <div class="cat-card-name">${k.name}</div>
+            <div class="cat-card-role badge badge-gold">Kit</div>
+            <div class="muted small mt-sm">${k.coat} ${k.pattern}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  toast(`${litterSize} new kit${litterSize>1?'s have':' has'} joined ${gameState.clan}! 🐾`,'success');
+  renderClan(); saveGame();
+}
+
+function openBreedingModal() { showPage('breeding'); }
+
+// ============================================================
+//  INVENTORY
+// ============================================================
+let invFilter='all';
+function filterInv(type, btn) {
+  invFilter=type;
+  document.querySelectorAll('#page-inventory .btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderInventory();
+}
+
+function renderInventory() {
+  const grid=document.getElementById('inventory-grid');
+  if(!grid) return;
+  const entries=Object.entries(gameState.inventory).filter(([id,qty])=>qty>0&&ITEMS_DB[id]&&(invFilter==='all'||ITEMS_DB[id].type===invFilter));
+  if(!entries.length){ grid.innerHTML='<div class="muted italic" style="padding:20px;grid-column:1/-1">Your inventory is empty. Explore to gather items!</div>'; return; }
+  grid.innerHTML=entries.map(([id,qty])=>{
+    const item=ITEMS_DB[id];
+    const rarityColor={'common':'var(--muted)','uncommon':'var(--green2)','rare':'var(--blue2)','epic':'var(--purple2)','legendary':'var(--premium)'}[item.rarity]||'var(--muted)';
+    return `<div class="item-slot ${item.premium?'premium':''}" onclick="openItemModal('${id}')">
+      <div class="item-qty">${qty}</div>
+      <div class="item-icon">${item.icon}</div>
+      <div class="item-name">${item.name}</div>
+      <div class="item-rarity" style="color:${rarityColor}">${item.rarity}</div>
+    </div>`;
+  }).join('');
+}
+
+function openItemModal(id) {
+  const item=ITEMS_DB[id];
+  const qty=gameState.inventory[id]||0;
+  document.getElementById('modal-item-content').innerHTML=`
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:4em">${item.icon}</div>
+      <div style="font-family:var(--font-h);font-size:1.1em;color:var(--gold2);margin-top:8px">${item.name}</div>
+      <div class="muted small">You have: ${qty}</div>
+    </div>
+    <p style="font-style:italic;color:var(--muted);margin-bottom:16px">${item.desc}</p>
+    <div class="flex gap-sm flex-wrap">
+      ${item.type==='herb'?`<button class="btn btn-primary btn-sm" onclick="useHerb('${id}');closeModal('modal-item')">🌿 Use on Cat</button>`:''}
+      ${item.type==='prey'?`<button class="btn btn-primary btn-sm" onclick="feedClan('${id}');closeModal('modal-item')">🍽️ Feed Clan</button>`:''}
+      <button class="btn btn-sm btn-danger" onclick="if(confirm('Discard 1 ${item.name}?')){removeInventory('${id}');renderInventory();closeModal('modal-item');toast('Discarded')}">🗑️ Discard</button>
+    </div>`;
+  openModal('modal-item');
+}
+
+function useHerb(id) {
+  if(!removeInventory(id)){ toast('No more herbs','error'); return; }
+  const cat=gameState.cats.filter(c=>c.alive)[0];
+  if(cat){ cat.stats.health=Math.min(100,cat.stats.health+20); toast(cat.name+' feels better! 🌿 +20 health','success'); renderClan(); } 
+  saveGame();
+}
+
+function feedClan(id) {
+  if(!removeInventory(id)){ toast('No prey','error'); return; }
+  gameState.cats.filter(c=>c.alive).forEach(c=>c.hunger=Math.min(100,(c.hunger||50)+15));
+  toast('Clan fed! 🍽️','success');
+  saveGame();
+}
+
+// ============================================================
+//  SHOP
+// ============================================================
+const SHOP_BASIC = [
+  {id:'s1',name:'Healing Poultice',icon:'🩹',desc:'Restores 30 HP to one cat.',price:30,action:()=>{const c=gameState.cats.find(x=>x.alive);if(c){c.stats.health=Math.min(100,c.stats.health+30);renderClan();saveGame();toast('Cat healed! +30 HP','success');}}},
+  {id:'s2',name:'Herb Bundle',icon:'🌿',desc:'Adds 2 random herbs to inventory.',price:40,action:()=>{const h=['marigold','catmint','goldenrod','borage','cobweb','yarrow'];for(let i=0;i<2;i++)addInventory(h[Math.floor(Math.random()*h.length)]);renderInventory();saveGame();toast('Herbs added to inventory! 🌿','success');}},
+  {id:'s3',name:'Prey Cache',icon:'🐦',desc:'Adds 3 prey to your clan.',price:50,action:()=>{addInventory('sparrow');addInventory('rabbit');addInventory('vole');renderInventory();saveGame();toast('Prey stocked! 🐦','success');}},
+  {id:'s4',name:'Training Scroll',icon:'📜',desc:'Gives 50 XP to your apprentice.',price:60,action:()=>{const a=gameState.cats.find(c=>c.role==='Apprentice'&&c.alive);if(a){a.xp=Math.min(a.maxXp,a.xp+50);saveGame();toast(a.name+' gained 50 XP! 📜','success');}else toast('No apprentice found','error');}},
+  {id:'s5',name:'Reputation Boost',icon:'🌟',desc:'+25 clan reputation.',price:80,action:()=>{gameState.stats.reputation=(gameState.stats.reputation||0)+25;renderClan();saveGame();toast('+25 Reputation! 🌟','success');}},
+  {id:'s6',name:'New Cat Scroll',icon:'🐱',desc:'A wandering cat joins your clan.',price:150,action:()=>{const c=genCat('Warrior');gameState.cats.push(c);renderClan();saveGame();toast(c.name+' has joined your clan! 🐱','success');}},
+];
+
+const SHOP_PREMIUM = [
+  {id:'p1',name:'Rare Cat',icon:'😸',desc:'A rare cat with exceptional stats joins your clan.',price:50,action:()=>{const c=genCat('Warrior');c.stats={health:95,attack:85,speed:85,stamina:80,wisdom:75};c.traits=['Rare','Gifted'];gameState.cats.push(c);renderClan();saveGame();toast(c.name+' joins with rare stats! ⭐','premium');}},
+  {id:'p2',name:'StarClan Blessing',icon:'✨',desc:'Permanently boost all stats of one cat by 15.',price:30,action:()=>{const c=gameState.cats.find(x=>x.alive);if(c){Object.keys(c.stats).forEach(k=>c.stats[k]=Math.min(100,c.stats[k]+15));renderClan();saveGame();toast(c.name+' blessed by StarClan! ✨','premium');}}},
+  {id:'p3',name:'Moonstone',icon:'🌕',desc:'Sacred stone — adds Moonstone to inventory.',price:20,action:()=>{addInventory('moonstone');renderInventory();saveGame();toast('Moonstone obtained! 🌕','premium');}},
+  {id:'p4',name:'Guaranteed Litter',icon:'💕',desc:'Force a litter of 4 kits (no parents needed).',price:40,action:()=>{const kits=Array.from({length:4},()=>genCat('Kit'));kits.forEach(k=>gameState.cats.push(k));renderClan();saveGame();toast('4 kits have joined your clan! 💕','premium');}},
+  {id:'p5',name:'Clan Name Change',icon:'📝',desc:'Rename your clan.',price:25,action:()=>{const n=prompt('Enter new clan name (the word before "Clan"):');if(n&&n.trim()){gameState.clan=n.trim()+'Clan';renderClan();saveGame();toast('Clan renamed to '+gameState.clan+'! 📝','premium');}}},
+  {id:'p6',name:'Max Stats Cat',icon:'🏆',desc:'A legendary cat with max stats joins.',price:100,action:()=>{const c=genCat('Warrior');c.stats={health:100,attack:100,speed:100,stamina:100,wisdom:100};c.traits=['Legendary','StarClan\'s Chosen'];gameState.cats.push(c);renderClan();saveGame();toast(c.name+' is a legend! 🏆','premium');}},
+];
+
+function renderShop() {
+  const bg=document.getElementById('shop-basic');
+  const pg=document.getElementById('shop-premium');
+  if(!bg||!pg) return;
+  bg.innerHTML=SHOP_BASIC.map(item=>`
+    <div class="shop-item">
+      <div class="shop-item-icon">${item.icon}</div>
+      <div class="shop-item-name">${item.name}</div>
+      <div class="shop-item-desc">${item.desc}</div>
+      <div class="shop-item-price"><span>🍂</span><span class="gold">${item.price} Leaves</span></div>
+      <button class="btn btn-primary btn-sm w100" onclick="buyShopItem('basic','${item.id}')">Buy</button>
+    </div>`).join('');
+  pg.innerHTML=SHOP_PREMIUM.map(item=>`
+    <div class="shop-item premium">
+      <div class="shop-item-icon">${item.icon}</div>
+      <div class="shop-item-name">${item.name}</div>
+      <div class="shop-item-desc">${item.desc}</div>
+      <div class="shop-item-price"><span>⭐</span><span class="premium-col">${item.price} Stardust</span></div>
+      <button class="btn btn-premium btn-sm w100" onclick="buyShopItem('premium','${item.id}')">Buy</button>
+    </div>`).join('');
+}
+
+function buyShopItem(type, id) {
+  const items=type==='basic'?SHOP_BASIC:SHOP_PREMIUM;
+  const item=items.find(i=>i.id===id);
+  if(!item) return;
+  const cur=type==='basic'?'basic':'premium';
+  if(gameState.currencies[cur]<item.price){ toast('Not enough '+(type==='basic'?'Leaves':'Stardust'),'error'); return; }
+  gameState.currencies[cur]-=item.price;
+  item.action();
+  updateTopbar();
+}
+
+function switchShopTab(tab, btn) {
+  document.querySelectorAll('.shop-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('shop-basic').classList.add('hidden');
+  document.getElementById('shop-premium').classList.add('hidden');
+  document.getElementById('shop-buystardust').classList.add('hidden');
+  document.getElementById('shop-'+tab).classList.remove('hidden');
+}
+
+function buyStardust(amount, _usdPrice) {
+  // Demo — in production this would link to payment
+  gameState.currencies.premium+=amount;
+  updateTopbar(); saveGame();
+  toast(`+${amount} ⭐ Stardust added! (Demo)`, 'premium');
+}
+
+// ============================================================
+//  PROFILE
+// ============================================================
+const AVATARS=['🐱','😺','😸','🐈','🐾','🦁','🐯','🐆','😼','😻'];
+let avatarIdx=0;
+function changeAvatar() {
+  avatarIdx=(avatarIdx+1)%AVATARS.length;
+  document.getElementById('profile-avatar-display').textContent=AVATARS[avatarIdx];
+  gameState.stats.avatar=AVATARS[avatarIdx];
+  saveGame();
+}
+
+function renderProfile() {
+  document.getElementById('profile-username-display').textContent=gameState.user||'Player';
+  document.getElementById('profile-joined').textContent='Joined: '+(gameState.stats?.joined||'Recently');
+  document.getElementById('profile-edit-name').value=gameState.user||'';
+  document.getElementById('stat-cats').textContent=gameState.cats.filter(c=>c.alive).length;
+  document.getElementById('stat-moons').textContent=gameState.stats.moons||1;
+  document.getElementById('stat-explores').textContent=gameState.stats.explores||0;
+  document.getElementById('stat-bred').textContent=gameState.stats.bred||0;
+  if(gameState.stats?.avatar) document.getElementById('profile-avatar-display').textContent=gameState.stats.avatar;
+}
+
+function saveProfileSettings() {
+  const newName=document.getElementById('profile-edit-name').value.trim();
+  if(newName&&newName.length>=3) {
+    const old=gameState.user;
+    if(old&&old!=='Guest') {
+      const data=JSON.parse(localStorage.getItem('clanlife_user_'+old)||'{}');
+      localStorage.removeItem('clanlife_user_'+old);
+      gameState.user=newName;
+      data.gameState=gameState;
+      localStorage.setItem('clanlife_user_'+newName, JSON.stringify({...data, password:data.password}));
+    }
+    document.getElementById('topbar-username').textContent=newName;
+    toast('Settings saved! ✅','success');
+  } else { toast('Username must be 3+ characters','error'); }
+}
+
+function changeTheme(theme) {
+  // Could implement theme switching here
+  toast('Theme changed! (Full themes coming soon) 🎨');
+}
+
+// ============================================================
+//  MODAL HELPERS
+// ============================================================
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+// ============================================================
+//  TOAST
+// ============================================================
+function toast(msg, type='') {
+  const container=document.getElementById('toast-container');
+  const el=document.createElement('div');
+  el.className='toast '+(type);
+  el.textContent=msg;
+  container.appendChild(el);
+  setTimeout(()=>{ el.style.opacity='0'; el.style.transition='opacity 0.4s'; setTimeout(()=>el.remove(),400); }, 3200);
+}
+
+// ============================================================
+//  AUTO SAVE
+// ============================================================
+setInterval(()=>{ if(gameState.setupComplete) saveGame(); }, 60000);
+
+// ============================================================
+//  PASSWORD STORAGE (basic btoa — for demo; use hashing in prod)
+// ============================================================
+function doRegister() {
+  const user=document.getElementById('reg-user').value.trim();
+  const pass=document.getElementById('reg-pass').value;
+  const conf=document.getElementById('reg-confirm').value;
+  if(!user||!pass||!conf){ toast('Please fill all fields','error'); return; }
+  if(pass!==conf){ toast('Passwords do not match','error'); return; }
+  if(user.length<3){ toast('Username must be at least 3 characters','error'); return; }
+  if(localStorage.getItem('clanlife_user_'+user)){ toast('Username already taken','error'); return; }
+  const gs={...gameState};
+  gs.user=undefined;
+  gs.stats.joined=new Date().toLocaleDateString();
+  localStorage.setItem('clanlife_user_'+user, JSON.stringify({password:btoa(pass),gameState:gs}));
+  gameState.user=user;
+  gameState.stats.joined=gs.stats.joined;
+  toast('Welcome to ClanLife, '+user+'! 🐾','success');
+  startGame();
+}
+</script>
 </body>
 </html>
