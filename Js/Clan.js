@@ -7,7 +7,7 @@ export function renderCat(cat) {
   const img = document.createElement("img");
 
   // IMPORTANT: matches your assets folder
-  img.src = "assets/sprites/base/body.png";
+  img.src = "assets/sprite/base/body.png";
 
   // Apply simple color tint
   img.style.backgroundColor = cat.appearance.baseColor.hex;
