@@ -73,14 +73,19 @@ img#cat-sprite {
 
 #auth-screen {
   position: relative;
-  z-index: 10;
+  z-index: 9999;
 }
 
 .auth-box {
   position: relative;
-  z-index: 20;
+  z-index: 10000;
+}
+
+.auth-form {
+  position: relative;
+  z-index: 10001;
 }
 
 button {
-  pointer-events: auto;
+  pointer-events: auto !important;
 }
