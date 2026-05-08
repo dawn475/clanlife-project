@@ -301,3 +301,80 @@ window.testGenerate = function () {
 };
   }
 });
+
+/* =========================
+   GAME STATE
+========================= */
+
+let gameState = {
+  clan: [],
+  inventory: {
+    prey: [],
+    herbs: [],
+    items: []
+  },
+  currency: {
+    coins: 100,
+    gems: 5
+  }
+};
+
+/* =========================
+   START NEW CLAN
+========================= */
+
+window.startNewClan = function () {
+
+  gameState = {
+    clan: [],
+    inventory: {
+      prey: [],
+      herbs: [],
+      items: []
+    },
+    currency: {
+      coins: 100,
+      gems: 5
+    }
+  };
+
+  saveGame();
+
+  alert("A new clan has been formed!");
+
+  console.log(gameState);
+};
+
+/* =========================
+   SAVE GAME
+========================= */
+
+function saveGame() {
+  localStorage.setItem(
+    "clanLifeSave",
+    JSON.stringify(gameState)
+  );
+}
+
+/* =========================
+   LOAD CLAN
+========================= */
+
+window.loadClan = function () {
+
+  const saveData = localStorage.getItem("clanLifeSave");
+
+  if (saveData) {
+
+    gameState = JSON.parse(saveData);
+
+    alert("Clan loaded!");
+
+    console.log(gameState);
+
+  } else {
+
+    alert("No saved clan found.");
+
+  }
+};
