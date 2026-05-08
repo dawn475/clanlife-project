@@ -70,3 +70,17 @@ img#cat-sprite {
   width: 100px;
   height: auto;
 }
+
+#auth-screen {
+  position: relative;
+  z-index: 10;
+}
+
+.auth-box {
+  position: relative;
+  z-index: 20;
+}
+
+button {
+  pointer-events: auto;
+}
