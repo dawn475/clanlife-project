@@ -89,3 +89,6 @@ img#cat-sprite {
 button {
   pointer-events: auto !important;
 }
+button {
+  outline: 3px solid red;
+}
