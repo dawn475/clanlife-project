@@ -839,6 +839,27 @@ import { supabase } from './supabase.js';
 // ============================================================
 //  AUTO LOAD
 // ============================================================
+// ============================================================
+//  STATE
+// ============================================================
+let gameState = {
+  user: null,
+  clan: null,
+  cats: [],
+  inventory: {},
+  currencies: { basic: 100, premium: 10 },
+  stats: { explores: 0, bred: 0, moons: 1, reputation: 0, joined: null, avatar: '🐱' },
+  setupComplete: false,
+  leaderRerolls: 4,
+  starterRerolls: 4,
+  selectedLeader: null,
+  selectedBiome: 'forest',
+  exploreBiome: 'forest',
+  breedParent1: null,
+  breedParent2: null,
+  activeParentSlot: null
+};
+
 window.onload = () => {
   const saved = localStorage.getItem('clanLifeSave');
   if(saved) {
@@ -849,27 +870,6 @@ window.onload = () => {
       toast('Welcome back to ' + (gameState.clan || 'your clan') + '! 🐾');
     }
   }
-};
-
-// ============================================================
-//  STATE
-// ============================================================
-let gameState = {
-  user: null,
-  clan: null,
-  cats: [],
-  inventory: {},
-  currencies: { basic: 100, premium: 10 },
-  stats: { explores: 0, bred: 0, moons: 1 },
-  setupComplete: false,
-  leaderRerolls: 4,
-  starterRerolls: 4,
-  selectedLeader: null,
-  selectedBiome: 'forest',
-  exploreBiome: 'forest',
-  breedParent1: null,
-  breedParent2: null,
-  activeParentSlot: null,
 };
 
 // ============================================================
@@ -896,7 +896,7 @@ function genCatName(role='Warrior') {
   return pre+suf;
 }
 
-function genCat(role='Warrior', forceLeader=false) {
+window.genCat = function(role='Warrior', forceLeader=false) {
   const r = forceLeader ? 'Leader' : role;
   const name = genCatName(r==='Leader'?'Warrior':r);
   const displayName = r==='Leader' ? name.replace(/paw|kit$/,'star') : name;
@@ -1191,7 +1191,7 @@ window.showSetup = function() {
   renderStarterPicks();
 }
 
-function setStep(n) {
+window.setStep = function(n) {
   document.querySelectorAll('.setup-step').forEach(s=>s.classList.add('hidden'));
   document.getElementById('step-'+n).classList.remove('hidden');
   document.querySelectorAll('.setup-dot').forEach((d,i)=>{
@@ -1217,7 +1217,7 @@ window.pickBiome = function(el, biome) {
   gameState.selectedBiome = biome;
 }
 
-function renderLeaderPicks() {
+window.renderLeaderPicks = function() {
   const grid = document.getElementById('leader-pick-grid');
   grid.innerHTML = '';
   leaderCandidates.forEach((cat,i)=>{
@@ -1239,13 +1239,13 @@ function renderLeaderPicks() {
   document.getElementById('confirm-leader-btn').disabled = gameState.selectedLeader===null;
 }
 
-function statBarsHtml(stats) {
+window.statBarsHtml = function(stats) {
   const entries = [['⚔️ ATK',stats.attack],['💨 SPD',stats.speed],['💚 STA',stats.stamina]];
   return `<div style="margin-top:10px;display:flex;flex-direction:column;gap:4px">${entries.map(([l,v])=>`
     <div class="cat-stat-row"><span>${l}</span><div class="progress cat-stat-bar" style="flex:1;margin-left:8px"><div class="progress-fill health" style="width:${v}%;background:var(--gold)"></div></div></div>`).join('')}</div>`;
 }
 
-function selectLeader(i) {
+window.selectLeader = function(i) {
   gameState.selectedLeader=i;
   document.querySelectorAll('.cat-pick-card').forEach((c,j)=>{
     if(c.parentElement===document.getElementById('leader-pick-grid'))
@@ -1272,7 +1272,7 @@ window.confirmLeader = function() {
   setStep(3);
 }
 
-function renderStarterPicks() {
+window.renderStarterPicks = function() {
   const grid = document.getElementById('starter-grid');
   grid.innerHTML='';
   starterCandidates.forEach((cat,i)=>{
@@ -1320,7 +1320,7 @@ window.showGameScreen = function() {
   renderInventory();
 }
 
-function updateTopbar() {
+window.updateTopbar = function() {
   document.getElementById('topbar-username').textContent = gameState.user||'Guest';
   document.getElementById('currency-basic-display').textContent = gameState.currencies.basic;
   document.getElementById('currency-premium-display').textContent = gameState.currencies.premium;
@@ -1342,7 +1342,7 @@ window.showPage = function(id) {
 // ============================================================
 const BIOME_BADGES = { forest:'🌲 Forest',river:'🏞️ Riverlands',moor:'🌾 Moor',mountain:'⛰️ Mountain',swamp:'🌿 Swamp',tundra:'❄️ Tundra',cave:'🦇 Dark Cave' };
 
-function renderClan() {
+window.renderClan = function() {
   document.getElementById('clan-name-display').textContent = gameState.clan||'Your Clan';
   document.getElementById('clan-biome-badge').innerHTML = `<span class="badge badge-green">${BIOME_BADGES[gameState.selectedBiome]||'🌲 Forest'}</span>`;
   document.getElementById('clan-cat-count').textContent = gameState.cats.filter(c=>c.alive).length;
@@ -1352,7 +1352,7 @@ function renderClan() {
   renderCatRoster();
 }
 
-function renderCatRoster() {
+window.renderCatRoster = function() {
   const roster = document.getElementById('cat-roster');
   roster.innerHTML='';
   if(!gameState.cats.length){ roster.innerHTML='<div class="muted italic" style="padding:20px">No cats in your clan yet.</div>'; return; }
@@ -1400,15 +1400,15 @@ window.openCatModal = function(id) {
   openModal('modal-cat');
 }
 
-function promoteToWarrior(id) {
+window.promoteToWarrior = function(id) {
   const cat = gameState.cats.find(c=>c.id===id);
   if(cat) { cat.role='Warrior'; cat.name=cat.name.replace(/paw$/,''+CAT_SUFFIXES_WARRIOR[Math.floor(Math.random()*CAT_SUFFIXES_WARRIOR.length)]); toast(cat.name+' is now a warrior! ⚔️','success'); renderClan(); saveGame(); }
 }
-function retireCat(id) {
+window.retireCat = function(id) {
   const cat = gameState.cats.find(c=>c.id===id);
   if(cat) { cat.role='Elder'; toast(cat.name+' retires to the elder den 🌙'); renderClan(); saveGame(); }
 }
-function removeCat(id) {
+window.removeCat = function(id) {
   gameState.cats = gameState.cats.filter(c=>c.id!==id);
   renderClan(); saveGame(); toast('Cat removed from clan');
 }
@@ -1699,19 +1699,19 @@ window.trainCat = function(id, type) {
 //  EXPLORE PAGE
 // ============================================================
 let exploreBiome='forest';
-function selectExploreBiome(el, biome) {
+window.selectExploreBiome = function(el, biome) {
   document.querySelectorAll('#explore-biome-btns .biome-btn').forEach(b=>b.classList.remove('active'));
   el.classList.add('active');
   exploreBiome=biome;
 }
 
-function populateExploreCatSelect() {
+window.populateExploreCatSelect = function() {
   const sel=document.getElementById('explore-cat-select');
   if(!sel) return;
   sel.innerHTML=gameState.cats.filter(c=>c.alive&&c.role!=='Kit').map(c=>`<option value="${c.id}">${c.name} (${c.role})</option>`).join('');
 }
 
-function addExploreLog(msg, type='') {
+window.addExploreLog = function(msg, type='') {
   const log=document.getElementById('explore-log');
   const entry=document.createElement('div');
   entry.className='log-entry '+(type);
@@ -1720,7 +1720,7 @@ function addExploreLog(msg, type='') {
   while(log.children.length>50) log.removeChild(log.lastChild);
 }
 
-function doExplore() {
+window.doExplore = function() {
   const btn=document.getElementById('explore-btn');
   const result=document.getElementById('explore-result');
   const catId=document.getElementById('explore-cat-select').value;
@@ -1745,8 +1745,33 @@ function doExplore() {
     gameState.stats.explores++;
 
     // Random encounter
-    const encounters=['All quiet on the borders.','A rogue cat was spotted but fled.','Found an abandoned Twoleg nest.','Crossed paths with a friendly loner.','A hawk circled overhead — stayed low.','Discovered a new prey-rich clearing!'];
-    const enc=encounters[Math.floor(Math.random()*encounters.length)];
+    const encounters = [
+      { text: 'All quiet on the borders.', type: 'normal' },
+      { text: 'A rogue cat was spotted but fled.', type: 'normal' },
+      { text: 'Found an abandoned Twoleg nest.', type: 'normal' },
+      { text: 'Crossed paths with a friendly loner.', type: 'normal' },
+      { text: 'A hawk circled overhead — stayed low.', type: 'normal' },
+      { text: 'Discovered a new prey-rich clearing!', type: 'success' },
+      { text: 'Found a hidden cache of herbs!', type: 'success', bonus: 'herb' },
+      { text: 'Rescued a lost kit!', type: 'rare', bonus: 'kit' },
+      { text: 'A StarClan warrior appeared in a dream!', type: 'rare', bonus: 'stardust' }
+    ];
+    
+    const event = encounters[Math.floor(Math.random() * encounters.length)];
+    let enc = event.text;
+    
+    if (event.bonus === 'herb') {
+      const h = ['marigold', 'catmint', 'goldenrod'][Math.floor(Math.random()*3)];
+      addInventory(h, 2);
+      loot.push(ITEMS_DB[h], ITEMS_DB[h]);
+    } else if (event.bonus === 'kit') {
+      const kit = genCat('Kit');
+      gameState.cats.push(kit);
+      toast('A new kit has joined the clan!', 'success');
+    } else if (event.bonus === 'stardust') {
+      gameState.currencies.premium += 5;
+      toast('You received 5 Stardust!', 'premium');
+    }
 
     loot.forEach(i=>addExploreLog(`Found: ${i.icon} ${i.name}`,'loot'));
     addExploreLog(`+${leaves} Leaves earned`,'success');
@@ -1835,20 +1860,20 @@ window.doBreeding = function() {
   renderClan(); saveGame();
 }
 
-function openBreedingModal() { showPage('breeding'); }
+window.openBreedingModal = function() { showPage('breeding'); }
 
 // ============================================================
 //  INVENTORY
 // ============================================================
 let invFilter='all';
-function filterInv(type, btn) {
+window.filterInv = function(type, btn) {
   invFilter=type;
   document.querySelectorAll('#page-inventory .btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   renderInventory();
 }
 
-function renderInventory() {
+window.renderInventory = function() {
   const grid=document.getElementById('inventory-grid');
   if(!grid) return;
   const entries=Object.entries(gameState.inventory).filter(([id,qty])=>qty>0&&ITEMS_DB[id]&&(invFilter==='all'||ITEMS_DB[id].type===invFilter));
@@ -1883,7 +1908,7 @@ window.openItemModal = function(id) {
   openModal('modal-item');
 }
 
-function useHerb(id) {
+window.useHerb = function(id) {
   if(!removeInventory(id)){ toast('No more herbs','error'); return; }
   const cat=gameState.cats.filter(c=>c.alive)[0];
   if(cat){ cat.stats.health=Math.min(100,cat.stats.health+20); toast(cat.name+' feels better! 🌿 +20 health','success'); renderClan(); } 
@@ -1918,7 +1943,7 @@ const SHOP_PREMIUM = [
   {id:'p6',name:'Max Stats Cat',icon:'🏆',desc:'A legendary cat with max stats joins.',price:100,action:()=>{const c=genCat('Warrior');c.stats={health:100,attack:100,speed:100,stamina:100,wisdom:100};c.traits=['Legendary','StarClan\'s Chosen'];gameState.cats.push(c);renderClan();saveGame();toast(c.name+' is a legend! 🏆','premium');}},
 ];
 
-function renderShop() {
+window.renderShop = function() {
   const bg=document.getElementById('shop-basic');
   const pg=document.getElementById('shop-premium');
   if(!bg||!pg) return;
@@ -1960,7 +1985,7 @@ window.switchShopTab = function(tab, btn) {
   document.getElementById('shop-'+tab).classList.remove('hidden');
 }
 
-function buyStardust(amount, _usdPrice) {
+window.buyStardust = function(amount, _usdPrice) {
   // Demo — in production this would link to payment
   gameState.currencies.premium+=amount;
   updateTopbar(); saveGame();
@@ -2058,7 +2083,7 @@ setInterval(()=>{ if(gameState.setupComplete) saveGame(); }, 60000);
 // ============================================================
 //  PASSWORD STORAGE (basic btoa — for demo; use hashing in prod)
 // ============================================================
-function doRegister() {
+window.doRegister = function() {
   const user=document.getElementById('reg-user').value.trim();
   const pass=document.getElementById('reg-pass').value;
   const conf=document.getElementById('reg-confirm').value;
@@ -2079,6 +2104,15 @@ function doRegister() {
 
 <div id="clan-container"></div>
 <button onclick="testGenerate()" class="hidden">Generate Cat</button>
-<script type="module" src="Js/script.js"></script>
+<script>
+  // Global fallbacks for critical functions
+  window.startNewClan = window.startNewClan || (() => alert("Game script is still loading... Please wait a few seconds and try again."));
+  window.loadClan = window.loadClan || (() => alert("Game script is still loading... Please wait a few seconds and try again."));
+  window.doGuest = window.doGuest || (() => alert("Game script is still loading... Please wait a few seconds and try again."));
+  
+  document.addEventListener('DOMContentLoaded', () => {
+    console.log('ClanLife Initialized');
+  });
+</script>
 </body>
 </html>
