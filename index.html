@@ -693,6 +693,15 @@ label { font-size: 0.9em; color: var(--muted); margin-bottom: 4px; display: bloc
     <!-- ===== PROFILE PAGE ===== -->
     <div id="page-profile" class="page">
       <div class="page-title">Your Profile</div>
+      
+      <!-- Leaderboard Section -->
+      <div class="card card-gold mt mb">
+        <div class="bold" style="margin-bottom:12px">🏆 Global Leaderboard (Top Clans)</div>
+        <div id="leaderboard-list" style="display:flex;flex-direction:column;gap:8px">
+          <div class="muted italic small">Loading rankings...</div>
+        </div>
+      </div>
+
       <p class="page-sub">Manage your account and view your achievements</p>
       <div class="profile-avatar-area">
         <div class="profile-avatar-big" onclick="changeAvatar()" title="Click to change avatar" id="profile-avatar-display">🐱</div>
@@ -987,32 +996,9 @@ function switchAuthTab(tab) {
   document.getElementById('register-form').classList.toggle('hidden', tab!=='register');
 }
 
-function doLogin() {
-  const user = document.getElementById('login-user').value.trim();
-  const pass = document.getElementById('login-pass').value;
-  if(!user||!pass){ toast('Please fill all fields','error'); return; }
-  const saved = localStorage.getItem('clanlife_user_'+user);
-  if(!saved){ toast('User not found','error'); return; }
-  const data = JSON.parse(saved);
-  if(data.password!==btoa(pass)){ toast('Incorrect password','error'); return; }
-  gameState = {...gameState, ...data.gameState, user};
-  toast('Welcome back, '+user+'! 🐾','success');
-  startGame();
-}
+// doLogin replaced by handleAuth('login')
 
-function doRegister() {
-  const user = document.getElementById('reg-user').value.trim();
-  const pass = document.getElementById('reg-pass').value;
-  const conf = document.getElementById('reg-confirm').value;
-  if(!user||!pass||!conf){ toast('Please fill all fields','error'); return; }
-  if(pass!==conf){ toast('Passwords do not match','error'); return; }
-  if(user.length<3){ toast('Username must be at least 3 characters','error'); return; }
-  if(localStorage.getItem('clanlife_user_'+user)){ toast('Username taken','error'); return; }
-  gameState.user = user;
-  gameState.stats.joined = new Date().toLocaleDateString();
-  toast('Account created! Welcome, '+user+' 🌿');
-  startGame();
-}
+// doRegister replaced by handleAuth('signup')
 
 function doGuest() {
   gameState.user = 'Guest';
@@ -1038,38 +1024,122 @@ function loadClan() {
   }
 }
 
+// --- Supabase Integration ---
+import { signUp, login, logout, listenForAuth } from './auth.js';
+import { getProfile, updateProfile, getCats, saveCat, getInventory, updateInventoryItem } from './database.js';
+
+listenForAuth(async (user) => {
+  if (user) {
+    gameState.user = user.email;
+    await syncFromCloud(user.id);
+    startGame();
+    toast('Cloud Sync Complete! 🐾', 'success');
+  } else {
+    gameState.user = null;
+  }
+});
+
+async function syncFromCloud(userId) {
+  const profile = await getProfile(userId);
+  if (profile) {
+    gameState.clan = profile.clan_name;
+    gameState.selectedBiome = profile.biome;
+    gameState.currencies.basic = profile.leaves;
+    gameState.currencies.premium = profile.stardust;
+    gameState.stats.moons = profile.moons_played;
+    gameState.stats.reputation = profile.reputation;
+    gameState.stats.joined = profile.joined_at;
+    gameState.setupComplete = true;
+  }
+  
+  const cloudCats = await getCats(userId);
+  if (cloudCats && cloudCats.length > 0) {
+    gameState.cats = cloudCats.map(c => ({
+      ...c,
+      traits: c.traits || [],
+      stats: {
+        health: c.health,
+        attack: c.attack,
+        speed: c.speed,
+        stamina: c.stamina,
+        wisdom: c.wisdom
+      }
+    }));
+  }
+
+  const cloudInv = await getInventory(userId);
+  if (cloudInv) {
+    gameState.inventory = {};
+    cloudInv.forEach(item => {
+      gameState.inventory[item.item_id] = item.quantity;
+    });
+  }
+}
+
+async function syncToCloud() {
+  const user = await supabase.auth.getUser();
+  if (!user.data.user) return;
+  const userId = user.data.user.id;
+
+  await updateProfile(userId, {
+    clan_name: gameState.clan,
+    biome: gameState.selectedBiome,
+    leaves: gameState.currencies.basic,
+    stardust: gameState.currencies.premium,
+    moons_played: gameState.stats.moons,
+    reputation: gameState.stats.reputation
+  });
+
+  // For simplicity, we sync cats and inventory here
+  // In a real app, you'd sync on specific actions
+  for (const cat of gameState.cats) {
+    await saveCat({
+      owner_id: userId,
+      name: cat.name,
+      role: cat.role,
+      gender: cat.gender,
+      age: cat.age,
+      coat: cat.coat,
+      pattern: cat.pattern,
+      eyes: cat.eyes,
+      art: cat.art,
+      traits: cat.traits,
+      health: cat.stats.health,
+      attack: cat.stats.attack,
+      speed: cat.stats.speed,
+      stamina: cat.stats.stamina,
+      wisdom: cat.stats.wisdom,
+      xp: cat.xp,
+      max_xp: cat.maxXp,
+      alive: cat.alive
+    });
+  }
+
+  for (const [itemId, qty] of Object.entries(gameState.inventory)) {
+    await updateInventoryItem(userId, itemId, qty);
+  }
+}
+
 async function handleAuth(type) {
   const email = document.getElementById('acc-email').value;
   const pass = document.getElementById('acc-pass').value;
   if(!email || !pass) { toast('Please fill in email and password','error'); return; }
   
   try {
-    // Simple mock auth using LocalStorage
-    const users = JSON.parse(localStorage.getItem('clanlife_mock_users') || '{}');
     if(type === 'signup') {
-      if(users[email]) { toast('User already exists','error'); return; }
-      users[email] = { pass: btoa(pass), uid: 'u_' + Date.now() };
-      localStorage.setItem('clanlife_mock_users', JSON.stringify(users));
-      toast('Account created! Logging in...','success');
+      await signUp(email, pass);
+      toast('Account created! Please check your email.','success');
     } else {
-      if(!users[email] || users[email].pass !== btoa(pass)) { toast('Invalid email or password','error'); return; }
+      await login(email, pass);
+      toast('Welcome back! 🐾','success');
     }
-    
-    gameState.user = email;
-    const userData = localStorage.getItem('clanlife_user_data_' + email);
-    if(userData) {
-      gameState = JSON.parse(userData);
-      gameState.user = email;
-    }
-    startGame();
-    toast('Welcome, ' + email + '! 🐾','success');
   } catch(e) {
     toast('Auth error: ' + e.message, 'error');
   }
 }
 
-function doLogout() {
-  saveGame();
+async function doLogout() {
+  await logout();
   gameState = { 
     user:null,clan:null,cats:[],inventory:{},
     currencies:{basic:100,premium:10},
@@ -1084,15 +1154,16 @@ function doLogout() {
   // Clear inputs
   document.getElementById('acc-email').value = '';
   document.getElementById('acc-pass').value = '';
+  toast('Logged out successfully','success');
 }
 
 function saveGame() {
   // Always save a local backup
   localStorage.setItem('clanLifeSave', JSON.stringify(gameState));
   
-  // If logged in, save to user-specific slot
+  // If logged in, sync to cloud
   if(gameState.user && gameState.user !== 'Guest') {
-    localStorage.setItem('clanlife_user_data_' + gameState.user, JSON.stringify(gameState));
+    syncToCloud().catch(err => console.error('Cloud sync failed:', err));
   }
 }
 
@@ -1907,15 +1978,36 @@ function changeAvatar() {
   saveGame();
 }
 
-function renderProfile() {
+async function renderProfile() {
   document.getElementById('profile-username-display').textContent=gameState.user||'Player';
-  document.getElementById('profile-joined').textContent='Joined: '+(gameState.stats?.joined||'Recently');
   document.getElementById('profile-edit-name').value=gameState.user||'';
+  document.getElementById('profile-joined').textContent='Joined: '+(gameState.stats.joined||'Unknown');
   document.getElementById('stat-cats').textContent=gameState.cats.filter(c=>c.alive).length;
-  document.getElementById('stat-moons').textContent=gameState.stats.moons||1;
-  document.getElementById('stat-explores').textContent=gameState.stats.explores||0;
-  document.getElementById('stat-bred').textContent=gameState.stats.bred||0;
-  if(gameState.stats?.avatar) document.getElementById('profile-avatar-display').textContent=gameState.stats.avatar;
+  document.getElementById('stat-moons').textContent=gameState.stats.moons;
+  document.getElementById('stat-explores').textContent=gameState.stats.explores;
+  document.getElementById('stat-bred').textContent=gameState.stats.bred;
+  document.getElementById('profile-avatar-display').textContent=gameState.stats.avatar||'🐱';
+  
+  // Fetch Leaderboard
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('username, reputation, clan_name')
+      .order('reputation', { ascending: false })
+      .limit(5);
+    
+    if (data) {
+      const list = document.getElementById('leaderboard-list');
+      list.innerHTML = data.map((p, i) => `
+        <div class="flex justify-between items-center p-sm" style="background:var(--panel);border-radius:6px">
+          <span>${i+1}. <strong>${p.clan_name || 'Unnamed Clan'}</strong> (${p.username})</span>
+          <span class="gold">⭐ ${p.reputation}</span>
+        </div>
+      `).join('');
+    }
+  } catch (e) {
+    console.error('Leaderboard error:', e);
+  }
 }
 
 function saveProfileSettings() {
@@ -1986,6 +2078,7 @@ function doRegister() {
 
 <div id="clan-container"></div>
 <button onclick="testGenerate()" class="hidden">Generate Cat</button>
+<script type="module" src="supabase.js"></script>
 <script type="module" src="Js/script.js"></script>
 </body>
 </html>
