@@ -834,7 +834,8 @@ label { font-size: 0.9em; color: var(--muted); margin-bottom: 4px; display: bloc
   </div>
 </div>
 
-<script>
+<script type="module">
+import { supabase } from './supabase.js';
 // ============================================================
 //  AUTO LOAD
 // ============================================================
@@ -1000,19 +1001,19 @@ function switchAuthTab(tab) {
 
 // doRegister replaced by handleAuth('signup')
 
-function doGuest() {
+window.doGuest = function() {
   gameState.user = 'Guest';
   toast('Continuing as Guest — progress won\'t save');
   startGame();
 }
 
-function startNewClan() {
+window.startNewClan = function() {
   gameState.user = 'Guest';
   gameState.setupComplete = false;
   startGame();
 }
 
-function loadClan() {
+window.loadClan = function() {
   const saved = localStorage.getItem('clanLifeSave');
   if(saved) {
     gameState = JSON.parse(saved);
@@ -1120,7 +1121,7 @@ async function syncToCloud() {
   }
 }
 
-async function handleAuth(type) {
+window.handleAuth = async function(type) {
   const email = document.getElementById('acc-email').value;
   const pass = document.getElementById('acc-pass').value;
   if(!email || !pass) { toast('Please fill in email and password','error'); return; }
@@ -1138,7 +1139,7 @@ async function handleAuth(type) {
   }
 }
 
-async function doLogout() {
+window.doLogout = async function() {
   await logout();
   gameState = { 
     user:null,clan:null,cats:[],inventory:{},
@@ -1157,7 +1158,7 @@ async function doLogout() {
   toast('Logged out successfully','success');
 }
 
-function saveGame() {
+window.saveGame = function() {
   // Always save a local backup
   localStorage.setItem('clanLifeSave', JSON.stringify(gameState));
   
@@ -1167,7 +1168,7 @@ function saveGame() {
   }
 }
 
-function startGame() {
+window.startGame = function() {
   document.getElementById('auth-screen').classList.add('hidden');
   if(gameState.setupComplete) {
     showGameScreen();
@@ -1181,7 +1182,7 @@ function startGame() {
 // ============================================================
 let leaderCandidates=[], starterCandidates=[];
 
-function showSetup() {
+window.showSetup = function() {
   document.getElementById('setup-screen').classList.remove('hidden');
   setStep(1);
   leaderCandidates = gen3Leaders();
@@ -1200,7 +1201,7 @@ function setStep(n) {
   });
 }
 
-function goStep(n) {
+window.goStep = function(n) {
   if(n===2) {
     const name = document.getElementById('clan-name-input').value.trim();
     if(!name){ toast('Please name your clan first','error'); return; }
@@ -1210,7 +1211,7 @@ function goStep(n) {
   setStep(n);
 }
 
-function pickBiome(el, biome) {
+window.pickBiome = function(el, biome) {
   document.querySelectorAll('#biome-picker .biome-btn').forEach(b=>b.classList.remove('active'));
   el.classList.add('active');
   gameState.selectedBiome = biome;
@@ -1253,7 +1254,7 @@ function selectLeader(i) {
   document.getElementById('confirm-leader-btn').disabled=false;
 }
 
-function rerollLeaders() {
+window.rerollLeaders = function() {
   if(gameState.leaderRerolls<=0){ toast('No rerolls remaining','error'); return; }
   gameState.leaderRerolls--;
   gameState.selectedLeader=null;
@@ -1262,7 +1263,7 @@ function rerollLeaders() {
   toast('New leaders generated! 🎲');
 }
 
-function confirmLeader() {
+window.confirmLeader = function() {
   if(gameState.selectedLeader===null){ toast('Select a leader first','error'); return; }
   const leader = {...leaderCandidates[gameState.selectedLeader]};
   leader.role='Leader';
@@ -1289,7 +1290,7 @@ function renderStarterPicks() {
   document.getElementById('reroll-starters-btn').disabled = gameState.starterRerolls<=0;
 }
 
-function rerollAllStarters() {
+window.rerollAllStarters = function() {
   if(gameState.starterRerolls<=0){ toast('No rerolls remaining','error'); return; }
   gameState.starterRerolls--;
   starterCandidates=gen6Starters();
@@ -1297,7 +1298,7 @@ function rerollAllStarters() {
   toast('New starting cats generated! 🎲');
 }
 
-function finalizeSetup() {
+window.finalizeSetup = function() {
   gameState.cats = [gameState.selectedLeaderCat, ...starterCandidates];
   gameState.setupComplete=true;
   document.getElementById('setup-screen').classList.add('hidden');
@@ -1309,7 +1310,7 @@ function finalizeSetup() {
 // ============================================================
 //  GAME SCREEN
 // ============================================================
-function showGameScreen() {
+window.showGameScreen = function() {
   document.getElementById('game-screen').classList.remove('hidden');
   document.getElementById('setup-screen').classList.add('hidden');
   updateTopbar();
@@ -1325,7 +1326,7 @@ function updateTopbar() {
   document.getElementById('currency-premium-display').textContent = gameState.currencies.premium;
 }
 
-function showPage(id) {
+window.showPage = function(id) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   const page = document.getElementById('page-'+id);
@@ -1368,7 +1369,7 @@ function renderCatRoster() {
   });
 }
 
-function openCatModal(id) {
+window.openCatModal = function(id) {
   const cat = gameState.cats.find(c=>c.id===id);
   if(!cat) return;
   const html=`
@@ -1415,7 +1416,7 @@ function removeCat(id) {
 // ============================================================
 //  ADVANCE MOON
 // ============================================================
-function advanceMoon() {
+window.advanceMoon = function() {
   gameState.stats.moons++;
   gameState.cats.forEach(cat=>{
     cat.age++;
@@ -1437,7 +1438,7 @@ function advanceMoon() {
 // ============================================================
 //  CROSSROADS
 // ============================================================
-function goActivity(type) {
+window.goActivity = function(type) {
   const area = document.getElementById('crossroads-activity');
   const content = document.getElementById('activity-content');
   area.classList.remove('hidden');
@@ -1474,7 +1475,7 @@ function goActivity(type) {
   area.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
-function runActivity(type) {
+window.runActivity = function(type) {
   const catSel = document.getElementById('xr-cat');
   const catId = catSel?.value;
   const cat = gameState.cats.find(c=>c.id===catId);
@@ -1525,7 +1526,7 @@ function runActivity(type) {
 }
 
 // Giving Tree
-function showGivingTree() {
+window.showGivingTree = function() {
   const gifts = [];
   const pool = Object.entries(ITEMS_DB).filter(([,v])=>!v.premium);
   for(let i=0;i<6;i++){
@@ -1543,7 +1544,7 @@ function showGivingTree() {
   openModal('modal-tree');
 }
 
-function claimGift(itemId, idx) {
+window.claimGift = function(itemId, idx) {
   addInventory(itemId);
   const el=document.getElementById('tree-gift-'+idx);
   if(el) el.innerHTML=`<div class="muted italic">Claimed! 🌟</div>`;
@@ -1552,7 +1553,7 @@ function claimGift(itemId, idx) {
 }
 
 // Trading Spot
-function showTradingSpot() {
+window.showTradingSpot = function() {
   // Populate your items dropdown
   const sel=document.getElementById('trade-your-item');
   sel.innerHTML='<option value="">Choose an item...</option>';
@@ -1577,7 +1578,7 @@ function showTradingSpot() {
   openModal('modal-trade');
 }
 
-function acceptTrade(i, offerStr) {
+window.acceptTrade = function(i, offerStr) {
   const offer = typeof offerStr==='string'?JSON.parse(offerStr.replace(/'/g,'"')):offerStr;
   if(!removeInventory(offer.give,offer.qty)){ toast('Not enough '+ITEMS_DB[offer.give]?.name,'error'); return; }
   if(offer.want==='leaves') gameState.currencies.basic+=offer.wqty;
@@ -1587,10 +1588,10 @@ function acceptTrade(i, offerStr) {
   closeModal('modal-trade');
 }
 
-function doTrade() { closeModal('modal-trade'); }
+window.doTrade = function() { closeModal('modal-trade'); }
 
 // Games
-function showGames() {
+window.showGames = function() {
   const games=[
     {name:'Quick Hunt',icon:'🐦',desc:'Tap prey before it escapes!',reward:'Leaves',fn:'openPreyGame()'},
     {name:'Memory Herbs',icon:'🌿',desc:'Match herb cards to win!',reward:'Leaves',fn:'openMemoryGame()'},
@@ -1609,7 +1610,7 @@ function showGames() {
 // Prey tap game
 let preyGameActive=false, preyScore=0, preyTimer;
 
-function openPreyGame() {
+window.openPreyGame = function() {
   closeModal('modal-games');
   preyScore=0; preyGameActive=false;
   document.getElementById('prey-game-btn').textContent='▶ Start Hunt';
@@ -1617,7 +1618,7 @@ function openPreyGame() {
   openModal('modal-preygame');
 }
 
-function startPreyGame() {
+window.startPreyGame = function() {
   if(preyGameActive) return;
   preyGameActive=true; preyScore=0;
   document.getElementById('prey-game-btn').disabled=true;
@@ -1657,7 +1658,7 @@ function openMemoryGame() { toast('Memory Herbs — coming soon! 🌿'); closeMo
 function openMouseGame() { toast('Catch the Mouse — coming soon! 🐭'); closeModal('modal-games'); }
 
 // Kit Training
-function showKitTraining() {
+window.showKitTraining = function() {
   const trainable=gameState.cats.filter(c=>c.alive&&(c.role==='Kit'||c.role==='Apprentice'));
   const list=document.getElementById('training-list');
   if(!trainable.length) { list.innerHTML='<div class="muted italic text-center" style="padding:20px">No kits or apprentices to train right now.</div>'; }
@@ -1681,7 +1682,7 @@ function showKitTraining() {
   openModal('modal-training');
 }
 
-function trainCat(id, type) {
+window.trainCat = function(id, type) {
   const cat=gameState.cats.find(c=>c.id===id);
   if(!cat) return;
   const xpGain=Math.floor(Math.random()*20)+10;
@@ -1768,7 +1769,7 @@ function doExplore() {
 // ============================================================
 //  BREEDING
 // ============================================================
-function openParentPicker(slot) {
+window.openParentPicker = function(slot) {
   gameState.activeParentSlot=slot;
   const list=document.getElementById('modal-parent-list');
   const eligible=gameState.cats.filter(c=>c.alive&&(c.role==='Warrior'||c.role==='Leader'||c.role==='Deputy'));
@@ -1784,7 +1785,7 @@ function openParentPicker(slot) {
   openModal('modal-parent');
 }
 
-function selectParent(id) {
+window.selectParent = function(id) {
   const cat=gameState.cats.find(c=>c.id===id);
   const slot=gameState.activeParentSlot;
   if(slot===1) gameState.breedParent1=cat;
@@ -1795,7 +1796,7 @@ function selectParent(id) {
   closeModal('modal-parent');
 }
 
-function doBreeding() {
+window.doBreeding = function() {
   const p1=gameState.breedParent1, p2=gameState.breedParent2;
   if(!p1||!p2){ toast('Select both parents first','error'); return; }
   if(p1.gender===p2.gender){ toast('Parents must be a tom and a she-cat','error'); return; }
@@ -1864,7 +1865,7 @@ function renderInventory() {
   }).join('');
 }
 
-function openItemModal(id) {
+window.openItemModal = function(id) {
   const item=ITEMS_DB[id];
   const qty=gameState.inventory[id]||0;
   document.getElementById('modal-item-content').innerHTML=`
@@ -1889,7 +1890,7 @@ function useHerb(id) {
   saveGame();
 }
 
-function feedClan(id) {
+window.feedClan = function(id) {
   if(!removeInventory(id)){ toast('No prey','error'); return; }
   gameState.cats.filter(c=>c.alive).forEach(c=>c.hunger=Math.min(100,(c.hunger||50)+15));
   toast('Clan fed! 🍽️','success');
@@ -1939,7 +1940,7 @@ function renderShop() {
     </div>`).join('');
 }
 
-function buyShopItem(type, id) {
+window.buyShopItem = function(type, id) {
   const items=type==='basic'?SHOP_BASIC:SHOP_PREMIUM;
   const item=items.find(i=>i.id===id);
   if(!item) return;
@@ -1950,7 +1951,7 @@ function buyShopItem(type, id) {
   updateTopbar();
 }
 
-function switchShopTab(tab, btn) {
+window.switchShopTab = function(tab, btn) {
   document.querySelectorAll('.shop-tab').forEach(t=>t.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('shop-basic').classList.add('hidden');
@@ -1971,14 +1972,14 @@ function buyStardust(amount, _usdPrice) {
 // ============================================================
 const AVATARS=['🐱','😺','😸','🐈','🐾','🦁','🐯','🐆','😼','😻'];
 let avatarIdx=0;
-function changeAvatar() {
+window.changeAvatar = function() {
   avatarIdx=(avatarIdx+1)%AVATARS.length;
   document.getElementById('profile-avatar-display').textContent=AVATARS[avatarIdx];
   gameState.stats.avatar=AVATARS[avatarIdx];
   saveGame();
 }
 
-async function renderProfile() {
+window.renderProfile = async function() {
   document.getElementById('profile-username-display').textContent=gameState.user||'Player';
   document.getElementById('profile-edit-name').value=gameState.user||'';
   document.getElementById('profile-joined').textContent='Joined: '+(gameState.stats.joined||'Unknown');
@@ -2010,7 +2011,7 @@ async function renderProfile() {
   }
 }
 
-function saveProfileSettings() {
+window.saveProfileSettings = function() {
   const newName=document.getElementById('profile-edit-name').value.trim();
   if(newName&&newName.length>=3) {
     const old=gameState.user;
@@ -2026,7 +2027,7 @@ function saveProfileSettings() {
   } else { toast('Username must be 3+ characters','error'); }
 }
 
-function changeTheme(theme) {
+window.changeTheme = function(theme) {
   // Could implement theme switching here
   toast('Theme changed! (Full themes coming soon) 🎨');
 }
@@ -2034,13 +2035,13 @@ function changeTheme(theme) {
 // ============================================================
 //  MODAL HELPERS
 // ============================================================
-function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+window.openModal = function(id) { document.getElementById(id).classList.remove('hidden'); }
+window.closeModal = function(id) { document.getElementById(id).classList.add('hidden'); }
 
 // ============================================================
 //  TOAST
 // ============================================================
-function toast(msg, type='') {
+window.toast = function(msg, type='') {
   const container=document.getElementById('toast-container');
   const el=document.createElement('div');
   el.className='toast '+(type);
@@ -2078,7 +2079,6 @@ function doRegister() {
 
 <div id="clan-container"></div>
 <button onclick="testGenerate()" class="hidden">Generate Cat</button>
-<script type="module" src="supabase.js"></script>
 <script type="module" src="Js/script.js"></script>
 </body>
 </html>
