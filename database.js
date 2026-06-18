@@ -1,27 +1,16 @@
-// js/database.js
+// database.js - LocalStorage-based data persistence (Replacing Firebase)
 
-import { db } from "./firebase.js";
-import {
-  doc,
-  setDoc,
-  getDoc,
-  updateDoc
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-// Save full user data
 export async function saveUserData(userId, data) {
-  await setDoc(doc(db, "users", userId), data);
+  localStorage.setItem('clanlife_user_data_' + userId, JSON.stringify(data));
 }
 
-// Load user data
 export async function loadUserData(userId) {
-  const ref = doc(db, "users", userId);
-  const snap = await getDoc(ref);
-
-  return snap.exists() ? snap.data() : null;
+  const data = localStorage.getItem('clanlife_user_data_' + userId);
+  return data ? JSON.parse(data) : null;
 }
 
-// Update partial data
 export async function updateUserData(userId, newData) {
-  await updateDoc(doc(db, "users", userId), newData);
+  const current = await loadUserData(userId) || {};
+  const updated = { ...current, ...newData };
+  await saveUserData(userId, updated);
 }

@@ -1,29 +1,43 @@
-// js/auth.js
+// auth.js - LocalStorage-based Authentication (Replacing Firebase)
 
-import { auth } from "./firebase.js";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+let currentUser = JSON.parse(localStorage.getItem('clanlife_current_user')) || null;
+let authListeners = [];
 
-// Sign up
 export async function signUp(email, password) {
-  return await createUserWithEmailAndPassword(auth, email, password);
+  const users = JSON.parse(localStorage.getItem('clanlife_registered_users') || '{}');
+  if (users[email]) throw new Error("User already exists");
+  
+  users[email] = { password: btoa(password), uid: 'user_' + Date.now() };
+  localStorage.setItem('clanlife_registered_users', JSON.stringify(users));
+  
+  return await login(email, password);
 }
 
-// Login
 export async function login(email, password) {
-  return await signInWithEmailAndPassword(auth, email, password);
+  const users = JSON.parse(localStorage.getItem('clanlife_registered_users') || '{}');
+  const user = users[email];
+  
+  if (!user || user.password !== btoa(password)) {
+    throw new Error("Invalid email or password");
+  }
+  
+  currentUser = { email, uid: user.uid };
+  localStorage.setItem('clanlife_current_user', JSON.stringify(currentUser));
+  notifyListeners();
+  return currentUser;
 }
 
-// Logout
 export async function logout() {
-  return await signOut(auth);
+  currentUser = null;
+  localStorage.removeItem('clanlife_current_user');
+  notifyListeners();
 }
 
-// Track user state
 export function listenForAuth(callback) {
-  onAuthStateChanged(auth, callback);
+  authListeners.push(callback);
+  callback(currentUser);
+}
+
+function notifyListeners() {
+  authListeners.forEach(callback => callback(currentUser));
 }
